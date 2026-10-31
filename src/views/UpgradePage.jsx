@@ -362,7 +362,7 @@ const UpgradePage = ({ onBack }) => {
                 className="shrink-0 px-4 sm:px-6 absolute bottom-0 left-0 right-0 z-40 transition-colors pointer-events-none"
                 style={{
                     paddingTop: 24,
-                    paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
+                    paddingBottom: 'max(3.75rem, calc(env(safe-area-inset-bottom, 0px) + 1.5rem))',
                     background: isDark
                         ? 'linear-gradient(to top, #0d0d14 78%, rgba(13,13,20,0) 100%)'
                         : 'linear-gradient(to top, #f9fafb 78%, rgba(249,250,251,0) 100%)',

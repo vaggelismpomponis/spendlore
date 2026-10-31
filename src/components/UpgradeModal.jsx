@@ -225,7 +225,7 @@ const UpgradeModal = () => {
                         </div>
 
                         {/* ── Modal Footer ── */}
-                        <div className="p-4 sm:p-5 border-t border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-surface-dark2 space-y-2 shrink-0">
+                        <div className="p-4 sm:p-5 pb-[max(3.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))] sm:pb-5 border-t border-gray-200 dark:border-white/10 bg-gray-50/90 dark:bg-surface-dark2 space-y-2 shrink-0">
                             <button
                                 type="button"
                                 onClick={handleSubscribe}
