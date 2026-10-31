@@ -80,3 +80,4 @@ describe('UpgradeModal Component', () => {
         expect(mockCloseUpgradeModal).toHaveBeenCalledTimes(1);
     });
 });
+
