@@ -1,5 +1,5 @@
 /**
- * Transaction Notification Parser for SpendWise
+ * Transaction Notification Parser for Spendlore
  * 
  * Accurately detects and parses real financial transaction notifications
  * from banking apps (Winbank, Alpha Bank, Eurobank, NBG, etc.),
@@ -229,7 +229,7 @@ export const extractMerchant = (rawText = '', title = '', sourceName = '') => {
 };
 
 /**
- * Maps merchant and transaction context to SpendWise Greek categories
+ * Maps merchant and transaction context to Spendlore Greek categories
  */
 export const categorizeTransaction = (merchant = '', text = '', type = 'expense') => {
     const combined = `${merchant} ${text}`.toLowerCase();
@@ -289,7 +289,7 @@ export const categorizeTransaction = (merchant = '', text = '', type = 'expense'
  * Full parsing pipeline for an incoming notification object
  * 
  * @param {Object} rawNotification - { title, text, bigText, subText, packageName, date }
- * @returns {Object} Structured SpendWise transaction or invalid flag
+ * @returns {Object} Structured Spendlore transaction or invalid flag
  */
 export const parseNotificationTransaction = (rawNotification = {}) => {
     if (!rawNotification) {

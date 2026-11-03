@@ -419,7 +419,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     {/* ════ Footer ════ */}
                     <div className="flex flex-col items-center gap-1.5 pt-1 pb-2 mt-4">
                         <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-bold gradient-text">SpendWise</span>
+                            <span className="text-[11px] font-bold gradient-text">Spendlore</span>
                         </div>
                         <p className="text-[10px] text-gray-300 dark:text-white/60 tracking-wide">
                             {translate('version') || 'v1.0.0'} · 2026

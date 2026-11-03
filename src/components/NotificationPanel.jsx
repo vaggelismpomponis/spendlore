@@ -342,12 +342,12 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             {notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
                                     <div className="relative mb-3">
-                                        {/* Inline SVG — SpendWise Executive Palette (Violet + Emerald + Euro) */}
+                                        {/* Inline SVG — Spendlore Executive Palette (Violet + Emerald + Euro) */}
                                         <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             {/* Soft glow behind bell */}
                                             <ellipse cx="70" cy="72" rx="42" ry="38" fill="url(#glowGrad)" opacity="0.25"/>
 
-                                            {/* Bell body in SpendWise brand violet */}
+                                            {/* Bell body in Spendlore brand violet */}
                                             <path d="M70 22C52 22 38 37 38 56V82H102V56C102 37 88 22 70 22Z" fill="url(#bellGrad)"/>
                                             {/* Bell bottom flare */}
                                             <path d="M32 82H108C108 82 108 88 70 88C32 88 32 82 32 82Z" fill="url(#bellGrad2)" rx="4"/>
@@ -372,7 +372,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                             <text x="103" y="30" fontSize="11" fontWeight="800" fill="#7C3AED" opacity="0.75" fontFamily="sans-serif">z</text>
                                             <text x="111" y="19" fontSize="13" fontWeight="800" fill="#7C3AED" opacity="0.6" fontFamily="sans-serif">z</text>
 
-                                            {/* Coins in SpendWise Semantic Emerald with Euro (€) symbol */}
+                                            {/* Coins in Spendlore Semantic Emerald with Euro (€) symbol */}
                                             <circle cx="38" cy="112" r="9" fill="url(#coinGrad)" opacity="0.95"/>
                                             <circle cx="38" cy="112" r="9" stroke="#059669" strokeWidth="1" opacity="0.8"/>
                                             <text x="35" y="115.5" fontSize="9" fill="#FFFFFF" fontFamily="sans-serif" fontWeight="800">€</text>
@@ -386,7 +386,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                                             <rect x="61" y="119.5" width="6" height="4.5" rx="1" fill="#FBBF24" opacity="0.9"/>
                                             <rect x="69" y="121" width="15" height="1.5" rx="0.5" fill="white" opacity="0.5"/>
 
-                                            {/* Savings Piggy Bank (SpendWise Brand Violet) */}
+                                            {/* Savings Piggy Bank (Spendlore Brand Violet) */}
                                             <ellipse cx="108" cy="116" rx="11" ry="9" fill="url(#piggyGrad)" opacity="0.95"/>
                                             <circle cx="116" cy="112" r="3.5" fill="url(#piggyGrad)" opacity="0.95"/>
                                             <ellipse cx="101" cy="117" rx="2" ry="2.5" fill="#8B5CF6" opacity="0.6"/>

@@ -102,7 +102,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                 <div className="relative flex-shrink-0">
                                     <img
                                         src="/spendwise-logo.webp"
-                                        alt="SpendWise Logo"
+                                        alt="Spendlore Logo"
                                         onError={(e) => {
                                             e.currentTarget.onerror = null;
                                             e.currentTarget.src = '/pwa-192x192.png';
@@ -118,7 +118,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                                         id="playstore-modal-title"
                                         className="text-[20px] font-black text-gray-900 dark:text-white tracking-tight leading-tight truncate"
                                     >
-                                        SpendWise
+                                        Spendlore
                                     </h3>
                                     <p className="text-[12px] font-medium text-gray-500 dark:text-white/60 truncate mt-0.5">
                                         {t('play_store_subtitle') || 'Επίσημη εφαρμογή Android'}

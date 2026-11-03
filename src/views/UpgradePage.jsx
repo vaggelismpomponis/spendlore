@@ -258,7 +258,7 @@ const UpgradePage = ({ onBack }) => {
                                 <div className="flex items-center justify-between gap-3">
                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase backdrop-blur-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300">
                                         <ShieldCheck size={13} className="text-amber-500 dark:text-amber-400 shrink-0" strokeWidth={2.5} />
-                                        {t('hero_card_badge') || 'SPENDWISE PRO'}
+                                        {t('hero_card_badge') || 'SPENDLORE PRO'}
                                     </span>
                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30 backdrop-blur-md">
                                         {t('hero_card_status') || 'PREMIUM ACCESS'}
@@ -269,7 +269,7 @@ const UpgradePage = ({ onBack }) => {
                                 <div className="space-y-3">
                                     <div>
                                         <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight font-display">
-                                            {t('hero_card_title') || 'SpendWise Pro'}
+                                            {t('hero_card_title') || 'Spendlore Pro'}
                                         </h2>
                                         <p className="text-[13px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-normal leading-relaxed max-w-xl mt-1">
                                             {t('hero_card_tagline') || 'Πλήρης οικονομικός έλεγχος με απεριόριστα εργαλεία & αυτόματη καταγραφή'}

@@ -344,7 +344,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     <div className="text-center pt-2 pb-8 flex flex-col items-center gap-1.5 opacity-60">
                         <Heart size={14} className="text-rose-500" fill="currentColor" />
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; Made with care for the community &bull; Version 2.0
+                            Spendlore &bull; Made with care for the community &bull; Version 2.0
                         </p>
                     </div>
 

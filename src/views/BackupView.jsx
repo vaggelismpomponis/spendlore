@@ -390,7 +390,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     </div>
 
                                     <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                        {translate('backup_choose_sublabel') || 'Select a previously exported .json SpendWise backup file to recover or sync your account data.'}
+                                        {translate('backup_choose_sublabel') || 'Select a previously exported .json Spendlore backup file to recover or sync your account data.'}
                                     </p>
 
                                     {/* Key Capabilities */}
@@ -450,7 +450,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                             {translate('backup_file_preview') || 'Backup File Preview'}
                                         </h3>
                                         <p className="text-[11px] font-semibold text-gray-400 dark:text-white/40">
-                                            SpendWise Schema v{meta.version}
+                                            Spendlore Schema v{meta.version}
                                         </p>
                                     </div>
                                 </div>
@@ -636,7 +636,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; {isEL ? 'Θυρίδα Οικονομικών Δεδομένων' : 'Financial Data Vault'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Θυρίδα Οικονομικών Δεδομένων' : 'Financial Data Vault'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 

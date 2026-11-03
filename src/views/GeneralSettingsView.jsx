@@ -373,7 +373,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                                 </h4>
                                             </div>
                                             <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                                                {translate('delete_account_desc') || 'Permanently destroy your SpendWise registration, active sessions, and all cloud tables.'}
+                                                {translate('delete_account_desc') || 'Permanently destroy your Spendlore registration, active sessions, and all cloud tables.'}
                                             </p>
                                         </div>
                                         <button
@@ -430,7 +430,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 

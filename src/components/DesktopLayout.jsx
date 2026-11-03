@@ -213,7 +213,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         'profile-details': t('nav_profile'),
         admin: 'Admin Panel',
         privacy: 'Privacy Policy',
-        upgrade: t('upgrade_to_pro') || 'SpendWise Pro',
+        upgrade: t('upgrade_to_pro') || 'Spendlore Pro',
     };
 
     return (
@@ -250,13 +250,13 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 </button>
             </div>
 
-            {/* ── Center: SpendWise (home) or Page Title ── */}
+            {/* ── Center: Spendlore (home) or Page Title ── */}
             {isHome ? (
                 <h1 className="absolute left-1/2 -translate-x-1/2
                                text-[17px] font-black tracking-tight
                                text-gray-950 dark:text-white
                                select-none pointer-events-none">
-                    SpendWise
+                    Spendlore
                 </h1>
             ) : (
                 <h2 className="absolute left-1/2 -translate-x-1/2

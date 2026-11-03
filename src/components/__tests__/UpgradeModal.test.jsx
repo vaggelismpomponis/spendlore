@@ -45,10 +45,10 @@ describe('UpgradeModal Component', () => {
         expect(container.firstChild).toBeNull();
     });
 
-    it('renders modal with SpendWise Pro header, features, and safe-area padded footer', () => {
+    it('renders modal with Spendlore Pro header, features, and safe-area padded footer', () => {
         const { container } = render(<UpgradeModal />);
 
-        expect(screen.getByText('SpendWise Pro')).toBeInTheDocument();
+        expect(screen.getByText('Spendlore Pro')).toBeInTheDocument();
         expect(screen.getByText('PRO')).toBeInTheDocument();
         expect(screen.getByText('€29.99')).toBeInTheDocument();
 

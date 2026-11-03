@@ -100,7 +100,7 @@ const DesktopSidebar = ({
                     <div className="relative shrink-0">
                         <img
                             src="/spendwise-logo.webp"
-                            alt="SpendWise"
+                            alt="Spendlore"
                             onError={(e) => {
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.src = '/spendwise-logo.png';
@@ -111,7 +111,7 @@ const DesktopSidebar = ({
                     <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                             <h1 className="text-base font-black text-gray-900 dark:text-white tracking-tight font-display group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors truncate">
-                                SpendWise
+                                Spendlore
                             </h1>
                             {isPro && (
                                 <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 shrink-0">
@@ -235,7 +235,7 @@ const DesktopSidebar = ({
                             {effectiveName}
                         </p>
                         <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate">
-                            {isPro ? (t('pro_member') || 'Pro Member') : (user?.email || 'SpendWise')}
+                            {isPro ? (t('pro_member') || 'Pro Member') : (user?.email || 'Spendlore')}
                         </p>
                     </div>
                 </div>

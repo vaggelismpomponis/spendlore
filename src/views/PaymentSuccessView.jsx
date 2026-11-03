@@ -189,7 +189,7 @@ const PaymentSuccessView = ({ onContinue }) => {
                     >
                         <Smartphone size={19} color="#ffffff" strokeWidth={2.2} />
                         <span style={{ ...styles.ctaText, color: '#ffffff' }}>
-                            {t('open_in_spendwise_app', 'Άνοιγμα στην εφαρμογή SpendWise')}
+                            {t('open_in_spendwise_app', 'Άνοιγμα στην εφαρμογή Spendlore')}
                         </span>
                         <ArrowRight size={17} color="#ffffff" strokeWidth={2.2} style={{ marginLeft: 'auto' }} />
                     </a>

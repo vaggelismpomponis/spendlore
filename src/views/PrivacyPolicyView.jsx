@@ -365,7 +365,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise Finance App &bull; {isEL ? 'Χάρτης Προστασίας Δεδομένων' : 'Data Protection Charter'} &bull; &copy; 2026
+                            Spendlore Finance App &bull; {isEL ? 'Χάρτης Προστασίας Δεδομένων' : 'Data Protection Charter'} &bull; &copy; 2026
                         </p>
                     </div>
 

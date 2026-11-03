@@ -23,7 +23,7 @@ describe('PrivacyPolicyView', () => {
 
     // Verify third-party infrastructure section is removed
     expect(screen.queryByText('Υπηρεσίες & Υποδομές Τρίτων')).not.toBeInTheDocument();
-    expect(screen.queryByText(/Η εφαρμογή SpendWise βασίζεται στις εξής αξιόπιστες υπηρεσίες/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Η εφαρμογή (SpendWise|Spendlore) βασίζεται στις εξής αξιόπιστες υπηρεσίες/i)).not.toBeInTheDocument();
 
     // Verify onBack navigation
     const backBtn = screen.getByText('Επιστροφή');

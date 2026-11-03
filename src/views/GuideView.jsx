@@ -36,7 +36,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
             badge: translate('guide_badge_transactions') || 'Transactions',
             icon: Wallet,
             title: translate('nav_home') || 'Home & Transactions',
-            description: translate('guide_home_desc') || 'The foundation of SpendWise. Track every transaction with ease.',
+            description: translate('guide_home_desc') || 'The foundation of Spendlore. Track every transaction with ease.',
             items: [
                 translate('guide_home_1') || 'Add new income or expenses using the + button.',
                 translate('guide_home_2') || 'View your daily, weekly, and monthly balance at a glance.',
@@ -215,7 +215,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
             <ViewHeader
                 onBack={onBack}
                 title={translate('user_guide') || 'User Guide'}
-                subtitle="SpendWise Knowledge Base"
+                subtitle="Spendlore Knowledge Base"
                 hideHeader={hideHeader}
             />
 
@@ -236,13 +236,13 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                             <div className="max-w-2xl space-y-3">
                                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
                                     <BookOpen size={13} />
-                                    <span>SpendWise Manual</span>
+                                    <span>Spendlore Manual</span>
                                 </div>
                                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                     {translate('guide_intro_title') || 'Master your finances'}
                                 </h2>
                                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                    {translate('guide_intro_desc') || 'This guide covers all the powerful features of SpendWise to help you achieve financial freedom.'}
+                                    {translate('guide_intro_desc') || 'This guide covers all the powerful features of Spendlore to help you achieve financial freedom.'}
                                 </p>
 
                                 {/* Quick Attribute Chips */}
@@ -494,12 +494,12 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                                             {translate('guide_feedback_box_title') || 'Need help or have suggestions?'}
                                         </h4>
                                         <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                            We build SpendWise together with your input
+                                            We build Spendlore together with your input
                                         </p>
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                                    {translate('guide_feedback_box_desc') || 'Send us your ideas, feature requests, or issue reports to improve SpendWise.'}
+                                    {translate('guide_feedback_box_desc') || 'Send us your ideas, feature requests, or issue reports to improve Spendlore.'}
                                 </p>
                             </div>
 
@@ -530,7 +530,7 @@ const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-4 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; Financial Freedom &bull; Version 2.0
+                            Spendlore &bull; Financial Freedom &bull; Version 2.0
                         </p>
                     </div>
 

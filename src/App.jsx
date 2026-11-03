@@ -608,7 +608,7 @@ function MainContent() {
                     nonce: gsiNonce.hashed
                 });
 
-                // Render the native Google button — shows "SpendWise" in the popup
+                // Render the native Google button — shows "Spendlore" in the popup
                 // renderButton manages its own click/FedCM flow independently from prompt()
                 const renderGoogleButton = () => {
                     const btnContainer = document.getElementById('google-signin-button');

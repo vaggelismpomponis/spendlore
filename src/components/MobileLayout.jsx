@@ -105,7 +105,7 @@ export default function MobileLayout({
                             {/* CENTER — App Name */}
                             {activeTab === 'home' ? (
                                 <h1 className="absolute left-1/2 -translate-x-1/2 text-[17px] font-black tracking-tight text-gray-900 dark:text-white font-sans select-none pointer-events-none">
-                                    SpendWise
+                                    Spendlore
                                 </h1>
                             ) : (
                                 <h2 className="absolute left-1/2 -translate-x-1/2

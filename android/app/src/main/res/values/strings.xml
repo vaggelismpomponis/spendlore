@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SpendWise</string>
-    <string name="title_activity_main">SpendWise</string>
+    <string name="app_name">Spendlore</string>
+    <string name="title_activity_main">Spendlore</string>
     <string name="package_name">com.bomponis.spendwise</string>
     <string name="custom_url_scheme">com.bomponis.spendwise</string>
     <!-- Web Client ID for Google Sign-In (from google-services.json, client_type: 3) -->

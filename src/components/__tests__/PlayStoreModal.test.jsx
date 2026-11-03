@@ -20,7 +20,7 @@ describe('PlayStoreModal Component', () => {
     it('renders with app branding and Google Play link when isOpen is true', () => {
         render(<PlayStoreModal isOpen={true} onClose={() => {}} />);
 
-        expect(screen.getByText('SpendWise')).toBeInTheDocument();
+        expect(screen.getByText('Spendlore')).toBeInTheDocument();
         expect(screen.getByText('Google Play')).toBeInTheDocument();
 
         // Check Play Store CTA link

@@ -118,7 +118,7 @@ const UpgradeModal = () => {
                                 <div className="flex items-center gap-2">
                                     <ShieldCheck size={18} strokeWidth={2.4} className="text-amber-500 shrink-0" />
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                        SpendWise Pro
+                                        Spendlore Pro
                                     </h3>
                                     <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shrink-0">
                                         PRO

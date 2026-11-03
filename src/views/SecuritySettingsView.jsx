@@ -614,7 +614,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            SpendWise &bull; {isEL ? 'Κρυπτογραφική Προστασία Enterprise Επιπέδου' : 'Enterprise Grade Cryptographic Protection'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Κρυπτογραφική Προστασία Enterprise Επιπέδου' : 'Enterprise Grade Cryptographic Protection'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
                         </p>
                     </div>
 

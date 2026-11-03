@@ -493,8 +493,8 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                             <div className="pt-2 border-t border-gray-100 dark:border-white/[0.05] animate-fade-in space-y-3">
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
-                                        ? 'Οι παρακάτω κατηγορίες είναι ενσωματωμένες στο σύστημα του SpendWise για την υποστήριξη αυτόματης αναγνώρισης αποδείξεων και τραπεζικών μηνυμάτων και δεν μπορούν να διαγραφούν:'
-                                        : 'These categories are built into SpendWise to power receipt and SMS parsing and cannot be removed:'}
+                                        ? 'Οι παρακάτω κατηγορίες είναι ενσωματωμένες στο σύστημα του Spendlore για την υποστήριξη αυτόματης αναγνώρισης αποδείξεων και τραπεζικών μηνυμάτων και δεν μπορούν να διαγραφούν:'
+                                        : 'These categories are built into Spendlore to power receipt and SMS parsing and cannot be removed:'}
                                 </p>
                                 <div className="flex flex-wrap gap-2 pt-1">
                                     {currentBaseList.map((baseCat) => (

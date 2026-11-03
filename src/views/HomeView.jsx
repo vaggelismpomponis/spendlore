@@ -739,7 +739,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         <div className="min-w-0 text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    {t('advisor_title') || 'SpendWise AI Σύμβουλος'}
+                                    {t('advisor_title') || 'Spendlore AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
                                     <span className="w-4 h-4 rounded-full bg-amber-400/20 text-amber-500 flex items-center justify-center">
@@ -1236,7 +1236,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 <div className="flex-1 min-w-0 pr-1">
                     <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                            SpendWise AI
+                            Spendlore AI
                         </span>
                         {!isPro && (
                             <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">

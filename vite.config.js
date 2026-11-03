@@ -15,8 +15,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'favicon.svg', 'spendwise-logo.png', 'spendwise-logo.webp', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'SpendWise',
-        short_name: 'SpendWise',
+        name: 'Spendlore',
+        short_name: 'Spendlore',
         description: 'Track your income and expenses easily.',
         theme_color: '#ffffff',
         background_color: '#0f0f0f',
