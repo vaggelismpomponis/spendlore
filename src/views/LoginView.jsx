@@ -295,7 +295,7 @@ const LoginView = ({
                         <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-violet-600 via-indigo-500 to-fuchsia-500 opacity-60 blur-xl group-hover:opacity-90 transition duration-500" />
                         <div className="relative w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-[24px] bg-[#12101F] border border-white/20 p-3.5 shadow-2xl flex items-center justify-center backdrop-blur-xl ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300">
                             <img
-                                src="/spendwise-mark.png"
+                                src="/spendlore-mark.png"
                                 alt="Spendlore Icon"
                                 className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(124,58,237,0.45)]"
                             />

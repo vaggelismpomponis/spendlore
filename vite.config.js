@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'favicon.svg', 'spendwise-logo.png', 'spendwise-logo.webp', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['favicon.png', 'favicon.ico', 'favicon.svg', 'spendlore-logo.png', 'spendwise-logo.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Spendlore',
         short_name: 'Spendlore',
@@ -35,7 +35,7 @@ export default defineConfig({
             type: 'image/png'
           },
           {
-            src: 'spendwise-logo.png',
+            src: 'spendlore-logo.png',
             sizes: '1024x1024',
             type: 'image/png',
             purpose: 'maskable'

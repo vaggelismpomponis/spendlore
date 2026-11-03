@@ -99,11 +99,11 @@ const DesktopSidebar = ({
                 >
                     <div className="relative shrink-0">
                         <img
-                            src="/spendwise-logo.webp"
+                            src="/spendlore-logo.png"
                             alt="Spendlore"
                             onError={(e) => {
                                 e.currentTarget.onerror = null;
-                                e.currentTarget.src = '/spendwise-logo.png';
+                                e.currentTarget.src = '/spendlore-mark.png';
                             }}
                             className="w-9 h-9 rounded-2xl object-contain shadow-xs transition-transform duration-200 group-hover:scale-105 select-none pointer-events-none"
                         />

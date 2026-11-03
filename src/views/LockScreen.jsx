@@ -145,7 +145,7 @@ const LockScreen = ({ onSignOut, user }) => {
                 <div className="relative mb-4">
                     <div className="absolute inset-0 rounded-2xl bg-violet-600/40 blur-lg scale-110 animate-glow-pulse" />
                     <div className="relative w-16 h-16 flex items-center justify-center z-10 animate-glow-pulse">
-                        <img src="/spendwise-logo.png" alt="App Logo" className="w-16 h-16 drop-shadow-md object-contain" />
+                        <img src="/spendlore-logo.png" alt="App Logo" className="w-16 h-16 drop-shadow-md object-contain" />
                     </div>
                 </div>
                 <h1 className="text-2xl font-black text-white mb-1">{t('lock_welcome')}</h1>

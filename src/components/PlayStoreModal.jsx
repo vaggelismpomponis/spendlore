@@ -101,7 +101,7 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                             <div className="flex items-center gap-4 pr-8">
                                 <div className="relative flex-shrink-0">
                                     <img
-                                        src="/spendwise-logo.webp"
+                                        src="/spendlore-logo.png"
                                         alt="Spendlore Logo"
                                         onError={(e) => {
                                             e.currentTarget.onerror = null;
