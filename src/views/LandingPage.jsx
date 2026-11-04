@@ -163,14 +163,25 @@ const NavBar = ({ lang, setLang }) => {
                         </a>
                     </div>
 
-                    {/* Mobile Menu Toggle */}
-                    <button
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        className="md:hidden p-2 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                        aria-label="Toggle menu"
-                    >
-                        {menuOpen ? <X size={22} /> : <Menu size={22} />}
-                    </button>
+                    {/* Mobile Controls (Language toggle + Menu button) */}
+                    <div className="flex items-center gap-2 md:hidden">
+                        <button
+                            type="button"
+                            onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
+                            className="text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-xl border border-gray-200/80 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all"
+                            aria-label="Toggle language"
+                        >
+                            {lang === 'el' ? 'EN' : 'ΕΛ'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                            className="p-2 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Nav */}
@@ -185,16 +196,10 @@ const NavBar = ({ lang, setLang }) => {
                         <a href="#faq" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
                             FAQ
                         </a>
-                        <div className="flex items-center gap-3 px-3 pt-2">
-                            <button
-                                onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
-                                className="text-xs font-bold text-gray-500 dark:text-gray-400 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all"
-                            >
-                                {lang === 'el' ? 'EN' : 'ΕΛ'}
-                            </button>
+                        <div className="px-3 pt-2">
                             <a
                                 href={APP_URL}
-                                className="flex-1 text-center text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 px-5 py-2.5 rounded-xl hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                                className="w-full block text-center text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 px-5 py-2.5 rounded-xl hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Είσοδος' : 'Sign In'}
                             </a>
