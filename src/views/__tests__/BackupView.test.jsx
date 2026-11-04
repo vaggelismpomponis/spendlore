@@ -32,7 +32,7 @@ vi.mock('../../supabase', () => ({
 describe('BackupView', () => {
   const mockUser = {
     id: 'user-123',
-    email: 'test@spendwise.app',
+    email: 'test@spendlore.app',
   };
 
   const mockOpenUpgradeModal = vi.fn();

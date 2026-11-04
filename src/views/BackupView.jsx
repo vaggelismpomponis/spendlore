@@ -102,7 +102,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
             const backup = {
                 _meta: {
                     version: '1.0',
-                    app: 'SpendWise',
+                    app: 'Spendlore',
                     exportedAt: new Date().toISOString(),
                     exportedBy: user.email,
                     userId: user.id,
@@ -128,7 +128,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
             const a = document.createElement('a');
             a.href = url;
             const date = new Date().toISOString().split('T')[0];
-            a.download = `spendwise_backup_${date}.json`;
+            a.download = `spendlore_backup_${date}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -158,7 +158,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
         reader.onload = (ev) => {
             try {
                 const json = JSON.parse(ev.target.result);
-                if (!json._meta || json._meta.app !== 'SpendWise') {
+                if (!json._meta || (json._meta.app !== 'Spendlore' && json._meta.app !== 'SpendWise')) {
                     showToast(translate('backup_invalid') || 'Invalid or unsupported backup file.', 'error');
                     return;
                 }
@@ -273,7 +273,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                 {translate('backup_restore') || (isEL ? 'Αντίγραφο & Επαναφορά' : 'Backup & Restore')}
                             </h2>
                             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                {translate('backup_info') || (isEL ? 'Το αντίγραφο ασφαλείας περιέχει όλες τις συναλλαγές, στόχους, προϋπολογισμούς, επαναλαμβανόμενες εγγραφές και ρυθμίσεις. Μπορείς να το επαναφέρεις σε οποιοδήποτε λογαριασμό SpendWise.' : 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any SpendWise account.')}
+                                {translate('backup_info') || (isEL ? 'Το αντίγραφο ασφαλείας περιέχει όλες τις συναλλαγές, στόχους, προϋπολογισμούς, επαναλαμβανόμενες εγγραφές και ρυθμίσεις. Μπορείς να το επαναφέρεις σε οποιοδήποτε λογαριασμό Spendlore.' : 'A backup includes all your transactions, goals, budgets, recurring rules, and app settings. You can restore it to any Spendlore account.')}
                             </p>
 
                             {/* Attribute Chips */}

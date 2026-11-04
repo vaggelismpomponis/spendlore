@@ -685,7 +685,7 @@ const AdminView = ({ onBack, hideHeader }) => {
 
                                 <div className="space-y-1">
                                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                                        SpendWise Operations Console
+                                        Spendlore Operations Console
                                     </h1>
                                     <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
                                         Real-time user engagement analytics, subscription sovereignty, data auditing, and system broadcasts.

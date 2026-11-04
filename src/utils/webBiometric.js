@@ -7,7 +7,7 @@
  * This is used ONLY when not on a native Capacitor platform.
  */
 
-const RP_NAME = 'SpendWise';
+const RP_NAME = 'Spendlore';
 const CREDENTIAL_STORAGE_KEY = 'spendwise_webauthn_cred_id';
 
 /**
@@ -58,7 +58,7 @@ export const registerWebBiometric = async (userIdentifier) => {
             user: {
                 id: userId,
                 name: userIdentifier,
-                displayName: 'SpendWise User',
+                displayName: 'Spendlore User',
             },
             pubKeyCredParams: [
                 { alg: -7,   type: 'public-key' }, // ES256 (preferred)
