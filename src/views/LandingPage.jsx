@@ -242,10 +242,22 @@ const LandingPage = () => {
     useEffect(() => {
         const browserLang = navigator.language?.startsWith('el') ? 'el' : 'en';
         setLang(browserLang);
+
+        // Enable full-page document scrolling when viewing LandingPage
+        document.documentElement.classList.add('landing-mode');
+        document.body.classList.add('landing-mode');
+        const root = document.getElementById('root');
+        if (root) root.classList.add('landing-mode');
+
+        return () => {
+            document.documentElement.classList.remove('landing-mode');
+            document.body.classList.remove('landing-mode');
+            if (root) root.classList.remove('landing-mode');
+        };
     }, []);
 
     return (
-        <div className="min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50">
+        <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50">
             <NavBar lang={lang} setLang={setLang} />
 
             {/* ── HERO ── */}
@@ -328,7 +340,7 @@ const LandingPage = () => {
             </section>
 
             {/* ── FEATURES ── */}
-            <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015]">
+            <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015] scroll-mt-20">
                 <div className="max-w-6xl mx-auto">
                     {/* Section Header */}
                     <div className="text-center mb-12 sm:mb-16">
@@ -428,7 +440,7 @@ const LandingPage = () => {
             </section>
 
             {/* ── PRICING ── */}
-            <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015]">
+            <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015] scroll-mt-20">
                 <div className="max-w-3xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
@@ -522,7 +534,7 @@ const LandingPage = () => {
             </section>
 
             {/* ── FAQ ── */}
-            <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6">
+            <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 scroll-mt-20">
                 <div className="max-w-2xl mx-auto">
                     <div className="text-center mb-10">
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">

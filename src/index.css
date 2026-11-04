@@ -79,6 +79,32 @@ html:not(.dark) body {
   overflow: hidden;
 }
 
+/* ── Marketing Landing Page Scrolling Mode ── */
+html.landing-mode,
+html:has(.landing-page) {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body.landing-mode,
+body:has(.landing-page) {
+  height: auto;
+  min-height: 100%;
+  overflow-y: visible;
+  overflow-x: hidden;
+}
+
+#root.landing-mode,
+#root:has(.landing-page),
+body.landing-mode #root {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+}
+
 /* ── Prevent browser default black focus/tap outline on click ── */
 button,
 [role="button"],
