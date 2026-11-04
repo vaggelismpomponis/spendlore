@@ -655,6 +655,9 @@ export const translations = {
         // Login View
         login_welcome_back: 'Καλωσήρθες πίσω!',
         login_start_free: 'Ξεκίνα σήμερα. Δωρεάν!',
+        upgrade_banner_yearly: 'Pro Ετήσιο · 7 ημέρες δωρεάν δοκιμή',
+        upgrade_banner_monthly: 'Pro Μηνιαίο · 7 ημέρες δωρεάν δοκιμή',
+        upgrade_banner_sub: 'Συνδέσου ή δημιούργησε λογαριασμό για να συνεχίσεις στο Stripe Checkout.',
         login_tab: 'Σύνδεση',
         register_tab: 'Εγγραφή',
         password: 'Κωδικός',
@@ -1752,6 +1755,9 @@ export const translations = {
         // Login View
         login_welcome_back: 'Welcome back!',
         login_start_free: 'Start today. Free!',
+        upgrade_banner_yearly: 'Pro Annual · 7-day free trial',
+        upgrade_banner_monthly: 'Pro Monthly · 7-day free trial',
+        upgrade_banner_sub: 'Sign in or create an account to proceed to Stripe Checkout.',
         login_tab: 'Sign In',
         register_tab: 'Register',
         password: 'Password',

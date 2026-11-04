@@ -446,11 +446,13 @@ const LoginView = ({
                                         <div className="min-w-0 flex-1">
                                             <p className="text-xs font-bold text-white leading-tight">
                                                 {pendingPlan === 'yearly'
-                                                    ? (t('upgrade_banner_yearly') || 'Pro Ετήσιο · 7 ημέρες δωρεάν δοκιμή')
-                                                    : (t('upgrade_banner_monthly') || 'Pro Μηνιαίο · 7 ημέρες δωρεάν δοκιμή')}
+                                                    ? (t('upgrade_banner_yearly') !== 'upgrade_banner_yearly' ? t('upgrade_banner_yearly') : 'Pro Ετήσιο · 7 ημέρες δωρεάν δοκιμή')
+                                                    : (t('upgrade_banner_monthly') !== 'upgrade_banner_monthly' ? t('upgrade_banner_monthly') : 'Pro Μηνιαίο · 7 ημέρες δωρεάν δοκιμή')}
                                             </p>
                                             <p className="text-[11px] text-violet-200/80 mt-0.5 leading-snug">
-                                                {t('upgrade_banner_sub') || 'Συνδέσου ή δημιούργησε λογαριασμό για να συνεχίσεις στο Stripe Checkout.'}
+                                                {t('upgrade_banner_sub') !== 'upgrade_banner_sub'
+                                                    ? t('upgrade_banner_sub')
+                                                    : 'Συνδέσου ή δημιούργησε λογαριασμό για να συνεχίσεις στο Stripe Checkout.'}
                                             </p>
                                         </div>
                                     </div>
