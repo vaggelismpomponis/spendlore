@@ -79,6 +79,30 @@ function MainContent() {
     const { activeTab, setActiveTab, previousTab, setPreviousTab } = useLegacyNavigation();
     const [loading, setLoading] = useState(true);
 
+    // Capture any pending upgrade intent from URL query params (e.g. from marketing landing page)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan') || params.get('upgrade');
+            if (plan === 'yearly' || plan === 'monthly') {
+                sessionStorage.setItem('pending_upgrade_plan', plan);
+                localStorage.setItem('pending_upgrade_plan', plan);
+            }
+        }
+    }, []);
+
+    // If an upgrade intent is pending and the user is authenticated, navigate to the upgrade page
+    useEffect(() => {
+        if (user && !loading) {
+            const pendingPlan = sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
+            if (pendingPlan) {
+                sessionStorage.removeItem('pending_upgrade_plan');
+                localStorage.removeItem('pending_upgrade_plan');
+                setActiveTab('upgrade');
+            }
+        }
+    }, [user, loading, setActiveTab]);
+
     const [showAddModal, setShowAddModal] = useState(false);
     const [fabInitialType, setFabInitialType] = useState(null);
     const [pendingShortcutAction, setPendingShortcutAction] = useState(null);

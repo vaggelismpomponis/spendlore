@@ -67,7 +67,14 @@ const getFeatures = (t) => [
 const UpgradeModal = () => {
     const { t } = useSettings();
     const { isUpgradeModalOpen, closeUpgradeModal } = useSubscription();
-    const [billing, setBilling] = useState('yearly');
+    const [billing, setBilling] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan') || params.get('upgrade') || sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
+            if (plan === 'yearly' || plan === 'monthly') return plan;
+        }
+        return 'yearly';
+    });
     const [loading, setLoading] = useState(false);
 
     const features = getFeatures(t);

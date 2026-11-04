@@ -524,7 +524,7 @@ const LandingPage = () => {
                                 </ul>
                             </div>
                             <a
-                                href={isDevHost ? '/?app=1&plan=monthly' : `${APP_URL}?plan=monthly`}
+                                href={isDevHost ? '/upgrade?plan=monthly&app=1' : `${APP_URL}/upgrade?plan=monthly`}
                                 className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Δοκίμασε Μηνιαίο' : 'Try Monthly'}
@@ -569,7 +569,7 @@ const LandingPage = () => {
                                 </ul>
                             </div>
                             <a
-                                href={isDevHost ? '/?app=1&plan=yearly' : `${APP_URL}?plan=yearly`}
+                                href={isDevHost ? '/upgrade?plan=yearly&app=1' : `${APP_URL}/upgrade?plan=yearly`}
                                 className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Δοκίμασε Pro Ετήσιο' : 'Try Pro Annual'}

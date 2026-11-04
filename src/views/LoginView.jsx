@@ -29,7 +29,22 @@ const LoginView = ({
     onCancelVerification
 }) => {
     const { t } = useSettings();
-    const [isLogin, setIsLogin] = useState(true);
+    const [pendingPlan] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan') || params.get('upgrade') || sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
+            if (plan === 'yearly' || plan === 'monthly') return plan;
+        }
+        return null;
+    });
+    const [isLogin, setIsLogin] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const plan = params.get('plan') || params.get('upgrade') || sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
+            if (plan) return false; // Default to register tab when arriving with upgrade intent
+        }
+        return true;
+    });
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(true);
@@ -424,6 +439,23 @@ const LoginView = ({
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                             >
+                                {/* ── Pending Upgrade Intent Banner ── */}
+                                {pendingPlan && (
+                                    <div className="mb-5 p-3.5 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center gap-3 text-left">
+                                        <ShieldCheck size={20} className="text-violet-400 shrink-0" />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-xs font-bold text-white leading-tight">
+                                                {pendingPlan === 'yearly'
+                                                    ? (t('upgrade_banner_yearly') || 'Pro Ετήσιο · 7 ημέρες δωρεάν δοκιμή')
+                                                    : (t('upgrade_banner_monthly') || 'Pro Μηνιαίο · 7 ημέρες δωρεάν δοκιμή')}
+                                            </p>
+                                            <p className="text-[11px] text-violet-200/80 mt-0.5 leading-snug">
+                                                {t('upgrade_banner_sub') || 'Συνδέσου ή δημιούργησε λογαριασμό για να συνεχίσεις στο Stripe Checkout.'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* ── Segmented Control (Σύνδεση | Εγγραφή) ── */}
                                 <div className="bg-white/[0.05] p-1.5 rounded-2xl flex relative border border-white/[0.08] mb-6">
                                     <button
