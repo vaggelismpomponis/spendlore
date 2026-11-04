@@ -101,11 +101,11 @@ const PlayStoreModal = ({ isOpen, onClose }) => {
                             <div className="flex items-center gap-4 pr-8">
                                 <div className="relative flex-shrink-0">
                                     <img
-                                        src="/spendlore-logo.png"
+                                        src="/play-store-icon-512.png"
                                         alt="Spendlore Logo"
                                         onError={(e) => {
                                             e.currentTarget.onerror = null;
-                                            e.currentTarget.src = '/pwa-192x192.png';
+                                            e.currentTarget.src = '/spendlore-logo.png';
                                         }}
                                         className="w-16 h-16 rounded-[18px] object-cover shadow-lg border border-black/5 dark:border-white/10"
                                     />

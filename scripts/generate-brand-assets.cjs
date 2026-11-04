@@ -187,26 +187,31 @@ async function run() {
   const pubDir = path.resolve(__dirname, '../public');
   const assetsDir = path.resolve(__dirname, '../assets');
 
-  // 1. Transparent Mark (512x512) - Used in LoginView squircle, App headers, etc.
+  // 1. Transparent Mark (512x512) - Used for glass cards, dark squircle badges (e.g. LoginView)
   const mark512 = await createCenteredSquare(rawEmblem, 512, 0.82, 0x00000000);
   await mark512.writeAsync(path.join(pubDir, 'spendlore-mark.png'));
   await mark512.writeAsync(path.join(pubDir, 'spendwise-mark.png'));
   console.log('✓ spendlore-mark.png & spendwise-mark.png (512x512 transparent)');
 
-  // 2. High-Res Logo / App Icon (1024x1024) - Transparent mark
-  const logo1024 = await createCenteredSquare(rawEmblem, 1024, 0.78, 0x00000000);
+  // 2. Play Store Icon (512x512 solid white background, emblem centered at 0.70 safe-zone scale)
+  const playStoreIcon = await createCenteredSquare(rawEmblem, 512, 0.70, 0xFFFFFFFF);
+  await playStoreIcon.writeAsync(path.join(assetsDir, 'play-store-icon-512.png'));
+  await playStoreIcon.writeAsync(path.join(pubDir, 'play-store-icon-512.png'));
+  console.log('✓ assets & public /play-store-icon-512.png (512x512 solid white Play Store icon)');
+
+  // 3. High-Res Logo / App Icon (1024x1024 solid white background - same as Play Store app icon)
+  const logo1024 = await createCenteredSquare(rawEmblem, 1024, 0.65, 0xFFFFFFFF);
   await logo1024.writeAsync(path.join(pubDir, 'spendlore-logo.png'));
   await logo1024.writeAsync(path.join(pubDir, 'spendwise-logo.png'));
-  console.log('✓ spendlore-logo.png & spendwise-logo.png (1024x1024 transparent)');
+  console.log('✓ spendlore-logo.png & spendwise-logo.png (1024x1024 Play Store styled)');
 
-  // 3. Favicon (512x512 PNG, ICO with 16, 32, 48, and SVG)
-  const favicon512 = await createCenteredSquare(rawEmblem, 512, 0.85, 0x00000000);
-  await favicon512.writeAsync(path.join(pubDir, 'favicon.png'));
-  console.log('✓ favicon.png (512x512)');
+  // 4. Favicon (512x512 PNG, ICO 16/32/48, and SVG - using exact Play Store icon)
+  await playStoreIcon.writeAsync(path.join(pubDir, 'favicon.png'));
+  console.log('✓ favicon.png (512x512 matching Play Store icon)');
 
-  const ico16 = await createCenteredSquare(rawEmblem, 16, 0.90, 0x00000000);
-  const ico32 = await createCenteredSquare(rawEmblem, 32, 0.88, 0x00000000);
-  const ico48 = await createCenteredSquare(rawEmblem, 48, 0.86, 0x00000000);
+  const ico16 = await createCenteredSquare(rawEmblem, 16, 0.78, 0xFFFFFFFF);
+  const ico32 = await createCenteredSquare(rawEmblem, 32, 0.74, 0xFFFFFFFF);
+  const ico48 = await createCenteredSquare(rawEmblem, 48, 0.72, 0xFFFFFFFF);
   const buf16 = await ico16.getBufferAsync(Jimp.MIME_PNG);
   const buf32 = await ico32.getBufferAsync(Jimp.MIME_PNG);
   const buf48 = await ico48.getBufferAsync(Jimp.MIME_PNG);
@@ -216,28 +221,32 @@ async function run() {
     { width: 48, height: 48, buffer: buf48 }
   ]);
   fs.writeFileSync(path.join(pubDir, 'favicon.ico'), icoBuffer);
-  console.log('✓ favicon.ico (16x16, 32x32, 48x48 multi-size)');
+  console.log('✓ favicon.ico (16x16, 32x32, 48x48 multi-size matching Play Store icon)');
 
   // SVG Favicon
-  const faviconBase64 = (await favicon512.getBufferAsync(Jimp.MIME_PNG)).toString('base64');
+  const faviconBase64 = (await playStoreIcon.getBufferAsync(Jimp.MIME_PNG)).toString('base64');
   const svgFaviconContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <image width="512" height="512" href="data:image/png;base64,${faviconBase64}"/>
 </svg>`;
   fs.writeFileSync(path.join(pubDir, 'favicon.svg'), svgFaviconContent, 'utf-8');
-  console.log('✓ favicon.svg (vector wrapper with high-res base64 emblem)');
+  console.log('✓ favicon.svg (vector wrapper with Play Store icon)');
 
-  // 4. PWA Icons (192x192 & 512x512)
-  const pwa192 = await createCenteredSquare(rawEmblem, 192, 0.80, 0x00000000);
+  // 5. PWA Icons (192x192 & 512x512 - matching Play Store icon)
+  const pwa192 = await createCenteredSquare(rawEmblem, 192, 0.70, 0xFFFFFFFF);
   await pwa192.writeAsync(path.join(pubDir, 'pwa-192x192.png'));
   await pwa192.writeAsync(path.join(pubDir, 'spendwise-pwa-192.png'));
-  console.log('✓ pwa-192x192.png');
+  console.log('✓ pwa-192x192.png & spendwise-pwa-192.png (matching Play Store icon)');
 
-  const pwa512 = await createCenteredSquare(rawEmblem, 512, 0.80, 0x00000000);
-  await pwa512.writeAsync(path.join(pubDir, 'pwa-512x512.png'));
-  await pwa512.writeAsync(path.join(pubDir, 'spendwise-pwa-512.png'));
-  console.log('✓ pwa-512x512.png');
+  await playStoreIcon.writeAsync(path.join(pubDir, 'pwa-512x512.png'));
+  await playStoreIcon.writeAsync(path.join(pubDir, 'spendwise-pwa-512.png'));
+  console.log('✓ pwa-512x512.png & spendwise-pwa-512.png (matching Play Store icon)');
 
-  // 5. Capacitor Native Assets (assets/icon.png, assets/logo.png, assets/splash.png)
+  // 6. Apple Touch Icon (180x180 & fallback)
+  const appleTouchIcon = await createCenteredSquare(rawEmblem, 180, 0.70, 0xFFFFFFFF);
+  await appleTouchIcon.writeAsync(path.join(pubDir, 'apple-touch-icon.png'));
+  console.log('✓ apple-touch-icon.png (180x180 matching Play Store icon)');
+
+  // 7. Capacitor Native Assets (assets/icon.png, assets/logo.png, assets/splash.png)
   const capIcon = await createCenteredSquare(rawEmblem, 1024, 0.65, 0xFFFFFFFF);
   await capIcon.writeAsync(path.join(assetsDir, 'icon.png'));
   console.log('✓ assets/icon.png (1024x1024 solid white background for Android adaptive icons)');
@@ -250,11 +259,7 @@ async function run() {
   await capSplash.writeAsync(path.join(assetsDir, 'splash.png'));
   console.log('✓ assets/splash.png (1024x1024 solid white for splash generator)');
 
-  const playStoreIcon = await createCenteredSquare(rawEmblem, 512, 0.70, 0xFFFFFFFF);
-  await playStoreIcon.writeAsync(path.join(assetsDir, 'play-store-icon-512.png'));
-  console.log('✓ assets/play-store-icon-512.png (512x512 solid white for Google Play store)');
-
-  // 6. Full Horizontal Brand Logo (spendlore-full-logo.png)
+  // 8. Full Horizontal Brand Logo (spendlore-full-logo.png)
   const fullLogo = await createFullLogoCanvas(rawFull, 1200, 500, 0x00000000);
   await fullLogo.writeAsync(path.join(pubDir, 'spendlore-full-logo.png'));
   console.log('✓ spendlore-full-logo.png (1200x500 transparent)');
