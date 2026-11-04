@@ -5,7 +5,9 @@ import {
     TrendingDown,
     TrendingUp,
     User,
-    Bell
+    Bell,
+    Globe,
+    Smartphone
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { Capacitor } from '@capacitor/core';
@@ -25,6 +27,7 @@ import { NotificationProvider, useNotifications } from './contexts/NotificationC
 import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 import { parseNotificationTransaction } from './utils/transactionParser';
+import { isLandingDomain } from './utils/platform';
 import { useAppStore } from './store/useAppStore';
 
 // Components
@@ -38,6 +41,7 @@ import OnboardingTour from './components/OnboardingTour';
 
 const UpgradePage  = React.lazy(() => import('./views/UpgradePage'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
+const LandingPage = React.lazy(() => import('./views/LandingPage'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -1617,7 +1621,62 @@ function MainContent() {
     );
 }
 
+function DevModeToggle({ isLanding }) {
+    if (!import.meta.env.DEV || Capacitor.isNativePlatform() || typeof window === 'undefined') return null;
+
+    const toggle = () => {
+        const url = new URL(window.location.href);
+        if (isLanding) {
+            url.searchParams.delete('landing');
+            url.searchParams.set('app', '1');
+            if (url.pathname === '/landing') url.pathname = '/';
+        } else {
+            url.searchParams.delete('app');
+            url.searchParams.set('landing', '1');
+        }
+        window.location.href = url.toString();
+    };
+
+    return (
+        <aside aria-label="Dev switcher" className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+            <button
+                type="button"
+                onClick={toggle}
+                className="flex items-center gap-2 px-3 py-2 bg-gray-900/90 hover:bg-black dark:bg-white/95 dark:hover:bg-white text-white dark:text-gray-950 text-xs font-semibold rounded-xl shadow-xl backdrop-blur border border-white/20 dark:border-black/10 active:scale-95 transition-all cursor-pointer"
+                title="Εναλλαγή Landing Page / Web App στο localhost"
+            >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                {isLanding ? (
+                    <>
+                        <Smartphone size={14} className="shrink-0" />
+                        <span>Dev: Προβολή App</span>
+                    </>
+                ) : (
+                    <>
+                        <Globe size={14} className="shrink-0" />
+                        <span>Dev: Προβολή Landing</span>
+                    </>
+                )}
+            </button>
+        </aside>
+    );
+}
+
 export default function App() {
+    // On the marketing domain (spendlore.gr / www.spendlore.gr) show the SEO landing page.
+    // On the app domain (app.spendlore.gr), localhost, or native — show the full app.
+    // Supports ?landing=1 or /landing for local preview.
+    const showLanding = isLandingDomain();
+
+    if (showLanding) {
+        return (
+            <React.Suspense fallback={null}>
+                <LandingPage />
+                <DevModeToggle isLanding={true} />
+            </React.Suspense>
+        );
+    }
+
     return (
         <SettingsProvider>
             <ToastProvider>
@@ -1625,6 +1684,7 @@ export default function App() {
                     <ErrorBoundary>
                         <React.Suspense fallback={null}>
                             <MainContent />
+                            <DevModeToggle isLanding={false} />
                         </React.Suspense>
                     </ErrorBoundary>
                 </NotificationProvider>
@@ -1632,8 +1692,6 @@ export default function App() {
         </SettingsProvider>
     );
 }
-
-
 
 
 
