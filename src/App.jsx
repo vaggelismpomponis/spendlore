@@ -91,18 +91,6 @@ function MainContent() {
         }
     }, []);
 
-    // If an upgrade intent is pending and the user is authenticated, navigate to the upgrade page
-    useEffect(() => {
-        if (user && !loading) {
-            const pendingPlan = sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
-            if (pendingPlan) {
-                sessionStorage.removeItem('pending_upgrade_plan');
-                localStorage.removeItem('pending_upgrade_plan');
-                setActiveTab('upgrade');
-            }
-        }
-    }, [user, loading, setActiveTab]);
-
     const [showAddModal, setShowAddModal] = useState(false);
     const [fabInitialType, setFabInitialType] = useState(null);
     const [pendingShortcutAction, setPendingShortcutAction] = useState(null);
@@ -145,6 +133,18 @@ function MainContent() {
             setLoading(false);
         }
     }, [user, coreDataLoaded]);
+
+    // If an upgrade intent is pending and the user is authenticated, navigate to the upgrade page
+    useEffect(() => {
+        if (user && !loading) {
+            const pendingPlan = sessionStorage.getItem('pending_upgrade_plan') || localStorage.getItem('pending_upgrade_plan');
+            if (pendingPlan) {
+                sessionStorage.removeItem('pending_upgrade_plan');
+                localStorage.removeItem('pending_upgrade_plan');
+                setActiveTab('upgrade');
+            }
+        }
+    }, [user, loading, setActiveTab]);
 
     // Whats New Modal
     const [latestUpdate, setLatestUpdate] = useState(null);
