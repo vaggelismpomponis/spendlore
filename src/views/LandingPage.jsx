@@ -441,92 +441,138 @@ const LandingPage = () => {
 
             {/* ── PRICING ── */}
             <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015] scroll-mt-20">
-                <div className="max-w-3xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
-                            {lang === 'el' ? 'Απλή τιμολόγηση' : 'Simple pricing'}
+                            {lang === 'el' ? 'Απλή & Διαφανής Τιμολόγηση' : 'Simple & Transparent Pricing'}
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
                             {lang === 'el'
-                                ? 'Ξεκίνα δωρεάν. Αναβάθμισε σε Pro όταν θέλεις περισσότερα.'
-                                : 'Start free. Upgrade to Pro when you want more.'
+                                ? 'Ξεκίνα δωρεάν. Επίλεξε μηνιαίο ή ετήσιο πλάνο Pro με 7 ημέρες δωρεάν δοκιμή.'
+                                : 'Start free. Choose monthly or annual Pro with a 7-day free trial.'
                             }
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                         {/* Free Plan */}
-                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06]">
-                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
-                                {lang === 'el' ? 'Δωρεάν' : 'Free'}
-                            </p>
-                            <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
-                                €0
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-                                {lang === 'el' ? 'για πάντα' : 'forever'}
-                            </p>
-                            <ul className="space-y-3">
-                                {[
-                                    lang === 'el' ? 'Απεριόριστες συναλλαγές' : 'Unlimited transactions',
-                                    lang === 'el' ? 'Βασικά στατιστικά' : 'Basic analytics',
-                                    lang === 'el' ? '3 προϋπολογισμοί' : '3 budgets',
-                                    lang === 'el' ? '2 στόχοι αποταμίευσης' : '2 savings goals',
-                                    lang === 'el' ? 'Φωνητική εισαγωγή' : 'Voice input',
-                                ].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" strokeWidth={2.5} />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] flex flex-col justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                                    {lang === 'el' ? 'Δωρεάν' : 'Free'}
+                                </p>
+                                <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
+                                    €0
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                                    {lang === 'el' ? 'για πάντα · χωρίς πιστωτική' : 'forever · no credit card'}
+                                </p>
+                                <ul className="space-y-3">
+                                    {[
+                                        lang === 'el' ? 'Απεριόριστες συναλλαγές' : 'Unlimited transactions',
+                                        lang === 'el' ? 'Βασικά στατιστικά & γραφήματα' : 'Basic analytics & charts',
+                                        lang === 'el' ? '3 προϋπολογισμοί (budgets)' : '3 budgets',
+                                        lang === 'el' ? '2 στόχοι αποταμίευσης' : '2 savings goals',
+                                        lang === 'el' ? 'Φωνητική καταγραφή' : 'Voice input',
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" strokeWidth={2.5} />
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                             <a
                                 href={APP_URL}
-                                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Ξεκίνα Δωρεάν' : 'Get Started'}
                             </a>
                         </div>
 
-                        {/* Pro Plan */}
-                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border-2 border-gray-900 dark:border-white/80 relative">
-                            <span className="absolute -top-3 left-6 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900">
-                                PRO
-                            </span>
-                            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
-                                Pro
-                            </p>
-                            <div className="flex items-baseline gap-1 mb-1">
-                                <span className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">€2.99</span>
-                                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                                    /{lang === 'el' ? 'μήνα' : 'mo'}
-                                </span>
+                        {/* Pro Monthly Plan */}
+                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] flex flex-col justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                                    {lang === 'el' ? 'Pro Μηνιαίο' : 'Pro Monthly'}
+                                </p>
+                                <div className="flex items-baseline gap-1 mb-1">
+                                    <span className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">€2.99</span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                        /{lang === 'el' ? 'μήνα' : 'mo'}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                                    {lang === 'el' ? '7 ημέρες δωρεάν · Ακύρωση όποτε θες' : '7-day free trial · Cancel anytime'}
+                                </p>
+                                <ul className="space-y-3">
+                                    {[
+                                        lang === 'el' ? 'Όλα τα δωρεάν +' : 'Everything in Free +',
+                                        lang === 'el' ? 'Απεριόριστα budgets & στόχοι' : 'Unlimited budgets & goals',
+                                        lang === 'el' ? 'Σάρωση αποδείξεων (AI OCR)' : 'Receipt scanning (AI OCR)',
+                                        lang === 'el' ? 'Αυτόματη καταγραφή SMS' : 'Auto bank SMS logging',
+                                        lang === 'el' ? 'Εξαγωγή CSV / JSON' : 'CSV / JSON export',
+                                        lang === 'el' ? 'Βιομετρικό κλείδωμα' : 'Biometric lock',
+                                        lang === 'el' ? 'Επαναλαμβανόμενες συναλλαγές' : 'Recurring transactions',
+                                        lang === 'el' ? 'Priority υποστήριξη' : 'Priority support',
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${i === 0 ? 'text-violet-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
+                                            <span className={i === 0 ? 'font-bold' : ''}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
-                                {lang === 'el' ? 'ή €29.99/έτος (εξοικονόμηση 17%)' : 'or €29.99/year (save 17%)'}
-                            </p>
-                            <ul className="space-y-3">
-                                {[
-                                    lang === 'el' ? 'Όλα τα δωρεάν +' : 'Everything in Free +',
-                                    lang === 'el' ? 'Απεριόριστα budgets & στόχοι' : 'Unlimited budgets & goals',
-                                    lang === 'el' ? 'Σάρωση αποδείξεων (AI OCR)' : 'Receipt scanning (AI OCR)',
-                                    lang === 'el' ? 'Αυτόματη καταγραφή SMS' : 'Auto bank SMS logging',
-                                    lang === 'el' ? 'Εξαγωγή CSV / JSON' : 'CSV / JSON export',
-                                    lang === 'el' ? 'Βιομετρικό κλείδωμα' : 'Biometric lock',
-                                    lang === 'el' ? 'Επαναλαμβανόμενες συναλλαγές' : 'Recurring transactions',
-                                    lang === 'el' ? 'Priority υποστήριξη' : 'Priority support',
-                                ].map((item, i) => (
-                                    <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                                        <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${i === 0 ? 'text-violet-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
-                                        <span className={i === 0 ? 'font-bold' : ''}>{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
                             <a
-                                href={APP_URL}
-                                className="mt-6 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                                href={isDevHost ? '/?app=1&plan=monthly' : `${APP_URL}?plan=monthly`}
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
                             >
-                                {lang === 'el' ? 'Δοκίμασε Pro' : 'Try Pro'}
+                                {lang === 'el' ? 'Δοκίμασε Μηνιαίο' : 'Try Monthly'}
+                            </a>
+                        </div>
+
+                        {/* Pro Annual Plan - Flagship */}
+                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.04] border-2 border-gray-900 dark:border-white relative flex flex-col justify-between shadow-lg">
+                            <span className="absolute -top-3 left-6 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm">
+                                {lang === 'el' ? 'Δημοφιλέστερο · -17%' : 'Best Value · Save 17%'}
+                            </span>
+                            <div>
+                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                                    {lang === 'el' ? 'Pro Ετήσιο' : 'Pro Annual'}
+                                </p>
+                                <div className="flex items-baseline gap-1 mb-1">
+                                    <span className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">€29.99</span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                                        /{lang === 'el' ? 'έτος' : 'year'}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-6">
+                                    {lang === 'el' ? '≈ €2.50/μήνα · 2 μήνες δωρεάν' : '≈ €2.50/mo · 2 months free'}
+                                </p>
+                                <ul className="space-y-3">
+                                    {[
+                                        lang === 'el' ? '7 ημέρες δωρεάν δοκιμή' : '7-day free trial',
+                                        lang === 'el' ? 'Όλα τα προνόμια του Pro' : 'All Pro features included',
+                                        lang === 'el' ? 'Απεριόριστα budgets & στόχοι' : 'Unlimited budgets & goals',
+                                        lang === 'el' ? 'Σάρωση αποδείξεων (AI OCR)' : 'Receipt scanning (AI OCR)',
+                                        lang === 'el' ? 'Αυτόματη καταγραφή SMS' : 'Auto bank SMS logging',
+                                        lang === 'el' ? 'Εξαγωγή CSV / JSON' : 'CSV / JSON export',
+                                        lang === 'el' ? 'Βιομετρικό κλείδωμα' : 'Biometric lock',
+                                        lang === 'el' ? 'Επαναλαμβανόμενες συναλλαγές' : 'Recurring transactions',
+                                        lang === 'el' ? 'Priority υποστήριξη' : 'Priority support',
+                                    ].map((item, i) => (
+                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${i < 2 ? 'text-violet-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
+                                            <span className={i < 2 ? 'font-bold' : ''}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <a
+                                href={isDevHost ? '/?app=1&plan=yearly' : `${APP_URL}?plan=yearly`}
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                            >
+                                {lang === 'el' ? 'Δοκίμασε Pro Ετήσιο' : 'Try Pro Annual'}
                             </a>
                         </div>
                     </div>
