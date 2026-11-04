@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 import { registerSW } from 'virtual:pwa-register'
+import { isNative } from './utils/platform'
 import './index.css'
 
 // Suppress unhandled errors and rejections from third-party browser extensions (e.g. Urban VPN 200.js harvester scripts)
@@ -93,12 +94,26 @@ if (import.meta.env.VITE_SENTRY_DSN) {
     }
 }
 
-// Unregister any stale service workers in dev mode (prevents old cached index.html from showing)
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+// Service Worker lifecycle management:
+// 1. Native Capacitor apps must NEVER run or retain service workers (assets are local on device disk)
+if (isNative()) {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => registration.unregister());
+        });
+    }
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+} else if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+    // 2. Unregister any stale service workers in web dev mode
     navigator.serviceWorker.getRegistrations().then(registrations => {
         registrations.forEach(registration => registration.unregister());
     });
 } else if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    // 3. Web PWA production service worker registration
     // Manually register to catch unhandled promise rejections on unsupported browsers/crawlers
     const updateSW = registerSW({
         immediate: true,
