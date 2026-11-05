@@ -45,7 +45,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                     />
 
                     {/* ─────── Executive Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
+                    <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs">
                         <div className="relative z-10 max-w-2xl space-y-3">
                             <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                                 <Shield size={13} strokeWidth={2.2} />
@@ -62,54 +62,48 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
 
                             {/* Trust Commitments */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <CheckCircle2 size={12} strokeWidth={2.5} className="text-emerald-300" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <CheckCircle2 size={13} strokeWidth={2.3} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                                     <span>{isEL ? 'Μηδενικές Διαφημίσεις' : 'Zero Ad Tracking'}</span>
                                 </span>
 
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <Lock size={12} strokeWidth={2.5} className="text-emerald-300" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <Lock size={13} strokeWidth={2.3} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                                     <span>{isEL ? 'Κρυπτογραφημένο Cloud Vault' : 'Encrypted Cloud Vault'}</span>
                                 </span>
 
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <ShieldCheck size={12} strokeWidth={2.5} className="text-violet-300" />
+                                <span className="px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+                                    <ShieldCheck size={13} strokeWidth={2.3} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                                     <span>{isEL ? 'Πλήρης Κυριαρχία Δεδομένων' : 'Full Data Sovereignty'}</span>
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* ─────── Bento Card 1: What Data We Collect ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
-                                <Eye size={20} strokeWidth={2.3} />
+                    {/* ─────── Section 1: What Data We Collect ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-7 shadow-xs space-y-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                <Eye size={13} strokeWidth={2.2} />
+                                <span>{isEL ? 'Συλλογή Δεδομένων' : 'Data Collection'}</span>
                             </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
-                                    {isEL ? 'Δεδομένα' : 'Collection'}
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    {isEL ? 'Τι δεδομένα συλλέγουμε' : 'What Data We Collect'}
-                                </h3>
-                            </div>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                {isEL ? 'Τι δεδομένα συλλέγουμε' : 'What Data We Collect'}
+                            </h2>
                         </div>
 
-                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                             {isEL
                                 ? 'Συλλέγουμε αυστηρά μόνο τα δεδομένα που είναι απολύτως απαραίτητα για την ορθή λειτουργία της εφαρμογής:'
                                 : 'We only collect information that is strictly essential for the financial ledger to function:'}
                         </p>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="w-9 h-9 rounded-xl bg-violet-100/70 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
-                                    <UserCheck size={18} strokeWidth={2.2} />
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <UserCheck size={18} strokeWidth={2.2} className="text-gray-900 dark:text-white" />
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                                     {isEL ? 'Στοιχεία Λογαριασμού' : 'Account Identity'}
-                                </h4>
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Το email και το όνομά σας όταν συνδέεστε μέσω Google ή Email, αποκλειστικά για την ταυτοποίηση της σύνδεσής σας.'
@@ -117,13 +111,11 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                                 </p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-100/70 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                    <Database size={18} strokeWidth={2.2} />
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <Database size={18} strokeWidth={2.2} className="text-gray-900 dark:text-white" />
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                                     {isEL ? 'Οικονομικά Δεδομένα' : 'Financial Ledger'}
-                                </h4>
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Συναλλαγές, κατηγορίες, στόχοι αποταμίευσης και προϋπολογισμοί που καταχωρείτε εσείς στην εφαρμογή.'
@@ -131,13 +123,11 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                                 </p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="w-9 h-9 rounded-xl bg-cyan-100/70 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
-                                    <Server size={18} strokeWidth={2.2} />
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <Server size={18} strokeWidth={2.2} className="text-gray-900 dark:text-white" />
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                                     {isEL ? 'Τηλεμετρία Συσκευής' : 'Device Compatibility'}
-                                </h4>
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Βασικές πληροφορίες συσκευής και πλατφόρμας για διασφάλιση συμβατότητας PIN και βιομετρικού κλειδώματος.'
@@ -147,27 +137,23 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                         </div>
                     </div>
 
-                    {/* ─────── Bento Card 2: How We Use Data & Zero-Ad Pledge ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                                <Database size={20} strokeWidth={2.3} />
+                    {/* ─────── Section 2: How We Use Data & Zero-Ad Pledge ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-7 shadow-xs space-y-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                <Database size={13} strokeWidth={2.2} />
+                                <span>{isEL ? 'Χρήση Δεδομένων' : 'Data Usage'}</span>
                             </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-500/20">
-                                    {isEL ? 'Χρήση' : 'Usage'}
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    {isEL ? 'Πώς χρησιμοποιούμε τα δεδομένα σας' : 'How We Use Data'}
-                                </h3>
-                            </div>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                {isEL ? 'Πώς χρησιμοποιούμε τα δεδομένα σας' : 'How We Use Data'}
+                            </h2>
                         </div>
 
                         {/* Ironclad Pledge Banner */}
-                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 dark:text-emerald-200 flex items-start gap-3">
-                            <ShieldCheck size={20} className="shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" strokeWidth={2.2} />
+                        <div className="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-500/20 text-emerald-900 dark:text-emerald-200 flex items-start gap-3">
+                            <ShieldCheck size={18} className="shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" strokeWidth={2.2} />
                             <div className="text-xs leading-relaxed">
-                                <strong className="font-extrabold block text-[13px] text-emerald-800 dark:text-emerald-300 mb-0.5">
+                                <strong className="font-bold block text-sm text-emerald-900 dark:text-emerald-200 mb-0.5">
                                     {isEL ? 'Δέσμευση Μηδενικής Εμπορευματοποίησης' : 'Zero Commercialization Pledge'}
                                 </strong>
                                 {isEL
@@ -178,9 +164,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                             <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                                    <Check size={14} strokeWidth={2.5} />
-                                </div>
+                                <Check size={16} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                 <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                                     <strong className="block text-gray-900 dark:text-white font-bold mb-0.5">
                                         {isEL ? 'Παροχή & Συγχρονισμός Υπηρεσιών' : 'Service Delivery & Real-Time Sync'}
@@ -192,9 +176,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                             </div>
 
                             <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                                    <Check size={14} strokeWidth={2.5} />
-                                </div>
+                                <Check size={16} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                                 <div className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
                                     <strong className="block text-gray-900 dark:text-white font-bold mb-0.5">
                                         {isEL ? 'Προστασία & Ασφάλεια' : 'Security & Access Control'}
@@ -207,36 +189,32 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                         </div>
                     </div>
 
-                    {/* ─────── Bento Card 3: Storage & Cryptography ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                <Lock size={20} strokeWidth={2.3} />
+                    {/* ─────── Section 3: Storage & Cryptography ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-7 shadow-xs space-y-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                <Lock size={13} strokeWidth={2.2} />
+                                <span>{isEL ? 'Ασφάλεια Υποδομών' : 'Infrastructure Security'}</span>
                             </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-500/20">
-                                    {isEL ? 'Ασφάλεια' : 'Security'}
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    {isEL ? 'Ασφάλεια Δεδομένων & Κρυπτογράφηση' : 'Data Security & Storage'}
-                                </h3>
-                            </div>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                {isEL ? 'Ασφάλεια Δεδομένων & Κρυπτογράφηση' : 'Data Security & Storage'}
+                            </h2>
                         </div>
 
-                        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                             {isEL
-                                ? 'Χρησιμοποιούμε enterprise υποδομές Supabase (σε servers Google Cloud) με ισχυρή Κρυπτογράφηση και μεταφορά:'
+                                ? 'Χρησιμοποιούμε enterprise υποδομές Supabase (σε servers Google Cloud) με ισχυρή κρυπτογράφηση σε όλα τα επίπεδα:'
                                 : 'We leverage enterprise Supabase infrastructure (hosted on Google Cloud Platform) with multi-tiered encryption:'}
                         </p>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-[11px] font-mono font-bold text-gray-900 dark:text-white inline-block">
                                     TLS 1.3
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                                </span>
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                                     {isEL ? 'Κρυπτογράφηση Μεταφοράς' : 'In-Transit Encryption'}
-                                </h4>
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Όλη η κίνηση μεταξύ συσκευής και βάσης δεδομένων κρυπτογραφείται μέσω αυστηρού πρωτοκόλλου HTTPS / TLS.'
@@ -244,13 +222,13 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                                 </p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-[11px] font-mono font-bold text-gray-900 dark:text-white inline-block">
                                     AES-256
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
-                                    {isEL ? 'Κρυπτογράφηση' : 'At-Rest Encryption'}
-                                </h4>
+                                </span>
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
+                                    {isEL ? 'Κρυπτογράφηση Αποθήκευσης' : 'At-Rest Encryption'}
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Τα αποθηκευμένα δεδομένα παραμένουν προστατευμένα με enterprise κρυπτογράφηση δίσκου στα κέντρα δεδομένων.'
@@ -258,13 +236,13 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                                 </p>
                             </div>
 
-                            <div className="p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-2">
-                                <div className="text-emerald-600 dark:text-emerald-400 font-black text-xs uppercase tracking-wider">
+                            <div className="p-4 rounded-xl bg-gray-50/70 dark:bg-white/[0.02] border border-gray-200/80 dark:border-white/10 space-y-2">
+                                <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-[11px] font-mono font-bold text-gray-900 dark:text-white inline-block">
                                     Local Enclave
-                                </div>
-                                <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                                </span>
+                                <h3 className="font-bold text-sm text-gray-900 dark:text-white">
                                     {isEL ? 'Τοπικό Κλείδωμα' : 'Hardware Biometrics'}
-                                </h4>
+                                </h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                                     {isEL
                                         ? 'Το PIN και τα βιομετρικά αποτυπώματα ελέγχονται αποκλειστικά τοπικά στο hardware της συσκευής σας.'
@@ -274,27 +252,21 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                         </div>
                     </div>
 
-                    {/* ─────── Bento Card 4: Your Rights & Sovereignty ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-500/20 flex items-center justify-center shrink-0">
-                                <FileText size={20} strokeWidth={2.3} />
+                    {/* ─────── Section 4: Your Rights & Sovereignty ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-7 shadow-xs space-y-4">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                                <FileText size={13} strokeWidth={2.2} />
+                                <span>{isEL ? 'Κυριαρχία Δεδομένων' : 'User Sovereignty'}</span>
                             </div>
-                            <div>
-                                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300 border border-amber-200/60 dark:border-amber-500/20">
-                                    {isEL ? 'Δικαιώματα' : 'Sovereignty'}
-                                </span>
-                                <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                    {isEL ? 'Τα Δικαιώματά σας & Κυριαρχία Δεδομένων' : 'Your Rights & Data Portability'}
-                                </h3>
-                            </div>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                {isEL ? 'Τα Δικαιώματά σας & Κυριαρχία Δεδομένων' : 'Your Rights & Data Portability'}
+                            </h2>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                 <div className="text-xs text-gray-600 dark:text-gray-300">
                                     <strong className="block text-gray-900 dark:text-white font-bold mb-0.5">
                                         {isEL ? 'Δικαίωμα Εξαγωγής' : 'Right to Export'}
@@ -306,9 +278,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                             </div>
 
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                 <div className="text-xs text-gray-600 dark:text-gray-300">
                                     <strong className="block text-gray-900 dark:text-white font-bold mb-0.5">
                                         {isEL ? 'Δικαίωμα Διόρθωσης' : 'Right to Rectify'}
@@ -320,9 +290,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                             </div>
 
                             <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
+                                <CheckCircle2 size={16} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                 <div className="text-xs text-gray-600 dark:text-gray-300">
                                     <strong className="block text-gray-900 dark:text-white font-bold mb-0.5">
                                         {isEL ? 'Δικαίωμα Διαγραφής' : 'Right to Erasure'}
@@ -335,17 +303,15 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                         </div>
                     </div>
 
-                    {/* ─────── Contact & Inquiries Card ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm">
+                    {/* ─────── Section 5: Contact & Inquiries Card ─────── */}
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-5 sm:p-7 shadow-xs">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3.5">
-                                <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
-                                    <Mail size={20} strokeWidth={2.3} />
-                                </div>
+                                <Mail size={20} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0" />
                                 <div>
-                                    <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white">
                                         {isEL ? 'Ερωτήσεις για το Απόρρητο;' : 'Questions Regarding Privacy?'}
-                                    </h4>
+                                    </h3>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                         {isEL
                                             ? 'Επικοινωνήστε απευθείας με την ομάδα ανάπτυξης μέσω της ενότητας Σχόλια & Ιδέες.'
@@ -358,7 +324,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = fal
                                 <button
                                     type="button"
                                     onClick={effectiveBack}
-                                    className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-white font-extrabold text-xs active:scale-95 transition-all text-center shrink-0"
+                                    className="px-4 py-2 rounded-xl bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-xs active:scale-95 transition-all text-center shrink-0 shadow-xs"
                                 >
                                     {isEL ? 'Επιστροφή' : 'Return'}
                                 </button>

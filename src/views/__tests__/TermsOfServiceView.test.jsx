@@ -38,3 +38,4 @@ describe('TermsOfServiceView', () => {
     expect(mockOnBack).toHaveBeenCalledTimes(1);
   });
 });
+

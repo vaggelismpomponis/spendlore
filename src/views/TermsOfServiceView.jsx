@@ -48,7 +48,7 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
                 />
 
                 {/* ─────── Executive Hero Hub ─────── */}
-                <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
+                <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 p-6 sm:p-8 shadow-xs">
                     <div className="relative z-10 max-w-2xl space-y-3">
                         <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                             <FileText size={13} strokeWidth={2.2} />
@@ -70,10 +70,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 1: Acceptance */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 flex items-center justify-center shrink-0">
-                                <Scale size={18} className="text-violet-600 dark:text-violet-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <Scale size={18} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '1. Αποδοχή των Όρων' : '1. Acceptance of Terms'}
                             </h2>
@@ -87,10 +85,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 2: Informational Purpose Disclaimer */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-center shrink-0">
-                                <AlertCircle size={18} className="text-amber-600 dark:text-amber-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <AlertCircle size={18} className="text-amber-600 dark:text-amber-400 shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '2. Μη Παροχή Επενδυτικών / Φορολογικών Συμβουλών' : '2. No Financial or Tax Advice'}
                             </h2>
@@ -104,10 +100,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 3: User Accounts & Security */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 flex items-center justify-center shrink-0">
-                                <Lock size={18} className="text-blue-600 dark:text-blue-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <Lock size={18} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '3. Λογαριασμός Χρήστη & Ασφάλεια' : '3. User Accounts & Security'}
                             </h2>
@@ -121,10 +115,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 4: Subscriptions, Trials, & Billing */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center shrink-0">
-                                <CreditCard size={18} className="text-emerald-600 dark:text-emerald-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <CreditCard size={18} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '4. Συνδρομές Pro, Δοκιμαστική Περίοδος & Πληρωμές' : '4. Pro Subscriptions, Trials & Payments'}
                             </h2>
@@ -160,10 +152,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 5: Acceptable Use */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 flex items-center justify-center shrink-0">
-                                <ShieldCheck size={18} className="text-purple-600 dark:text-purple-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <ShieldCheck size={18} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '5. Πολιτική Επιτρεπτής Χρήσης' : '5. Acceptable Use Policy'}
                             </h2>
@@ -177,10 +167,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 6: Data Ownership & Termination */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 flex items-center justify-center shrink-0">
-                                <Trash2 size={18} className="text-rose-600 dark:text-rose-400" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <Trash2 size={18} className="text-rose-600 dark:text-rose-400 shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '6. Κυριαρχία Δεδομένων & Διαγραφή Λογαριασμού' : '6. Data Sovereignty & Termination'}
                             </h2>
@@ -194,10 +182,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
 
                     {/* Section 7: Governing Law & Contact */}
                     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 flex items-center justify-center shrink-0">
-                                <Mail size={18} className="text-gray-700 dark:text-gray-300" />
-                            </div>
+                        <div className="flex items-center gap-2.5">
+                            <Mail size={18} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                                 {isEL ? '7. Εφαρμοστέο Δίκαιο & Επικοινωνία' : '7. Governing Law & Contact'}
                             </h2>

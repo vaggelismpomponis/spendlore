@@ -11,7 +11,7 @@ import { PLAY_STORE_URL } from '../utils/platform';
 const PrivacyPolicyView = React.lazy(() => import('./PrivacyPolicyView'));
 const TermsOfServiceView = React.lazy(() => import('./TermsOfServiceView'));
 
-const isDevHost = typeof window !== 'undefined' && 
+const isDevHost = typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 const APP_URL = isDevHost ? '/?app=1' : 'https://app.spendlore.gr';
 
@@ -233,34 +233,12 @@ const NavBar = ({ lang, setLang, onHome, legalView, onOpenLegal }) => {
                                 </a>
                             </>
                         )}
-                        <div role="group" aria-label="Language selection" className="flex items-center gap-1">
-                            <button
-                                type="button"
-                                onClick={() => setLang('el')}
-                                className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all cursor-pointer ${
-                                    lang === 'el'
-                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 border-gray-900 dark:border-white shadow-2xs'
-                                        : 'bg-white dark:bg-surface-dark2 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3'
-                                }`}
-                                aria-label="Ελληνικά"
-                                aria-pressed={lang === 'el'}
-                            >
-                                EL
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setLang('en')}
-                                className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all cursor-pointer ${
-                                    lang === 'en'
-                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 border-gray-900 dark:border-white shadow-2xs'
-                                        : 'bg-white dark:bg-surface-dark2 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3'
-                                }`}
-                                aria-label="English"
-                                aria-pressed={lang === 'en'}
-                            >
-                                EN
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
+                            className="text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white px-2.5 py-1 rounded-lg border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all"
+                        >
+                            {lang === 'el' ? 'EN' : 'ΕΛ'}
+                        </button>
                         <a
                             href={APP_URL}
                             className="text-sm font-bold text-white bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 px-4 py-2 rounded-xl transition-all active:scale-95 shadow-xs"
@@ -271,34 +249,14 @@ const NavBar = ({ lang, setLang, onHome, legalView, onOpenLegal }) => {
 
                     {/* Mobile Controls (Language toggle + Menu button) */}
                     <div className="flex items-center gap-2 md:hidden">
-                        <div role="group" aria-label="Language selection" className="flex items-center gap-1">
-                            <button
-                                type="button"
-                                onClick={() => setLang('el')}
-                                className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all cursor-pointer ${
-                                    lang === 'el'
-                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 border-gray-900 dark:border-white shadow-2xs'
-                                        : 'bg-white dark:bg-surface-dark2 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3'
-                                }`}
-                                aria-label="Ελληνικά"
-                                aria-pressed={lang === 'el'}
-                            >
-                                EL
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setLang('en')}
-                                className={`px-2 py-0.5 text-[11px] font-bold rounded-md border transition-all cursor-pointer ${
-                                    lang === 'en'
-                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-950 border-gray-900 dark:border-white shadow-2xs'
-                                        : 'bg-white dark:bg-surface-dark2 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3'
-                                }`}
-                                aria-label="English"
-                                aria-pressed={lang === 'en'}
-                            >
-                                EN
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
+                            className="text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white px-2.5 py-1.5 rounded-xl border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all"
+                            aria-label="Toggle language"
+                        >
+                            {lang === 'el' ? 'EN' : 'ΕΛ'}
+                        </button>
                         <button
                             type="button"
                             onClick={() => setMenuOpen(!menuOpen)}
@@ -696,9 +654,6 @@ const LandingPage = () => {
                 <div className="max-w-6xl mx-auto">
                     {/* Section Header */}
                     <div className="text-center mb-12 sm:mb-16">
-                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2 block">
-                            {lang === 'el' ? 'Δυνατότητες' : 'Features'}
-                        </span>
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Ό,τι χρειάζεσαι, σε μία εφαρμογή' : 'Everything you need, in one app'}
                         </h2>
@@ -719,8 +674,8 @@ const LandingPage = () => {
                                     key={i}
                                     className="p-5 sm:p-6 rounded-2xl bg-gray-50/80 dark:bg-surface-dark border border-gray-200/80 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                                 >
-                                    <div className="text-gray-900 dark:text-white mb-3.5">
-                                        <Icon size={22} strokeWidth={2} />
+                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center mb-4 text-gray-900 dark:text-white shadow-xs">
+                                        <Icon size={19} strokeWidth={2} />
                                     </div>
                                     <h3 className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white mb-1.5 leading-snug">
                                         {lang === 'el' ? feat.title : feat.titleEn}
@@ -739,9 +694,6 @@ const LandingPage = () => {
             <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/50 dark:bg-surface-dark">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-12">
-                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2 block">
-                            {lang === 'el' ? 'Πλατφόρμες' : 'Platforms'}
-                        </span>
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Παντού μαζί σου' : 'Available everywhere'}
                         </h2>
@@ -761,8 +713,8 @@ const LandingPage = () => {
                             rel="noopener noreferrer"
                             className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                         >
-                            <div className="shrink-0 text-emerald-600 dark:text-emerald-400">
-                                <Smartphone size={24} strokeWidth={2} />
+                            <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400 shadow-xs">
+                                <Smartphone size={20} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
@@ -780,8 +732,8 @@ const LandingPage = () => {
                             href={APP_URL}
                             className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                         >
-                            <div className="shrink-0 text-gray-900 dark:text-white">
-                                <Globe size={24} strokeWidth={2} />
+                            <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center shrink-0 text-gray-900 dark:text-white shadow-xs">
+                                <Globe size={20} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
@@ -801,9 +753,6 @@ const LandingPage = () => {
             <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-surface-dark2 border-y border-gray-200/80 dark:border-white/10 scroll-mt-20">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-12 sm:mb-16">
-                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2 block">
-                            {lang === 'el' ? 'Συνδρομές' : 'Pricing'}
-                        </span>
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Απλή & Διαφανής Τιμολόγηση' : 'Simple & Transparent Pricing'}
                         </h2>
@@ -944,9 +893,6 @@ const LandingPage = () => {
             <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/50 dark:bg-surface-dark scroll-mt-20">
                 <div className="max-w-2xl mx-auto">
                     <div className="text-center mb-10">
-                        <span className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2 block">
-                            FAQ
-                        </span>
                         <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Συχνές Ερωτήσεις' : 'Frequently Asked Questions'}
                         </h2>
