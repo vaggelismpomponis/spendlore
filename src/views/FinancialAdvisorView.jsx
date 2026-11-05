@@ -458,7 +458,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
         setCompletedChallenges(prev => {
             const key = `${weekKey}_${id}`;
             const updated = { ...prev, [key]: !prev[key] };
-            try { localStorage.setItem('sw_challenges', JSON.stringify(updated)); } catch {}
+            try { localStorage.setItem('sw_challenges', JSON.stringify(updated)); } catch { }
             return updated;
         });
     }, [weekKey]);
@@ -584,7 +584,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 lg:p-7 text-gray-900 dark:text-white shadow-sm relative overflow-hidden flex flex-col justify-between"
                         >
                             {/* Decorative ambient glowing blobs */}
-                            
+
 
                             <div className="relative z-1 space-y-4 sm:space-y-5">
                                 {/* Top Header within Hero */}
@@ -599,13 +599,12 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </h2>
                                     </div>
                                     {prevMonthScore !== null && (
-                                        <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border shrink-0 ${
-                                            scoreTrend > 0
+                                        <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border shrink-0 ${scoreTrend > 0
                                                 ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
                                                 : scoreTrend < 0
                                                     ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20'
                                                     : 'bg-gray-200/60 text-gray-700 dark:text-gray-300 border-gray-300/60 dark:border-white/10'
-                                        }`}>
+                                            }`}>
                                             {scoreTrend > 0 ? <TrendingUp size={13} className="shrink-0" /> : scoreTrend < 0 ? <TrendingDown size={13} className="shrink-0" /> : null}
                                             <span className="lg:hidden">
                                                 {scoreTrend > 0 ? `+${scoreTrend}` : scoreTrend} {t('points_short', 'μον.')}
@@ -659,9 +658,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                     {/* Bottom Row (Full Width): 3 Diagnostic Factor Cards (Needs, Wants, Savings) */}
                                     <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
                                         {/* Needs */}
-                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
-                                            stats.needsPct <= 50 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
-                                        }`}>
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${stats.needsPct <= 50 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
+                                            }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
                                                 <span className="text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 capitalize truncate">
                                                     {t('needs_label')}
@@ -678,17 +676,15 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≤50%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.needsPct <= 50 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
-                                            }`}>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${stats.needsPct <= 50 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
+                                                }`}>
                                                 {stats.needsPct <= 50 ? t('breakdown_on_track') : t('breakdown_over_target')}
                                             </p>
                                         </div>
 
                                         {/* Wants */}
-                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
-                                            stats.wantsPct <= 30 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
-                                        }`}>
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${stats.wantsPct <= 30 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
+                                            }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
                                                 <span className="text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 capitalize truncate">
                                                     {t('wants_label')}
@@ -705,17 +701,15 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≤30%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.wantsPct <= 30 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
-                                            }`}>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${stats.wantsPct <= 30 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
+                                                }`}>
                                                 {stats.wantsPct <= 30 ? t('breakdown_on_track') : t('breakdown_over_target')}
                                             </p>
                                         </div>
 
                                         {/* Savings */}
-                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${
-                                            stats.savingsPct >= 20 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
-                                        }`}>
+                                        <div className={`rounded-2xl p-2 sm:p-3.5 backdrop-blur-md border transition-all ${stats.savingsPct >= 20 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300'
+                                            }`}>
                                             <div className="flex items-center justify-between gap-1 mb-1">
                                                 <span className="text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 capitalize truncate">
                                                     {t('savings_label')}
@@ -732,9 +726,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                     ≥20%
                                                 </span>
                                             </div>
-                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${
-                                                stats.savingsPct >= 20 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
-                                            }`}>
+                                            <p className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-1 truncate ${stats.savingsPct >= 20 ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'
+                                                }`}>
                                                 {stats.savingsPct >= 20 ? t('breakdown_on_track') : t('breakdown_under_target')}
                                             </p>
                                         </div>
@@ -852,11 +845,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 onMouseEnter={() => setHoveredSlice(item.key)}
                                                 onMouseLeave={() => setHoveredSlice(null)}
                                                 onClick={() => setActivePieSlice(activePieSlice === item.key ? null : item.key)}
-                                                className={`w-full text-left transition-all duration-200 rounded-2xl p-3 border ${
-                                                    isSelected || isHovered
+                                                className={`w-full text-left transition-all duration-200 rounded-2xl p-3 border ${isSelected || isHovered
                                                         ? 'bg-violet-50/70 dark:bg-violet-950/30 border-violet-200 dark:border-violet-900/50 shadow-sm'
                                                         : 'bg-gray-50/70 dark:bg-white/[0.03] border-transparent hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex items-center justify-between gap-3 mb-1.5">
                                                     <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -933,11 +925,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                             ? (t('breakdown_on_track') || 'On Track')
                                                             : `↑ ${t('breakdown_over_target') || 'Over Target'}`);
                                                     return (
-                                                        <span className={`text-xs font-bold mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md ${
-                                                            isGood
+                                                        <span className={`text-xs font-bold mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md ${isGood
                                                                 ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-800/40'
                                                                 : 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-800/40'
-                                                        }`}>
+                                                            }`}>
                                                             {statusText}
                                                         </span>
                                                     );
@@ -970,11 +961,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                             ) : (
                                 <div className="space-y-3">
                                     {/* Overall trend banner */}
-                                    <div className={`flex items-center justify-between p-4 rounded-2xl ${
-                                        monthlyProgress.improved
+                                    <div className={`flex items-center justify-between p-4 rounded-2xl ${monthlyProgress.improved
                                             ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30'
                                             : 'bg-rose-50/80 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900/30'
-                                    }`}>
+                                        }`}>
                                         <div className="flex items-center gap-3">
                                             {monthlyProgress.improved ? <TrendingDown size={20} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.2} /> : <TrendingUp size={20} className="text-rose-600 dark:text-rose-400 shrink-0" strokeWidth={2.2} />}
                                             <div>
@@ -986,9 +976,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                 </p>
                                             </div>
                                         </div>
-                                        <span className={`text-xl font-black font-display ${
-                                            monthlyProgress.improved ? 'text-emerald-500' : 'text-rose-500'
-                                        }`}>
+                                        <span className={`text-xl font-black font-display ${monthlyProgress.improved ? 'text-emerald-500' : 'text-rose-500'
+                                            }`}>
                                             {monthlyProgress.improved ? '-' : '+'}{monthlyProgress.pct}%
                                         </span>
                                     </div>

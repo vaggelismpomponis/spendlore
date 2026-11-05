@@ -244,18 +244,16 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                 <button
                                     type="button"
                                     onClick={() => { setActiveType('expense'); setEditingCategory(null); }}
-                                    className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-                                        activeType === 'expense'
+                                    className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeType === 'expense'
                                             ? 'bg-white dark:bg-surface-dark3 text-rose-600 dark:text-rose-400 shadow-sm'
                                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
+                                        }`}
                                 >
                                     <span>{translate('categories_expense_tab') || 'Έξοδα'}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-                                        activeType === 'expense'
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${activeType === 'expense'
                                             ? 'bg-rose-50 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
                                             : 'bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300'
-                                    }`}>
+                                        }`}>
                                         {expenseCustom.length}
                                     </span>
                                 </button>
@@ -263,18 +261,16 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                 <button
                                     type="button"
                                     onClick={() => { setActiveType('income'); setEditingCategory(null); }}
-                                    className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-                                        activeType === 'income'
+                                    className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${activeType === 'income'
                                             ? 'bg-white dark:bg-surface-dark3 text-emerald-600 dark:text-emerald-400 shadow-sm'
                                             : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                    }`}
+                                        }`}
                                 >
                                     <span>{translate('categories_income_tab') || 'Έσοδα'}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${
-                                        activeType === 'income'
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold ${activeType === 'income'
                                             ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
                                             : 'bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300'
-                                    }`}>
+                                        }`}>
                                         {incomeCustom.length}
                                     </span>
                                 </button>
@@ -433,8 +429,8 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                                                 {count === 0
                                                                     ? (translate('tx_count_none') || 'Καμία συναλλαγή')
                                                                     : count === 1
-                                                                    ? (translate('tx_count_singular') || '1 συναλλαγή')
-                                                                    : (translate('tx_count_label', { count }) || `${count} συναλλαγές`)}
+                                                                        ? (translate('tx_count_singular') || '1 συναλλαγή')
+                                                                        : (translate('tx_count_label', { count }) || `${count} συναλλαγές`)}
                                                             </span>
                                                         </div>
                                                     </div>

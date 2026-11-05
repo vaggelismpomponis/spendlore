@@ -300,16 +300,14 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
 
                             {/* Live Security Status Badges */}
                             <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
-                                    isPinEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
-                                }`}>
+                                <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${isPinEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
+                                    }`}>
                                     <Lock size={12} strokeWidth={2.5} />
                                     <span>PIN: {isPinEnabled ? (isEL ? 'Ενεργό' : 'Active') : (isEL ? 'Μη ορισμένο' : 'Not Set')}</span>
                                 </span>
 
-                                <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${
-                                    isBiometricsEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
-                                }`}>
+                                <span className={`px-2.5 py-1 rounded-lg backdrop-blur-sm border flex items-center gap-1.5 ${isBiometricsEnabled ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200/60 dark:bg-white/[0.06] border-gray-300/60 dark:border-white/[0.1] text-gray-600 dark:text-gray-400'
+                                    }`}>
                                     <Smartphone size={12} strokeWidth={2.5} />
                                     <span>{isEL ? 'Βιομετρικά' : 'Biometrics'}: {isBiometricsEnabled ? (isEL ? 'Ενεργά' : 'Enabled') : (isEL ? 'Ανενεργά' : 'Off')}</span>
                                 </span>
@@ -476,17 +474,15 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                                 return (
                                                     <div
                                                         key={session.id}
-                                                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all ${
-                                                            isCurrent
+                                                        className={`flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all ${isCurrent
                                                                 ? 'bg-violet-50/50 dark:bg-violet-500/[0.08] border-violet-200/80 dark:border-violet-500/25'
                                                                 : 'bg-gray-50/80 dark:bg-white/[0.03] border-gray-200/60 dark:border-white/[0.06]'
-                                                        }`}
+                                                            }`}
                                                     >
-                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                                                            isCurrent
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isCurrent
                                                                 ? 'bg-violet-500/15 text-violet-600 dark:text-violet-400'
                                                                 : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-white/60'
-                                                        }`}>
+                                                            }`}>
                                                             <DeviceIcon size={18} strokeWidth={2.2} />
                                                         </div>
 
@@ -540,11 +536,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         </button>
                                         <div className="flex items-center gap-1">
                                             {[...Array(Math.ceil(sessions.length / SESSIONS_PER_PAGE))].map((_, i) => (
-                                                <div 
-                                                    key={i} 
-                                                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                                                        currentPage === i + 1 ? 'w-4 bg-violet-600' : 'w-1.5 bg-gray-200 dark:bg-white/10'
-                                                    }`}
+                                                <div
+                                                    key={i}
+                                                    className={`h-1.5 rounded-full transition-all duration-300 ${currentPage === i + 1 ? 'w-4 bg-violet-600' : 'w-1.5 bg-gray-200 dark:bg-white/10'
+                                                        }`}
                                                 />
                                             ))}
                                         </div>
@@ -694,16 +689,14 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                                         <div className="space-y-1.5">
                                             <div className="flex gap-1.5">
                                                 {[1, 2, 3].map(i => (
-                                                    <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                                                        i <= bars ? colors[strength] : 'bg-gray-200 dark:bg-white/10'
-                                                    }`} />
+                                                    <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${i <= bars ? colors[strength] : 'bg-gray-200 dark:bg-white/10'
+                                                        }`} />
                                                 ))}
                                             </div>
-                                            <p className={`text-[11px] font-semibold ${
-                                                strength === 'weak' ? 'text-rose-500' :
-                                                strength === 'fair' ? 'text-amber-500' :
-                                                'text-emerald-600 dark:text-emerald-400'
-                                            }`}>
+                                            <p className={`text-[11px] font-semibold ${strength === 'weak' ? 'text-rose-500' :
+                                                    strength === 'fair' ? 'text-amber-500' :
+                                                        'text-emerald-600 dark:text-emerald-400'
+                                                }`}>
                                                 {labels[strength]}
                                             </p>
                                         </div>

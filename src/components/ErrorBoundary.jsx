@@ -80,7 +80,7 @@ class ErrorBoundaryClass extends React.Component {
             navigator.clipboard.writeText(details).then(() => {
                 this.setState({ copied: true });
                 setTimeout(() => this.setState({ copied: false }), 2500);
-            }).catch(() => {});
+            }).catch(() => { });
         }
     };
 
@@ -96,11 +96,11 @@ class ErrorBoundaryClass extends React.Component {
                         <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-6 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
                             <AlertCircle size={32} strokeWidth={2} />
                         </div>
-                        
+
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
                             {t('something_went_wrong')}
                         </h1>
-                        
+
                         <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
                             {t('error_message_generic')}
                         </p>

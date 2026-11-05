@@ -15,29 +15,29 @@ import { useAppStore } from '../store/useAppStore';
    Goal icon / colour presets
 ───────────────────────────────────────────────────────────── */
 const GOAL_PRESETS = [
-    { icon: Plane,         label: 'Ταξίδι',       color: 'from-sky-500 to-blue-600',        bar: '#38bdf8' },
-    { icon: HomeIcon,      label: 'Σπίτι',         color: 'from-emerald-500 to-teal-600',    bar: '#34d399' },
-    { icon: Car,           label: 'Αυτοκίνητο',   color: 'from-orange-500 to-amber-600',    bar: '#fb923c' },
-    { icon: Laptop,        label: 'Τεχνολογία',   color: 'from-violet-500 to-purple-600',   bar: '#a78bfa' },
-    { icon: GraduationCap, label: 'Εκπαίδευση',   color: 'from-indigo-500 to-blue-600',     bar: '#818cf8' },
-    { icon: Heart,         label: 'Γάμος',         color: 'from-rose-500 to-pink-600',       bar: '#fb7185' },
-    { icon: HeartPulse,    label: 'Υγεία',         color: 'from-red-500 to-rose-600',        bar: '#f87171' },
-    { icon: Gamepad2,      label: 'Ψυχαγωγία',    color: 'from-fuchsia-500 to-violet-600',  bar: '#e879f9' },
-    { icon: Dog,           label: 'Κατοικίδιο',   color: 'from-yellow-500 to-amber-500',    bar: '#fbbf24' },
-    { icon: Target,        label: 'Άλλο',          color: 'from-gray-500 to-slate-600',      bar: '#94a3b8' },
+    { icon: Plane, label: 'Ταξίδι', color: 'from-sky-500 to-blue-600', bar: '#38bdf8' },
+    { icon: HomeIcon, label: 'Σπίτι', color: 'from-emerald-500 to-teal-600', bar: '#34d399' },
+    { icon: Car, label: 'Αυτοκίνητο', color: 'from-orange-500 to-amber-600', bar: '#fb923c' },
+    { icon: Laptop, label: 'Τεχνολογία', color: 'from-violet-500 to-purple-600', bar: '#a78bfa' },
+    { icon: GraduationCap, label: 'Εκπαίδευση', color: 'from-indigo-500 to-blue-600', bar: '#818cf8' },
+    { icon: Heart, label: 'Γάμος', color: 'from-rose-500 to-pink-600', bar: '#fb7185' },
+    { icon: HeartPulse, label: 'Υγεία', color: 'from-red-500 to-rose-600', bar: '#f87171' },
+    { icon: Gamepad2, label: 'Ψυχαγωγία', color: 'from-fuchsia-500 to-violet-600', bar: '#e879f9' },
+    { icon: Dog, label: 'Κατοικίδιο', color: 'from-yellow-500 to-amber-500', bar: '#fbbf24' },
+    { icon: Target, label: 'Άλλο', color: 'from-gray-500 to-slate-600', bar: '#94a3b8' },
 ];
 
 const getPreset = (title = '') => {
     const t = title.toLowerCase();
     if (t.includes('ταξ') || t.includes('trav')) return GOAL_PRESETS[0];
     if (t.includes('σπίτ') || t.includes('home')) return GOAL_PRESETS[1];
-    if (t.includes('αυτ') || t.includes('car'))  return GOAL_PRESETS[2];
+    if (t.includes('αυτ') || t.includes('car')) return GOAL_PRESETS[2];
     if (t.includes('τεχ') || t.includes('laptop') || t.includes('phone')) return GOAL_PRESETS[3];
     if (t.includes('εκπ') || t.includes('study')) return GOAL_PRESETS[4];
-    if (t.includes('γάμ') || t.includes('wed'))  return GOAL_PRESETS[5];
+    if (t.includes('γάμ') || t.includes('wed')) return GOAL_PRESETS[5];
     if (t.includes('υγ') || t.includes('health')) return GOAL_PRESETS[6];
     if (t.includes('παιχ') || t.includes('game')) return GOAL_PRESETS[7];
-    if (t.includes('σκύλ') || t.includes('γάτ'))  return GOAL_PRESETS[8];
+    if (t.includes('σκύλ') || t.includes('γάτ')) return GOAL_PRESETS[8];
     return GOAL_PRESETS[9];
 };
 
@@ -45,7 +45,7 @@ const getPreset = (title = '') => {
    Circular SVG progress ring
 ───────────────────────────────────────────────────────────── */
 const Ring = ({ pct, color, size = 72, stroke = 7, children }) => {
-    const r   = (size - stroke) / 2;
+    const r = (size - stroke) / 2;
     const circ = 2 * Math.PI * r;
     const dash = (pct / 100) * circ;
     const completed = pct >= 100;
@@ -104,15 +104,15 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     // ── modal state ───────────────────────────────────────
-    const [showAddModal,   setShowAddModal]   = useState(false);
-    const [editingGoal,    setEditingGoal]    = useState(null);
-    const [deletingGoal,   setDeletingGoal]   = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [editingGoal, setEditingGoal] = useState(null);
+    const [deletingGoal, setDeletingGoal] = useState(null);
     const [showMoneyModal, setShowMoneyModal] = useState(false);
-    const [selectedGoal,   setSelectedGoal]   = useState(null);
+    const [selectedGoal, setSelectedGoal] = useState(null);
 
     // ── add / edit form ───────────────────────────────────
-    const [formTitle,   setFormTitle]   = useState('');
-    const [formTarget,  setFormTarget]  = useState('');
+    const [formTitle, setFormTitle] = useState('');
+    const [formTarget, setFormTarget] = useState('');
     const [formCurrent, setFormCurrent] = useState('');
 
     // ── numpad ────────────────────────────────────────────
@@ -155,7 +155,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
         setFormCurrent(String(g.current_amount || 0));
     };
 
-    const closeAdd  = () => { setShowAddModal(false);  setEditingGoal(null); };
+    const closeAdd = () => { setShowAddModal(false); setEditingGoal(null); };
     const closeMoney = () => { setShowMoneyModal(false); setSelectedGoal(null); setAddMoneyAmount(''); };
 
     const handleSave = async (e) => {
@@ -163,8 +163,8 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
         if (!formTitle || !formTarget) return;
         const payload = {
             title: formTitle,
-            target_amount:   parseFloat(formTarget),
-            current_amount:  parseFloat(formCurrent) || 0,
+            target_amount: parseFloat(formTarget),
+            current_amount: parseFloat(formCurrent) || 0,
         };
         try {
             if (editingGoal) {
@@ -238,9 +238,9 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
     };
 
     /* ── summary stats ── */
-    const totalTarget  = goals.reduce((s, g) => s + g.target_amount, 0);
-    const totalSaved   = goals.reduce((s, g) => s + (g.current_amount || 0), 0);
-    const totalPct     = totalTarget > 0 ? Math.min(100, (totalSaved / totalTarget) * 100) : 0;
+    const totalTarget = goals.reduce((s, g) => s + g.target_amount, 0);
+    const totalSaved = goals.reduce((s, g) => s + (g.current_amount || 0), 0);
+    const totalPct = totalTarget > 0 ? Math.min(100, (totalSaved / totalTarget) * 100) : 0;
     const completedCnt = goals.filter(g => (g.current_amount || 0) >= g.target_amount).length;
 
     /* ─────────────────────────────────────────────────────
@@ -251,9 +251,9 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
 
             {/* ── Sticky Header ── */}
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
-                            ${hideHeader 
-                                ? 'bg-transparent border-none px-5 pt-4 pb-2' 
-                                : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
+                            ${hideHeader
+                    ? 'bg-transparent border-none px-5 pt-4 pb-2'
+                    : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
@@ -374,9 +374,9 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                     ) : (
                         <div className="space-y-3 stagger-children">
                             {goals.map((goal, idx) => {
-                                const pct       = Math.min(100, ((goal.current_amount || 0) / goal.target_amount) * 100);
-                                const done      = pct >= 100;
-                                const preset    = getPreset(goal.title);
+                                const pct = Math.min(100, ((goal.current_amount || 0) / goal.target_amount) * 100);
+                                const done = pct >= 100;
+                                const preset = getPreset(goal.title);
                                 const remaining = Math.max(0, goal.target_amount - (goal.current_amount || 0));
 
                                 return (
@@ -500,7 +500,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
             {(showAddModal || editingGoal) && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
-                         onClick={closeAdd} />
+                        onClick={closeAdd} />
                     <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
 
                         {/* Accent stripe */}
@@ -582,7 +582,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
             {deletingGoal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-end justify-center p-5 pb-8 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
-                         onClick={() => setDeletingGoal(null)} />
+                        onClick={() => setDeletingGoal(null)} />
                     <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up border border-gray-300 dark:border-white/10">
 
                         <div className="p-6">
@@ -621,7 +621,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
             {showMoneyModal && selectedGoal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-end justify-center animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md"
-                         onClick={closeMoney} />
+                        onClick={closeMoney} />
                     <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl w-full max-w-sm lg:max-w-[1000px] relative z-10 shadow-2xl overflow-hidden animate-slide-up border border-gray-300 dark:border-white/10">
 
                         {/* Handle */}
@@ -639,7 +639,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                 </p>
                             </div>
                             <button onClick={closeMoney}
-                                    className="ml-auto p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">
+                                className="ml-auto p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">
                                 <X size={18} />
                             </button>
                         </div>
@@ -672,7 +672,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                         {/* Amount Display */}
                         <div className="px-6 py-3 text-center">
                             <p className="text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                                 {addMoneyAmount || '0'}
+                                {addMoneyAmount || '0'}
                                 {!privacyMode && <span className="text-2xl text-gray-400 dark:text-gray-500 ml-1.5">€</span>}
                             </p>
                         </div>
@@ -680,7 +680,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                         {/* Numpad */}
                         <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-white/5
                                         border-t border-gray-100 dark:border-transparent">
-                            {['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(key => (
+                            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map(key => (
                                 <button
                                     key={key}
                                     onClick={() => handleNumpad(key)}

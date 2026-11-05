@@ -10,16 +10,16 @@ import {
     XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
     Label
 } from 'recharts';
-import { 
-    TrendingUp, TrendingDown, X, ChevronRight, 
-    ArrowDownLeft, BarChart2, PieChart as PieIcon, 
+import {
+    TrendingUp, TrendingDown, X, ChevronRight,
+    ArrowDownLeft, BarChart2, PieChart as PieIcon,
     Calendar, ArrowUpRight, Activity, Filter, ThumbsDown
 } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import useIsDesktop from '../hooks/useIsDesktop';
-import { 
-    getCategoryTranslation, 
+import {
+    getCategoryTranslation,
     getUppercaseCategoryTranslation
 } from '../utils/categoryTranslations';
 
@@ -266,10 +266,10 @@ const StatsView = ({ transactions }) => {
             }
 
             const d = new Date(tx.date);
-            const key = isYearly 
+            const key = isYearly
                 ? d.toLocaleDateString(locale, { month: 'short' })
                 : d.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
-            
+
             if (!trendMap[key]) trendMap[key] = { date: key, income: 0, expense: 0 };
             trendMap[key][tx.type] += tx.amount;
         });
@@ -284,7 +284,7 @@ const StatsView = ({ transactions }) => {
                 const bName = (b.name || '').toLowerCase();
                 const isOtherA = aName === 'other' || aName === 'άλλο' || aName === other1 || aName === other2;
                 const isOtherB = bName === 'other' || bName === 'άλλο' || bName === other1 || bName === other2;
-                
+
                 if (isOtherA && !isOtherB) return 1;
                 if (!isOtherA && isOtherB) return -1;
                 return b.value - a.value;
@@ -313,7 +313,7 @@ const StatsView = ({ transactions }) => {
 
     return (
         <div className="pb-28 space-y-6">
-            
+
             {/* ── Period Header ── */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -374,55 +374,55 @@ const StatsView = ({ transactions }) => {
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
                         className="bg-gray-100/90 dark:bg-surface-dark2 p-4 rounded-2xl space-y-4 overflow-hidden border border-gray-200 dark:border-white/10">
-                    <div className="relative">
-                        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
-                            {availableYears.map(year => (
+                        <div className="relative">
+                            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide pr-10">
+                                {availableYears.map(year => (
+                                    <button
+                                        key={year}
+                                        onClick={() => setSelectedYear(year)}
+                                        className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
+                                                ${selectedYear === year
+                                                ? 'bg-violet-600 text-white font-bold shadow-xs'
+                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
+                                    >
+                                        {year}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-surface-dark3 to-transparent pointer-events-none flex items-center justify-end pr-1 pb-2">
+                                <ChevronRight size={14} className="text-gray-400 dark:text-gray-500 animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                            <button
+                                onClick={() => setSelectedMonth(null)}
+                                className={`col-span-4 py-2.5 rounded-xl text-xs font-black transition-all border
+                                        ${selectedMonth === null
+                                        ? 'bg-violet-600 text-white font-bold shadow-xs'
+                                        : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
+                            >
+                                {t('stats_year')} {selectedYear}
+                            </button>
+                            {months.map(m => (
                                 <button
-                                    key={year}
-                                    onClick={() => setSelectedYear(year)}
-                                    className={`px-5 py-2 rounded-xl text-xs font-bold transition-all
-                                                ${selectedYear === year 
-                                                    ? 'bg-violet-600 text-white font-bold shadow-xs' 
-                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
+                                    key={m.id}
+                                    onClick={() => setSelectedMonth(m.id)}
+                                    className={`py-2 rounded-xl text-[10px] font-bold transition-all
+                                            ${selectedMonth === m.id
+                                            ? 'bg-violet-600 text-white font-bold shadow-xs'
+                                            : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
                                 >
-                                    {year}
+                                    {m.name.substring(0, 3)}
                                 </button>
                             ))}
                         </div>
-                        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white dark:from-surface-dark3 to-transparent pointer-events-none flex items-center justify-end pr-1 pb-2">
-                            <ChevronRight size={14} className="text-gray-400 dark:text-gray-500 animate-pulse" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                        <button
-                            onClick={() => setSelectedMonth(null)}
-                            className={`col-span-4 py-2.5 rounded-xl text-xs font-black transition-all border
-                                        ${selectedMonth === null 
-                                                ? 'bg-violet-600 text-white font-bold shadow-xs' 
-                                                : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
-                        >
-                            {t('stats_year')} {selectedYear}
-                        </button>
-                        {months.map(m => (
-                            <button
-                                key={m.id}
-                                onClick={() => setSelectedMonth(m.id)}
-                                className={`py-2 rounded-xl text-[10px] font-bold transition-all
-                                            ${selectedMonth === m.id 
-                                                    ? 'bg-violet-600 text-white font-bold shadow-xs' 
-                                                    : 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200/80 dark:border-white/10 hover:bg-gray-50'}`}
-                            >
-                                {m.name.substring(0, 3)}
-                            </button>
-                        ))}
-                    </div>
-                </motion.div>
-            )}
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             {/* ── Expense Calendar ── */}
-            <CalendarSection 
-                transactions={transactions} 
+            <CalendarSection
+                transactions={transactions}
                 calendarYear={calendarYear}
                 calendarMonth={calendarMonth}
                 setCalendarYear={setCalendarYear}
@@ -512,7 +512,7 @@ const StatsView = ({ transactions }) => {
                         {t('stats_top_categories')}
                     </h3>
                 </div>
-                
+
                 {categoryData.length === 0 ? (
                     <div className="bg-white dark:bg-surface-dark3 rounded-[24px] p-8 text-center border border-gray-100/80 dark:border-white/5 shadow-sm">
                         <p className="text-gray-400 text-sm font-medium">{t('stats_no_expenses')}</p>
@@ -549,13 +549,13 @@ const StatsView = ({ transactions }) => {
                                             </div>
                                             {/* Advanced Progress Bar */}
                                             <div className="relative h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                                                <div 
+                                                <div
                                                     className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
-                                                    style={{ width: `${pct}%`, background: COLORS[i % COLORS.length] }} 
+                                                    style={{ width: `${pct}%`, background: COLORS[i % COLORS.length] }}
                                                 />
-                                                <div 
+                                                <div
                                                     className="absolute inset-y-0 left-0 bg-white/30 animate-shimmer"
-                                                    style={{ width: `${pct}%` }} 
+                                                    style={{ width: `${pct}%` }}
                                                 />
                                             </div>
                                             <div className="flex justify-between mt-2">
@@ -581,7 +581,7 @@ const StatsView = ({ transactions }) => {
                         {t('stats_expense_distribution')}
                     </h3>
                 </div>
-                
+
                 {categoryData.length > 0 ? (
                     <div className="flex flex-col items-center">
                         <div className="h-64 w-full relative min-w-0">
@@ -601,8 +601,8 @@ const StatsView = ({ transactions }) => {
                                         animationDuration={1200}
                                     >
                                         {categoryData.map((_, i) => (
-                                            <Cell key={i} fill={COLORS[i % COLORS.length]} 
-                                                  className="hover:opacity-80 transition-opacity cursor-pointer outline-none" />
+                                            <Cell key={i} fill={COLORS[i % COLORS.length]}
+                                                className="hover:opacity-80 transition-opacity cursor-pointer outline-none" />
                                         ))}
                                         <Label
                                             width={30}
@@ -658,56 +658,56 @@ const StatsView = ({ transactions }) => {
                         {t('stats_trend_analysis')}
                     </h3>
                 </div>
-                
+
                 <div className="h-64 w-full min-w-0">
                     {trendData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                             <AreaChart data={trendData}>
                                 <defs>
                                     <linearGradient id="colorInc" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-gray-100 dark:text-white/5" />
-                                <XAxis 
-                                    dataKey="date" 
-                                    tickLine={false} 
+                                <XAxis
+                                    dataKey="date"
+                                    tickLine={false}
                                     axisLine={false}
-                                    tick={{ fontSize: 10, fill: '#9CA3AF', fontWeight: 600 }} 
+                                    tick={{ fontSize: 10, fill: '#9CA3AF', fontWeight: 600 }}
                                     dy={10}
                                 />
                                 <YAxis hide />
                                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#8884d8', strokeWidth: 1, strokeDasharray: '5 5' }} />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="income" 
-                                    name={t('stats_income')} 
-                                    stroke="#10b981" 
+                                <Area
+                                    type="monotone"
+                                    dataKey="income"
+                                    name={t('stats_income')}
+                                    stroke="#10b981"
                                     strokeWidth={3}
-                                    fillOpacity={1} 
-                                    fill="url(#colorInc)" 
+                                    fillOpacity={1}
+                                    fill="url(#colorInc)"
                                     animationDuration={1500}
                                 />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="expense" 
-                                    name={t('stats_expense')} 
-                                    stroke="#7c3aed" 
+                                <Area
+                                    type="monotone"
+                                    dataKey="expense"
+                                    name={t('stats_expense')}
+                                    stroke="#7c3aed"
                                     strokeWidth={3}
-                                    fillOpacity={1} 
-                                    fill="url(#colorExp)" 
+                                    fillOpacity={1}
+                                    fill="url(#colorExp)"
                                     animationDuration={1500}
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     ) : (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                             <BarChart2 size={24} className="opacity-20" />
+                            <BarChart2 size={24} className="opacity-20" />
                             <p className="text-sm">{t('stats_no_data')}</p>
                         </div>
                     )}
@@ -726,7 +726,7 @@ const StatsView = ({ transactions }) => {
                             <p className="text-[11px] font-bold text-gray-500 dark:text-white/60 mt-1 uppercase tracking-widest">Highest Regret Categories</p>
                         </div>
                     </div>
-                    
+
                     <div className="space-y-3 relative z-10">
                         {antiPersona.map((ap, i) => (
                             <div key={ap.category} className="flex items-center gap-4 bg-white dark:bg-surface-dark3 rounded-2xl p-4 border border-rose-100 dark:border-rose-500/10 shadow-sm">
@@ -739,7 +739,7 @@ const StatsView = ({ transactions }) => {
                                     </h4>
                                     <div className="flex items-center gap-2">
                                         <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                                            <div 
+                                            <div
                                                 className="h-full bg-rose-500 rounded-full"
                                                 style={{ width: `${ap.quotient * 100}%` }}
                                             />
@@ -770,16 +770,16 @@ const StatsView = ({ transactions }) => {
                             className={`fixed inset-0 z-[100] flex ${isDesktop ? 'items-center p-4 sm:p-6' : 'items-end'} justify-center pointer-events-none`}
                         >
                             {/* Backdrop */}
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
-                                onClick={() => setSelectedCategory(null)} 
+                                onClick={() => setSelectedCategory(null)}
                             />
-                            
+
                             {/* Panel / Centered Modal */}
-                            <motion.div 
+                            <motion.div
                                 initial={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
                                 animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
                                 exit={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
@@ -817,7 +817,7 @@ const StatsView = ({ transactions }) => {
                                                 <Amount value={drillDownTotal} />
                                             </div>
                                         </div>
-                                        <button 
+                                        <button
                                             onClick={() => setSelectedCategory(null)}
                                             className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                         >

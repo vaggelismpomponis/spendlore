@@ -516,8 +516,8 @@ const LoginView = ({
                                                 </svg>
                                             )}
                                             <span>
-                                                {isGoogleSubmitting 
-                                                    ? 'Σύνδεση...' 
+                                                {isGoogleSubmitting
+                                                    ? 'Σύνδεση...'
                                                     : (isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google')}
                                             </span>
                                         </motion.button>

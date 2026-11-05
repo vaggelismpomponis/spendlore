@@ -31,25 +31,23 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
         <button
             onClick={onClick}
             type="button"
-            className={`flex-1 flex flex-col items-center sm:items-start text-center sm:text-left gap-2 p-4 rounded-2xl border transition-all duration-200 ${
-                active
+            className={`flex-1 flex flex-col items-center sm:items-start text-center sm:text-left gap-2 p-4 rounded-2xl border transition-all duration-200 ${active
                     ? isRose
                         ? 'border-rose-400 bg-rose-50/80 dark:bg-rose-500/10 shadow-sm ring-1 ring-rose-400/30'
                         : 'border-violet-400 bg-violet-50/80 dark:bg-violet-500/10 shadow-sm ring-1 ring-violet-400/30'
                     : 'border-gray-200/70 dark:border-white/[0.06] bg-white dark:bg-surface-dark2 hover:bg-gray-50 dark:hover:bg-white/[0.03]'
-            }`}
+                }`}
         >
             <div className="flex items-center gap-2.5">
                 <Icon size={20} strokeWidth={2.2} className="shrink-0" />
                 <div>
                     <p
-                        className={`text-xs font-bold leading-tight ${
-                            active
+                        className={`text-xs font-bold leading-tight ${active
                                 ? isRose
                                     ? 'text-rose-700 dark:text-rose-300'
                                     : 'text-violet-700 dark:text-violet-300'
                                 : 'text-gray-900 dark:text-white'
-                        }`}
+                            }`}
                     >
                         {label}
                     </p>
@@ -526,11 +524,10 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     type="button"
                                     onClick={handleRestoreBackup}
                                     disabled={isImporting}
-                                    className={`flex-1 py-3.5 px-5 rounded-2xl text-white font-extrabold text-xs active:scale-[0.98] transition-all shadow-lg ${
-                                        restoreMode === 'replace'
+                                    className={`flex-1 py-3.5 px-5 rounded-2xl text-white font-extrabold text-xs active:scale-[0.98] transition-all shadow-lg ${restoreMode === 'replace'
                                             ? 'bg-rose-600 hover:bg-rose-700 shadow-rose-500/25'
                                             : 'bg-violet-600 hover:bg-violet-700 shadow-violet-500/25'
-                                    }`}
+                                        }`}
                                 >
                                     {translate('backup_restore_btn') || 'Restore Backup Now'}
                                 </button>

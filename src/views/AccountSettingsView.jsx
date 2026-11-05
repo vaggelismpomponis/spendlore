@@ -53,7 +53,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
 
             {/* ─────── Content ─────── */}
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                
+
                 {/* Avatar */}
                 <div className="flex justify-center mt-6">
                     <div className="relative shrink-0">

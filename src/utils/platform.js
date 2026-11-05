@@ -21,25 +21,76 @@ export const isLandingDomain = (explicitPath) => {
     // Dedicated app subdomain is always the app
     if (window.location.hostname === 'app.spendlore.gr') return false;
 
-    // Development & manual testing overrides via query param or path
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('app') || params.get('view') === 'app') return false;
-    if (params.has('landing') || params.get('view') === 'landing') return true;
-
     const path = (explicitPath || window.location.pathname || '').toLowerCase();
-    if (path === '/landing' || path.startsWith('/landing/')) return true;
 
-    // Dedicated public legal pages (/privacy, /terms) on web default to the public landing layout
-    if (path === '/privacy' || path === '/terms') {
+    // 1. Explicit in-app routes are ALWAYS the app (never the landing page)
+    const APP_ROUTES = [
+        '/stats',
+        '/history',
+        '/recurring',
+        '/goals',
+        '/budgets',
+        '/advisor',
+        '/settings',
+        '/admin',
+        '/upgrade',
+        '/home'
+    ];
+    if (APP_ROUTES.some(r => path === r || path.startsWith(r + '/'))) {
+        return false;
+    }
+
+    // 2. Query param overrides
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('landing') || params.get('view') === 'landing') {
+        try {
+            sessionStorage.removeItem('sw_in_app');
+        } catch (_) {}
         return true;
     }
 
+    if (params.has('app') || params.get('view') === 'app') {
+        try {
+            sessionStorage.setItem('sw_in_app', '1');
+        } catch (_) {}
+        return false;
+    }
+
+    // Explicit landing path
+    if (path === '/landing' || path.startsWith('/landing/')) {
+        try {
+            sessionStorage.removeItem('sw_in_app');
+        } catch (_) {}
+        return true;
+    }
+
+    // 3. Dedicated public legal pages (/privacy, /terms) on web default to the public landing layout
+    // unless the user is already inside an active app session
+    if (path === '/privacy' || path === '/terms') {
+        const inApp = (() => {
+            try { return sessionStorage.getItem('sw_in_app') === '1'; } catch (_) { return false; }
+        })();
+        if (!inApp) return true;
+        return false;
+    }
+
+    // 4. If user already transitioned into the app in this session, keep them in the app
+    try {
+        if (sessionStorage.getItem('sw_in_app') === '1') {
+            return false;
+        }
+    } catch (_) {}
+
     const host = window.location.hostname;
-    // On production marketing domain (spendlore.gr / www.spendlore.gr) OR local dev/preview host:
-    // The default view is always the Landing Page.
-    // Entering the app happens exclusively when clicking action buttons (e.g. ?app=1 or on app.spendlore.gr).
-    if (host === 'spendlore.gr' || host === 'www.spendlore.gr') return true;
-    if (host === 'localhost' || host === '127.0.0.1') return true;
+    // On production marketing domain (spendlore.gr / www.spendlore.gr)
+    if (host === 'spendlore.gr' || host === 'www.spendlore.gr') {
+        return path === '/';
+    }
+
+    // On localhost: default to landing at root '/' if not in app session
+    if ((host === 'localhost' || host === '127.0.0.1') && path === '/') {
+        return true;
+    }
 
     return false;
 };

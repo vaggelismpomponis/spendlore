@@ -37,7 +37,7 @@ const CircularGauge = ({ pct }) => {
                 strokeLinecap="round"
                 style={{
                     transition: 'stroke-dasharray 1.2s cubic-bezier(0.34,1.56,0.64,1)',
-                    
+
                 }}
             />
         </svg>
@@ -53,7 +53,7 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
     const isOver = spent > budget.amount;
     const isWarn = pct >= (budget.notification_threshold || 80) && !isOver;
     const leftover = Math.max(0, budget.amount - spent);
-    
+
     // Projected end-of-month spend
     const now = new Date();
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -93,10 +93,10 @@ const BudgetRow = ({ budget, spent, onEdit, onDelete, t, getCategoryTranslation,
                     <div className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
                         <div
                             className="h-full rounded-full transition-all duration-700 relative"
-                            style={{ 
-                                width: `${pct}%`, 
+                            style={{
+                                width: `${pct}%`,
                                 backgroundColor: barColor,
-                                
+
                             }}
                         />
                     </div>
@@ -391,8 +391,8 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             {/* ── Sticky Header ── */}
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
                             ${hideHeader
-                                ? 'bg-transparent border-none px-5 pt-4 pb-2'
-                                : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
+                    ? 'bg-transparent border-none px-5 pt-4 pb-2'
+                    : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
                 <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
@@ -485,14 +485,13 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <div className="px-5 mt-4">
                                 <div className="rounded-2xl p-4 border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 flex items-center gap-3">
                                     {paceInfo.isOver
-                                            ? <TrendingUp size={22} className="text-red-500 shrink-0" strokeWidth={2.5} />
-                                            : paceInfo.isWarn
-                                                ? <AlertCircle size={22} className="text-orange-500 shrink-0" strokeWidth={2.5} />
-                                                : <TrendingDown size={22} className="text-emerald-500 shrink-0" strokeWidth={2.5} />}
+                                        ? <TrendingUp size={22} className="text-red-500 shrink-0" strokeWidth={2.5} />
+                                        : paceInfo.isWarn
+                                            ? <AlertCircle size={22} className="text-orange-500 shrink-0" strokeWidth={2.5} />
+                                            : <TrendingDown size={22} className="text-emerald-500 shrink-0" strokeWidth={2.5} />}
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${
-                                            paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
-                                        }`}>{t('budget_daily_pace_title')}</p>
+                                        <p className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
+                                            }`}>{t('budget_daily_pace_title')}</p>
                                         <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 leading-snug">
                                             {paceInfo.isOver
                                                 ? t('budget_daily_pace_over').replace('{amount}', paceInfo.dailyRate).replace('{pct}', paceInfo.projectedPct - 100)
@@ -502,9 +501,8 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                             }
                                         </p>
                                     </div>
-                                    <div className={`text-right flex-shrink-0 text-xs font-black ${
-                                        paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
-                                    }`}>
+                                    <div className={`text-right flex-shrink-0 text-xs font-black ${paceInfo.isOver ? 'text-red-500' : paceInfo.isWarn ? 'text-orange-500' : 'text-emerald-600 dark:text-emerald-400'
+                                        }`}>
                                         {paceInfo.projectedPct}%<br />
                                         <span className="text-[10px] font-medium text-gray-400">{t('budget_projection')}</span>
                                     </div>

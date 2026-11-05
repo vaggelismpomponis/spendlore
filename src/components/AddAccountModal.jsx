@@ -90,7 +90,7 @@ const AddAccountModal = ({ onClose, user }) => {
                                 className="w-full p-3 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-xl font-bold placeholder-gray-400"
                                 required
                             />
-                             {!privacyMode && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>}
+                            {!privacyMode && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>}
                         </div>
                     </div>
 
@@ -104,8 +104,8 @@ const AddAccountModal = ({ onClose, user }) => {
                                     type="button"
                                     onClick={() => setSelectedType(item)}
                                     className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all min-w-[80px] ${selectedType.id === item.id
-                                            ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
-                                            : 'border-transparent bg-gray-50 dark:bg-surface-dark3/50 text-gray-500 dark:text-gray-400'
+                                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400'
+                                        : 'border-transparent bg-gray-50 dark:bg-surface-dark3/50 text-gray-500 dark:text-gray-400'
                                         }`}
                                 >
                                     <item.icon size={24} />

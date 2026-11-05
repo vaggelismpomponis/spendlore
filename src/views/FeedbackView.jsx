@@ -183,11 +183,10 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                                                 key={t.id}
                                                 type="button"
                                                 onClick={() => setType(t.id)}
-                                                className={`flex items-center sm:flex-col sm:items-start text-left p-4 rounded-2xl border transition-all duration-200 relative group ${
-                                                    isSelected
+                                                className={`flex items-center sm:flex-col sm:items-start text-left p-4 rounded-2xl border transition-all duration-200 relative group ${isSelected
                                                         ? `bg-gray-50/80 dark:bg-white/[0.05] ${t.activeBorder} shadow-sm`
                                                         : 'bg-white dark:bg-surface-dark2 border-gray-200/70 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.03]'
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex items-center gap-3 sm:w-full">
                                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${t.bg}`}>
@@ -228,11 +227,10 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                                                 key={tag}
                                                 type="button"
                                                 onClick={() => handleTagClick(tag)}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                                                    isTagActive
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${isTagActive
                                                         ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/25'
                                                         : 'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.1]'
-                                                }`}
+                                                    }`}
                                             >
                                                 {tag}
                                             </button>
