@@ -18,8 +18,8 @@ export const isLandingDomain = (explicitPath) => {
     if (Capacitor.isNativePlatform()) return false;
     if (typeof window === 'undefined') return false;
 
-    // Dedicated app subdomain is always the app
-    if (window.location.hostname === 'app.spendlore.gr') return false;
+    // Dedicated app subdomains are always the app
+    if (window.location.hostname.startsWith('app.')) return false;
 
     const path = (explicitPath || window.location.pathname || '').toLowerCase();
 
@@ -82,13 +82,21 @@ export const isLandingDomain = (explicitPath) => {
     } catch (_) {}
 
     const host = window.location.hostname;
-    // On production marketing domain (spendlore.gr / www.spendlore.gr)
-    if (host === 'spendlore.gr' || host === 'www.spendlore.gr') {
+    // Known marketing / public domains
+    const MARKETING_DOMAINS = [
+        'spendwise.online',
+        'www.spendwise.online',
+        'spendlore.gr',
+        'www.spendlore.gr',
+        'spendlore.com',
+        'www.spendlore.com'
+    ];
+    if (MARKETING_DOMAINS.includes(host)) {
         return path === '/';
     }
 
-    // On localhost: default to landing at root '/' if not in app session
-    if ((host === 'localhost' || host === '127.0.0.1') && path === '/') {
+    // On localhost, preview, or default web host: default to landing at root '/' if not in app session
+    if (path === '/') {
         return true;
     }
 

@@ -394,10 +394,15 @@ const LandingPage = () => {
             if (queryLang === 'el' || queryLang === 'en') return queryLang;
             const saved = localStorage.getItem('landing_lang');
             if (saved === 'el' || saved === 'en') return saved;
+            if (typeof navigator !== 'undefined' && navigator.language) {
+                const nav = navigator.language.toLowerCase();
+                if (nav.startsWith('el')) return 'el';
+                return 'en';
+            }
         } catch {
             // Ignore storage/param errors in restricted environments
         }
-        return 'el'; // Greek default
+        return 'el'; // Greek fallback
     });
 
     const location = useLocation();
@@ -473,6 +478,7 @@ const LandingPage = () => {
             ? (lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy')
             : (lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service');
         const pagePath = isPrivacy ? '/privacy' : '/terms';
+        const displayHost = typeof window !== 'undefined' && window.location.host ? window.location.host : 'www.spendlore.gr';
 
         return (
             <div className="landing-page min-h-dvh bg-gray-50 dark:bg-surface-dark text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 flex flex-col">
@@ -496,7 +502,7 @@ const LandingPage = () => {
                                 }}
                                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
                             >
-                                spendlore.gr
+                                {displayHost}
                             </a>
                             <span className="text-gray-400">/</span>
                             <span className="font-semibold text-gray-900 dark:text-white">{pageTitle}</span>
@@ -505,7 +511,7 @@ const LandingPage = () => {
                         {/* Explicit URL Affordance Pill */}
                         <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-[11px] font-mono text-gray-600 dark:text-gray-300 self-start sm:self-auto">
                             <Globe size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                            <span>spendlore.gr{pagePath}</span>
+                            <span>{displayHost}{pagePath}</span>
                         </div>
                     </div>
 

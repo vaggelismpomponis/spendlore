@@ -59,8 +59,8 @@ const TermsOfServiceView = ({ onBack, hideHeader = false, lang, hideBack = false
                         </h1>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                             {isEL
-                                ? 'Καλώς ήρθατε στο Spendlore. Οι παρόντες Όροι Χρήσης καθορίζουν τα δικαιώματα και τις υποχρεώσεις σας κατά τη χρήση της εφαρμογής και του ιστοτόπου μας.'
-                                : 'Welcome to Spendlore. These Terms of Service govern your access to and use of the Spendlore web and mobile applications.'}
+                                ? 'Καλώς ήρθατε στο Spendlore (spendlore.gr). Οι παρόντες Όροι Χρήσης καθορίζουν τα δικαιώματα και τις υποχρεώσεις σας κατά τη χρήση της εφαρμογής και του ιστοτόπου μας.'
+                                : 'Welcome to Spendlore (https://www.spendlore.gr/). These Terms of Service govern your access to and use of the Spendlore web and mobile applications.'}
                         </p>
                     </div>
                 </div>
@@ -199,7 +199,7 @@ const TermsOfServiceView = ({ onBack, hideHeader = false, lang, hideBack = false
 
                 {/* Footer Copyright */}
                 <div className="pt-6 pb-12 text-center text-xs text-gray-400">
-                    © {new Date().getFullYear()} Spendlore. All rights reserved.
+                    © {new Date().getFullYear()} Spendlore &bull; https://www.spendlore.gr. All rights reserved.
                 </div>
 
             </div>

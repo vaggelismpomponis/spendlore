@@ -25,7 +25,10 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
 
 ## Git & Version Control Guidelines
 
-- **Commit Policy (Do Not Push)**: Always commit changes locally upon successfully completing and verifying any task, feature, bug fix, or refactor. Never push (git push); the user handles pushing manually.
+- **Explicit Commit Policy (On User Request Only)**:
+  - **NEVER** automatically commit changes, bump versions, or run mobile preparation during regular tasks, code modifications, bug fixes, or refactors.
+  - **ONLY** perform mobile preparation, Android version bumping, staging, and local commits when the USER EXPLICITLY requests it (e.g. "commit changes", "κάνε commit τις αλλαγές").
+- **Commit Policy (Do Not Push)**: All commits are strictly local (`git add`, `git commit`). NEVER push (`git push`); the user handles pushing to remote manually.
 - **Commit Message Convention**: Follow the Conventional Commits standard with a professional, corporate, and easy-to-understand message format:
   - **Format**: `<type>(<scope>): <concise summary>`
   - **Types**:
@@ -40,16 +43,18 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
     - Use imperative, present tense ("add", "implement", "resolve", "update" — avoid "added", "fixing", "updated").
     - Keep commit titles clear, specific, and self-explanatory (avoid vague messages like "update files" or "fixes").
     - For non-trivial changes, include a concise body or bullet points detailing the business rationale and technical scope.
-- **Mandatory Mobile Preparation & Version Bump on Commit**:
-  - Whenever changes are made and the user requests to commit changes (e.g. "commit changes"):
-    1. **ALWAYS** execute the preparation script:
+- **Mandatory Mobile Preparation & Version Bump (STRICTLY ON USER COMMIT REQUEST ONLY)**:
+  - Execute these steps **ONLY when the user explicitly requests to commit changes** (never on regular code edits or tasks):
+    1. **Execute mobile preparation script**:
        ```bash
        npm run prepare-mobile
        ```
        (which runs `npm run build && npx cap sync` to build the web bundle and sync native Android assets).
-    2. **ALWAYS** increment `versionCode` by +1 and appropriately increment `versionName` (patch bump, e.g. `1.1.26` -> `1.1.27`) in `android/app/build.gradle`.
-    3. Stage and include `android/app/build.gradle` along with all synchronized mobile assets in the commit.
-- **No Remote Push**: Do NOT execute git push. All pushes to the remote tracking branch are handled manually by the user.
+    2. **Increment Android version numbers** in `android/app/build.gradle`:
+       - Increment `versionCode` by +1
+       - Increment `versionName` patch version (e.g., `1.1.26` -> `1.1.27`)
+    3. Stage all modified files, `android/app/build.gradle`, and synchronized mobile assets, and create the local commit.
+- **No Remote Push**: Do NOT execute `git push` under any circumstances. All remote pushes are handled manually by the user.
 
 ## Iconography & UI Design Guidelines
 
