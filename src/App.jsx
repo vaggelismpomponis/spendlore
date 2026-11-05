@@ -8,7 +8,8 @@ import {
     User,
     Bell,
     Globe,
-    Smartphone
+    Smartphone,
+    X
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { Capacitor } from '@capacitor/core';
@@ -1672,7 +1673,15 @@ function MainContent() {
 }
 
 function DevModeToggle({ isLanding }) {
-    if (!import.meta.env.DEV || Capacitor.isNativePlatform() || typeof window === 'undefined') return null;
+    const [dismissed, setDismissed] = useState(() => {
+        try {
+            return sessionStorage.getItem('dev_switcher_dismissed') === 'true';
+        } catch (_) {
+            return false;
+        }
+    });
+
+    if (!import.meta.env.DEV || Capacitor.isNativePlatform() || typeof window === 'undefined' || dismissed) return null;
 
     const toggle = () => {
         const url = new URL(window.location.href);
@@ -1687,12 +1696,20 @@ function DevModeToggle({ isLanding }) {
         window.location.href = url.toString();
     };
 
+    const handleDismiss = (e) => {
+        e.stopPropagation();
+        setDismissed(true);
+        try {
+            sessionStorage.setItem('dev_switcher_dismissed', 'true');
+        } catch (_) {}
+    };
+
     return (
-        <aside aria-label="Dev switcher" className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+        <aside aria-label="Dev switcher" className="hidden lg:flex items-center gap-1 fixed bottom-4 right-4 z-[9999] pointer-events-auto bg-gray-900/90 hover:bg-black dark:bg-white/95 dark:hover:bg-white text-white dark:text-gray-950 text-xs font-semibold rounded-xl shadow-xl backdrop-blur border border-white/20 dark:border-black/10 transition-all p-1">
             <button
                 type="button"
                 onClick={toggle}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-900/90 hover:bg-black dark:bg-white/95 dark:hover:bg-white text-white dark:text-gray-950 text-xs font-semibold rounded-xl shadow-xl backdrop-blur border border-white/20 dark:border-black/10 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-2.5 py-1.5 active:scale-95 transition-all cursor-pointer"
                 title="Εναλλαγή Landing Page / Web App στο localhost"
             >
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
@@ -1707,6 +1724,15 @@ function DevModeToggle({ isLanding }) {
                         <span>Dev: Προβολή Landing</span>
                     </>
                 )}
+            </button>
+            <button
+                type="button"
+                onClick={handleDismiss}
+                className="p-1.5 hover:bg-white/20 dark:hover:bg-black/10 rounded-lg text-gray-400 hover:text-white dark:hover:text-black transition-colors"
+                title="Κλείσιμο"
+                aria-label="Κλείσιμο switcher"
+            >
+                <X size={13} />
             </button>
         </aside>
     );
