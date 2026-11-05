@@ -582,20 +582,9 @@ const LandingPage = () => {
             <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6">
                 <div className="relative max-w-4xl mx-auto text-center">
                     {/* Eyebrow */}
-                    <div className="flex flex-wrap items-center justify-center gap-1.5 mb-5 text-[11px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <div className="flex items-center justify-center gap-1.5 mb-5 text-[11px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                         <Shield size={13} className="shrink-0" strokeWidth={2.2} />
                         <span>{lang === 'el' ? 'Χωρίς διαφημίσεις · Χωρίς πώληση δεδομένων' : 'Zero Ads · Full Privacy'}</span>
-                        <span className="text-gray-300 dark:text-gray-700 mx-1">·</span>
-                        <a
-                            href="/privacy"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                openLegal('privacy');
-                            }}
-                            className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300 normal-case font-semibold text-xs tracking-normal"
-                        >
-                            {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
-                        </a>
                     </div>
 
                     {/* Title */}
