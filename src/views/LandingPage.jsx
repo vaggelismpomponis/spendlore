@@ -242,12 +242,36 @@ const FAQItem = ({ item, lang }) => {
    MAIN LANDING PAGE
 ───────────────────────────────────────────────────────────── */
 const LandingPage = () => {
-    const [lang, setLang] = useState('el');
+    const [lang, setLang] = useState(() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const queryLang = params.get('lang');
+            if (queryLang === 'el' || queryLang === 'en') return queryLang;
+            const saved = localStorage.getItem('landing_lang');
+            if (saved === 'el' || saved === 'en') return saved;
+        } catch {
+            // Ignore storage/param errors in restricted environments
+        }
+        return 'el'; // Greek default
+    });
+
+    const updateLang = (valOrFn) => {
+        setLang(prev => {
+            const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
+            try {
+                localStorage.setItem('landing_lang', next);
+            } catch {
+                // Ignore storage errors
+            }
+            return next;
+        });
+    };
 
     useEffect(() => {
-        const browserLang = navigator.language?.startsWith('el') ? 'el' : 'en';
-        setLang(browserLang);
+        document.documentElement.lang = lang;
+    }, [lang]);
 
+    useEffect(() => {
         // Enable full-page document scrolling when viewing LandingPage
         document.documentElement.classList.add('landing-mode');
         document.body.classList.add('landing-mode');
@@ -263,7 +287,7 @@ const LandingPage = () => {
 
     return (
         <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50">
-            <NavBar lang={lang} setLang={setLang} />
+            <NavBar lang={lang} setLang={updateLang} />
 
             {/* ── HERO ── */}
             <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 overflow-hidden">
