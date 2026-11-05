@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/api/assetlinks"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
     },
