@@ -43,6 +43,7 @@ const UpgradePage  = React.lazy(() => import('./views/UpgradePage'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
 const LandingPage = React.lazy(() => import('./views/LandingPage'));
 const PrivacyPolicyView = React.lazy(() => import('./views/PrivacyPolicyView'));
+const TermsOfServiceView = React.lazy(() => import('./views/TermsOfServiceView'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -1454,7 +1455,7 @@ function MainContent() {
                 }
             );
 
-            if (deletedTx?.type === 'expense' && deletedTx.category) {
+            if (deletedTx?.type === 'expese' && deletedTx.category) {
                 const affectedBudget = budgets.find(b =>
                     b.category.toLowerCase() === deletedTx.category.toLowerCase()
                 );
@@ -1555,11 +1556,22 @@ function MainContent() {
                     transition={{ duration: 0.4 }}
                     className="h-full w-full"
                 >
-                    {/* Public Privacy Policy route accessible to all without login */}
+                    {/* Public Privacy Policy and Terms of Service routes accessible to all without login */}
                     {activeTab === 'privacy' ? (
                         <div className="h-dvh w-full overflow-hidden bg-gray-50 dark:bg-surface-dark">
                             <React.Suspense fallback={<div className="h-full w-full flex items-center justify-center text-sm text-gray-400">Loading...</div>}>
                                 <PrivacyPolicyView
+                                    onBack={() => {
+                                        if (user) setActiveTab('general');
+                                        else window.location.href = '/';
+                                    }}
+                                />
+                            </React.Suspense>
+                        </div>
+                    ) : activeTab === 'terms' ? (
+                        <div className="h-dvh w-full overflow-hidden bg-gray-50 dark:bg-surface-dark">
+                            <React.Suspense fallback={<div className="h-full w-full flex items-center justify-center text-sm text-gray-400">Loading...</div>}>
+                                <TermsOfServiceView
                                     onBack={() => {
                                         if (user) setActiveTab('general');
                                         else window.location.href = '/';

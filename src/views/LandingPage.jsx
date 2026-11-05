@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-    ArrowRight, Shield, TrendingUp, PieChart, ScanLine, Bell,
+    ArrowRight, ArrowLeft, Shield, TrendingUp, PieChart, ScanLine, Bell,
     Repeat, Target, Fingerprint, Download, ChevronDown, ChevronUp,
     Smartphone, Globe, CheckCircle2, Star, Wallet, BarChart3,
     Tags, CreditCard, Lock, Eye, ArrowUpRight, Menu, X
 } from 'lucide-react';
 import { PLAY_STORE_URL } from '../utils/platform';
+
+const PrivacyPolicyView = React.lazy(() => import('./PrivacyPolicyView'));
+const TermsOfServiceView = React.lazy(() => import('./TermsOfServiceView'));
 
 const isDevHost = typeof window !== 'undefined' && 
     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -119,15 +122,31 @@ const faqItems = [
    SUB-COMPONENTS
 ───────────────────────────────────────────────────────────── */
 
-const NavBar = ({ lang, setLang }) => {
+const NavBar = ({ lang, setLang, onHome }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleAnchorClick = (e, hash) => {
+        if (onHome) {
+            onHome();
+        }
+        setMenuOpen(false);
+    };
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/60 dark:border-white/[0.06]">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
-                    <a href="/" className="flex items-center gap-2.5 group">
+                    <a
+                        href="/"
+                        onClick={(e) => {
+                            if (onHome) {
+                                e.preventDefault();
+                                onHome();
+                            }
+                        }}
+                        className="flex items-center gap-2.5 group"
+                    >
                         <img
                             src="/spendlore-mark.png"
                             alt="Spendlore"
@@ -140,13 +159,25 @@ const NavBar = ({ lang, setLang }) => {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-6">
-                        <a href="#features" className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <a
+                            href="#features"
+                            onClick={(e) => handleAnchorClick(e, '#features')}
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        >
                             {lang === 'el' ? 'Δυνατότητες' : 'Features'}
                         </a>
-                        <a href="#pricing" className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <a
+                            href="#pricing"
+                            onClick={(e) => handleAnchorClick(e, '#pricing')}
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        >
                             {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
                         </a>
-                        <a href="#faq" className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <a
+                            href="#faq"
+                            onClick={(e) => handleAnchorClick(e, '#faq')}
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                        >
                             FAQ
                         </a>
                         <button
@@ -187,13 +218,25 @@ const NavBar = ({ lang, setLang }) => {
                 {/* Mobile Nav */}
                 {menuOpen && (
                     <div className="md:hidden pb-4 pt-2 border-t border-gray-100 dark:border-white/[0.06] space-y-2">
-                        <a href="#features" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                        <a
+                            href="#features"
+                            onClick={(e) => handleAnchorClick(e, '#features')}
+                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        >
                             {lang === 'el' ? 'Δυνατότητες' : 'Features'}
                         </a>
-                        <a href="#pricing" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                        <a
+                            href="#pricing"
+                            onClick={(e) => handleAnchorClick(e, '#pricing')}
+                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        >
                             {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
                         </a>
-                        <a href="#faq" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+                        <a
+                            href="#faq"
+                            onClick={(e) => handleAnchorClick(e, '#faq')}
+                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        >
                             FAQ
                         </a>
                         <div className="px-3 pt-2">
@@ -255,6 +298,16 @@ const LandingPage = () => {
         return 'el'; // Greek default
     });
 
+    const [legalView, setLegalView] = useState(() => {
+        if (typeof window === 'undefined') return null;
+        const path = window.location.pathname.toLowerCase();
+        const hash = window.location.hash.toLowerCase();
+        const params = new URLSearchParams(window.location.search);
+        if (path.startsWith('/privacy') || hash === '#privacy' || params.get('tab') === 'privacy' || params.get('legal') === 'privacy') return 'privacy';
+        if (path.startsWith('/terms') || hash === '#terms' || params.get('tab') === 'terms' || params.get('legal') === 'terms') return 'terms';
+        return null;
+    });
+
     const updateLang = (valOrFn) => {
         setLang(prev => {
             const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
@@ -265,6 +318,51 @@ const LandingPage = () => {
             }
             return next;
         });
+    };
+
+    useEffect(() => {
+        const handlePopState = () => {
+            const path = window.location.pathname.toLowerCase();
+            const hash = window.location.hash.toLowerCase();
+            const params = new URLSearchParams(window.location.search);
+            if (path.startsWith('/privacy') || hash === '#privacy' || params.get('tab') === 'privacy' || params.get('legal') === 'privacy') {
+                setLegalView('privacy');
+                window.scrollTo(0, 0);
+            } else if (path.startsWith('/terms') || hash === '#terms' || params.get('tab') === 'terms' || params.get('legal') === 'terms') {
+                setLegalView('terms');
+                window.scrollTo(0, 0);
+            } else {
+                setLegalView(null);
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        window.addEventListener('hashchange', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            window.removeEventListener('hashchange', handlePopState);
+        };
+    }, []);
+
+    const openLegal = (type) => {
+        setLegalView(type);
+        try {
+            const nextPath = type === 'privacy' ? '/privacy' : '/terms';
+            window.history.pushState({}, '', nextPath);
+        } catch {
+            // ignore
+        }
+        window.scrollTo(0, 0);
+    };
+
+    const closeLegal = () => {
+        setLegalView(null);
+        try {
+            window.history.pushState({}, '', '/');
+        } catch {
+            // ignore
+        }
+        window.scrollTo(0, 0);
     };
 
     useEffect(() => {
@@ -285,9 +383,87 @@ const LandingPage = () => {
         };
     }, []);
 
+    if (legalView) {
+        return (
+            <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50 flex flex-col">
+                <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
+
+                <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-24 pb-12">
+                    <div className="mb-4">
+                        <button
+                            type="button"
+                            onClick={closeLegal}
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-bold text-gray-700 dark:text-gray-200 transition-all active:scale-95 shadow-xs"
+                        >
+                            <ArrowLeft size={14} strokeWidth={2.5} />
+                            <span>{lang === 'el' ? 'Επιστροφή στην Αρχική' : 'Back to Home'}</span>
+                        </button>
+                    </div>
+
+                    <React.Suspense fallback={<div className="p-12 text-center text-sm text-gray-400">Loading...</div>}>
+                        {legalView === 'privacy' ? (
+                            <PrivacyPolicyView onBack={closeLegal} hideHeader={true} lang={lang} />
+                        ) : (
+                            <TermsOfServiceView onBack={closeLegal} hideHeader={true} lang={lang} />
+                        )}
+                    </React.Suspense>
+                </main>
+
+                <footer className="border-t border-gray-100 dark:border-white/5 py-10 px-4 sm:px-6 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-2.5">
+                            <img
+                                src="/spendlore-mark.png"
+                                alt="Spendlore"
+                                className="w-6 h-6 object-contain"
+                            />
+                            <span className="text-sm font-bold text-gray-900 dark:text-white font-display">
+                                Spendlore
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-gray-500 dark:text-gray-400">
+                            <a
+                                href="/privacy"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    openLegal('privacy');
+                                }}
+                                className={`hover:text-gray-900 dark:hover:text-white transition-colors ${legalView === 'privacy' ? 'font-bold text-gray-900 dark:text-white underline underline-offset-4' : ''}`}
+                            >
+                                {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
+                            </a>
+                            <span className="text-gray-300 dark:text-gray-700">|</span>
+                            <a
+                                href="/terms"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    openLegal('terms');
+                                }}
+                                className={`hover:text-gray-900 dark:hover:text-white transition-colors ${legalView === 'terms' ? 'font-bold text-gray-900 dark:text-white underline underline-offset-4' : ''}`}
+                            >
+                                {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
+                            </a>
+                            <span className="text-gray-300 dark:text-gray-700">|</span>
+                            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                                Google Play
+                            </a>
+                            <span className="text-gray-300 dark:text-gray-700">|</span>
+                            <a href={APP_URL} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                                Web App
+                            </a>
+                        </div>
+                        <p className="text-xs text-gray-400 dark:text-gray-600">
+                            © {new Date().getFullYear()} Spendlore
+                        </p>
+                    </div>
+                </footer>
+            </div>
+        );
+    }
+
     return (
         <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50">
-            <NavBar lang={lang} setLang={updateLang} />
+            <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
 
             {/* ── HERO ── */}
             <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 overflow-hidden">
@@ -676,9 +852,27 @@ const LandingPage = () => {
                                 Spendlore
                             </span>
                         </div>
-                        <div className="flex items-center gap-5 text-xs text-gray-500 dark:text-gray-400">
-                            <a href={isDevHost ? '/privacy?app=1' : '/privacy'} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-gray-500 dark:text-gray-400">
+                            <a
+                                href="/privacy"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    openLegal('privacy');
+                                }}
+                                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                            >
                                 {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
+                            </a>
+                            <span className="text-gray-300 dark:text-gray-700">|</span>
+                            <a
+                                href="/terms"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    openLegal('terms');
+                                }}
+                                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                            >
+                                {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
                             <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 dark:hover:text-white transition-colors">

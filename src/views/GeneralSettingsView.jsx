@@ -11,7 +11,8 @@ import {
     CheckCircle2,
     SlidersHorizontal,
     X,
-    Tag
+    Tag,
+    FileText
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -28,7 +29,7 @@ import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 
-const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader }) => {
+const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader }) => {
     const { language, updateLanguage, t: translate, customCategories } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
@@ -313,6 +314,24 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onCategories, hideHeader
                                             </span>
                                             <span className="text-[11px] text-gray-500 dark:text-gray-400">
                                                 {translate('privacy_desc') || 'How we handle and protect your data'}
+                                            </span>
+                                        </div>
+                                        <ChevronRight size={16} className="text-gray-400 dark:text-white/40 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all" />
+                                    </button>
+
+                                    {/* Terms of Service */}
+                                    <button
+                                        type="button"
+                                        onClick={onTerms}
+                                        className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-teal-50/60 dark:hover:bg-teal-500/[0.08] hover:border-teal-300 dark:hover:border-teal-500/30 active:scale-[0.99] transition-all text-left group"
+                                    >
+                                        <FileText size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
+                                        <div className="flex-1 min-w-0">
+                                            <span className="block font-bold text-sm text-gray-900 dark:text-white">
+                                                {translate('terms_of_service') || 'Terms of Service'}
+                                            </span>
+                                            <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                                                {translate('terms_desc') || 'Terms and conditions of use'}
                                             </span>
                                         </div>
                                         <ChevronRight size={16} className="text-gray-400 dark:text-white/40 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 transition-all" />

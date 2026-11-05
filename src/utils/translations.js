@@ -248,6 +248,8 @@ export const translations = {
         legal: 'Νομικά',
         privacy_policy: 'Πολιτική Απορρήτου',
         privacy_desc: 'Πώς διαχειριζόμαστε τα δεδομένα σας',
+        terms_of_service: 'Όροι Χρήσης',
+        terms_desc: 'Όροι παροχής και κανόνες χρήσης',
 
         // Profile View
         change_photo: 'Αλλαγή φωτογραφίας',
@@ -1348,6 +1350,8 @@ export const translations = {
         legal: 'Legal',
         privacy_policy: 'Privacy Policy',
         privacy_desc: 'How we handle your data',
+        terms_of_service: 'Terms of Service',
+        terms_desc: 'Terms and conditions of use',
 
         // Profile View
         change_photo: 'Change Photo',

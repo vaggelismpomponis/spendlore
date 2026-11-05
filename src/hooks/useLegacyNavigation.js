@@ -10,13 +10,16 @@ export function useLegacyNavigation() {
         const search = location.search;
         const params = new URLSearchParams(search);
         if (params.get('tab') === 'privacy') return 'privacy';
+        if (params.get('tab') === 'terms') return 'terms';
         if (path === '/' || path === '/home') return 'home';
         if (path.startsWith('/privacy')) return 'privacy';
+        if (path.startsWith('/terms')) return 'terms';
         if (path.startsWith('/settings/account')) return 'account';
         if (path.startsWith('/settings/general')) return 'general';
         if (path.startsWith('/settings/categories')) return 'categories';
         if (path.startsWith('/settings/security')) return 'security';
         if (path.startsWith('/settings/privacy')) return 'privacy';
+        if (path.startsWith('/settings/terms')) return 'terms';
         if (path.startsWith('/settings/backup')) return 'backup';
         if (path.startsWith('/settings/feedback')) return 'feedback';
         if (path.startsWith('/settings/guide')) return 'guide';
@@ -43,6 +46,7 @@ export function useLegacyNavigation() {
             'categories': '/settings/categories',
             'security': '/settings/security',
             'privacy': '/settings/privacy',
+            'terms': '/settings/terms',
             'backup': '/settings/backup',
             'feedback': '/settings/feedback',
             'guide': '/settings/guide',

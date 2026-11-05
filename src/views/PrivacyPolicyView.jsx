@@ -16,12 +16,13 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const PrivacyPolicyView = ({ onBack, hideHeader }) => {
-    const { language } = useSettings();
-    const isEL = language === 'el';
+const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel }) => {
+    const settings = useSettings?.() || {};
+    const effectiveLang = lang || settings.language || 'el';
+    const isEL = effectiveLang === 'el';
 
     return (
-        <div className="h-full bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-hidden">
+        <div className="h-full min-h-dvh bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300">
 
             {/* ─────── Mobile Sticky Header ─────── */}
             <ViewHeader
@@ -38,7 +39,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader }) => {
                     {/* Desktop Navigation Breadcrumb Bar */}
                     <DesktopBreadcrumb
                         onBack={onBack}
-                        backLabel={isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings'}
+                        backLabel={backLabel || (isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings')}
                         hideHeader={hideHeader}
                     />
 
