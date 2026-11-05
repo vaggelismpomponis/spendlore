@@ -50,8 +50,8 @@ const TermsOfServiceView = ({ onBack, hideHeader, lang }) => {
                 {/* ─────── Executive Hero Hub ─────── */}
                 <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
                     <div className="relative z-10 max-w-2xl space-y-3">
-                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
-                            <FileText size={13} />
+                        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                            <FileText size={13} strokeWidth={2.2} />
                             <span>{isEL ? 'Νομική Σύμβαση Χρήστη' : 'Legal Agreement'}</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
