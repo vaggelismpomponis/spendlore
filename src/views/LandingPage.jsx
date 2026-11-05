@@ -146,12 +146,14 @@ const NavBar = ({ lang, setLang, onHome, legalView, onOpenLegal }) => {
                     <a
                         href="/"
                         onClick={(e) => {
+                            e.preventDefault();
                             if (onHome) {
-                                e.preventDefault();
                                 onHome();
+                            } else {
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                             }
                         }}
-                        className="flex items-center gap-2.5 group"
+                        className="flex items-center gap-2.5 group cursor-pointer"
                     >
                         <div className="w-8 h-8 rounded-xl bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
                             <img
@@ -429,8 +431,10 @@ const LandingPage = () => {
     };
 
     const closeLegal = () => {
-        navigate('/');
-        window.scrollTo(0, 0);
+        if (location?.pathname !== '/') {
+            navigate('/');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     useEffect(() => {
@@ -516,7 +520,14 @@ const LandingPage = () => {
 
                 <footer className="border-t border-gray-200 dark:border-white/10 py-10 px-4 sm:px-6 bg-white dark:bg-surface-dark">
                     <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-2.5">
+                        <a
+                            href="/"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                closeLegal();
+                            }}
+                            className="flex items-center gap-2.5 group cursor-pointer"
+                        >
                             <div className="w-7 h-7 rounded-lg bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
                                 <img
                                     src="/spendlore-mark.png"
@@ -527,7 +538,7 @@ const LandingPage = () => {
                             <span className="text-sm font-bold text-gray-900 dark:text-white font-display">
                                 Spendlore
                             </span>
-                        </div>
+                        </a>
                         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-gray-500 dark:text-gray-400">
                             <a
                                 href="/privacy"
@@ -938,7 +949,14 @@ const LandingPage = () => {
             <footer className="border-t border-gray-200 dark:border-white/10 py-10 px-4 sm:px-6 bg-white dark:bg-surface-dark">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-2.5">
+                        <a
+                            href="/"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                closeLegal();
+                            }}
+                            className="flex items-center gap-2.5 group cursor-pointer"
+                        >
                             <div className="w-7 h-7 rounded-lg bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
                                 <img
                                     src="/spendlore-mark.png"
@@ -949,7 +967,7 @@ const LandingPage = () => {
                             <span className="text-sm font-bold text-gray-900 dark:text-white font-display">
                                 Spendlore
                             </span>
-                        </div>
+                        </a>
                         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5 text-xs text-gray-500 dark:text-gray-400">
                             <a
                                 href="/privacy"
