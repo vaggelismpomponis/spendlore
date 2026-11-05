@@ -42,6 +42,7 @@ import OnboardingTour from './components/OnboardingTour';
 const UpgradePage  = React.lazy(() => import('./views/UpgradePage'));
 const DesktopLayout = React.lazy(() => import('./components/DesktopLayout'));
 const LandingPage = React.lazy(() => import('./views/LandingPage'));
+const PrivacyPolicyView = React.lazy(() => import('./views/PrivacyPolicyView'));
 
 // Hook to detect desktop viewport
 function useWindowWidth() {
@@ -1554,7 +1555,19 @@ function MainContent() {
                     transition={{ duration: 0.4 }}
                     className="h-full w-full"
                 >
-                    {user && isLocked ? (
+                    {/* Public Privacy Policy route accessible to all without login */}
+                    {activeTab === 'privacy' ? (
+                        <div className="h-dvh w-full overflow-hidden bg-gray-50 dark:bg-surface-dark">
+                            <React.Suspense fallback={<div className="h-full w-full flex items-center justify-center text-sm text-gray-400">Loading...</div>}>
+                                <PrivacyPolicyView
+                                    onBack={() => {
+                                        if (user) setActiveTab('general');
+                                        else window.location.href = '/';
+                                    }}
+                                />
+                            </React.Suspense>
+                        </div>
+                    ) : user && isLocked ? (
                         <LockScreen onSignOut={handleSignOut} user={user} />
                     ) : (!user || isVerifying) ? (
                         <LoginView

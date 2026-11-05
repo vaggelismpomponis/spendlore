@@ -677,7 +677,7 @@ const LandingPage = () => {
                             </span>
                         </div>
                         <div className="flex items-center gap-5 text-xs text-gray-500 dark:text-gray-400">
-                            <a href={isDevHost ? '/?app=1&tab=privacy' : `${APP_URL}?tab=privacy`} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <a href={isDevHost ? '/privacy?app=1' : '/privacy'} className="hover:text-gray-900 dark:hover:text-white transition-colors">
                                 {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>

@@ -18,8 +18,12 @@ export const isLandingDomain = () => {
     if (Capacitor.isNativePlatform()) return false;
     if (typeof window === 'undefined') return false;
 
+    // Never route to marketing landing page if user/crawler requested the privacy policy
+    if (window.location.pathname.startsWith('/privacy')) return false;
+
     // Development & manual testing overrides via query param or path
     const params = new URLSearchParams(window.location.search);
+    if (params.get('tab') === 'privacy') return false;
     if (params.has('landing') || params.get('view') === 'landing') return true;
     if (params.has('app') || params.get('view') === 'app') return false;
     if (window.location.pathname === '/landing') return true;

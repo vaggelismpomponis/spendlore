@@ -7,7 +7,11 @@ export function useLegacyNavigation() {
 
     const activeTab = useMemo(() => {
         const path = location.pathname;
+        const search = location.search;
+        const params = new URLSearchParams(search);
+        if (params.get('tab') === 'privacy') return 'privacy';
         if (path === '/' || path === '/home') return 'home';
+        if (path.startsWith('/privacy')) return 'privacy';
         if (path.startsWith('/settings/account')) return 'account';
         if (path.startsWith('/settings/general')) return 'general';
         if (path.startsWith('/settings/categories')) return 'categories';
