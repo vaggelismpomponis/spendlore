@@ -6,8 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// The hardcoded admin ID that is allowed to perform these actions
+// Authorized admin identifiers
 const ADMIN_ID = '86177767-e1f2-4356-b98b-e43503cab0da';
+const ADMIN_EMAILS = ['vaggelisbobonhs@gmail.com', 'vaggelismpomponis@gmail.com', 'ebomponis@gmail.com'];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -32,8 +33,12 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Verify admin
-    if (user.id !== ADMIN_ID) {
+    // Verify admin by ID or email
+    const userEmailLower = (user.email ?? '').toLowerCase();
+    const isAdminById = user.id === ADMIN_ID;
+    const isAdminByEmail = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmailLower);
+
+    if (!isAdminById && !isAdminByEmail) {
       return new Response(JSON.stringify({ error: "Unauthorized. Admin only." }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
@@ -45,9 +50,15 @@ serve(async (req) => {
     }
 
     // Update the profile bypassing RLS using service role
+    // Always clear subscription_expiry on manual grant/revoke so stale expired dates don't invalidate manual Pro
+    const updatePayload: Record<string, any> = {
+      subscription_status: status,
+      subscription_expiry: null,
+    };
+
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ subscription_status: status })
+      .update(updatePayload)
       .eq('id', targetUserId);
 
     if (updateError) throw updateError;

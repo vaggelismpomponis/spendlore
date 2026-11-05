@@ -240,9 +240,9 @@ const AdminView = ({ onBack, hideHeader }) => {
     const confirmSubscriptionChange = async () => {
         if (!subTarget) return;
         const { profile, status } = subTarget;
-        setProfiles(prev => prev.map(p => p.id === profile.id ? { ...p, subscription_status: status } : p));
+        setProfiles(prev => prev.map(p => p.id === profile.id ? { ...p, subscription_status: status, subscription_expiry: null } : p));
         if (selectedProfile?.id === profile.id) {
-            setSelectedProfile(prev => ({ ...prev, subscription_status: status }));
+            setSelectedProfile(prev => ({ ...prev, subscription_status: status, subscription_expiry: null }));
         }
         try {
             const { error } = await supabase.functions.invoke('admin-manage-subscription', {
