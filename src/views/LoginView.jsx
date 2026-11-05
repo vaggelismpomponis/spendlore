@@ -619,9 +619,10 @@ const LoginView = ({
                                                 onChange={e => { setPassword(e.target.value); setFormError(''); }}
                                                 placeholder={t('password_placeholder') || '••••••••'}
                                                 icon={Lock}
+                                                iconClassName="text-gray-400 group-focus-within:text-violet-400"
                                                 required
                                                 autoComplete={isLogin ? 'current-password' : 'new-password'}
-                                                inputClassName="bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08] border-white/10 focus:border-violet-500 text-white placeholder:text-gray-500 rounded-2xl py-3.5"
+                                                inputClassName="w-full pl-11 pr-11 py-3.5 rounded-2xl text-sm font-medium bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08] border border-white/10 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/15 text-white placeholder:text-gray-500 outline-none transition-all duration-200"
                                             />
                                         </div>
 
