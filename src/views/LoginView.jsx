@@ -307,12 +307,12 @@ const LoginView = ({
                 >
                     {/* Glowing Squircle App Icon */}
                     <div className="relative group cursor-pointer mb-3.5">
-                        <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-violet-600 via-indigo-500 to-fuchsia-500 opacity-60 blur-xl group-hover:opacity-90 transition duration-500" />
-                        <div className="relative w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-[24px] bg-[#12101F] border border-white/20 p-3.5 shadow-2xl flex items-center justify-center backdrop-blur-xl ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300">
+                        <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-violet-600 via-indigo-500 to-fuchsia-500 opacity-40 blur-xl group-hover:opacity-70 transition duration-500" />
+                        <div className="relative w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-[24px] bg-white border border-white/40 p-3.5 shadow-2xl flex items-center justify-center backdrop-blur-xl ring-1 ring-black/5 group-hover:scale-105 transition-transform duration-300">
                             <img
                                 src="/spendlore-mark.png"
                                 alt="Spendlore Icon"
-                                className="w-full h-full object-contain filter drop-shadow-[0_8px_16px_rgba(124,58,237,0.45)]"
+                                className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(124,58,237,0.3)]"
                             />
                         </div>
                     </div>
