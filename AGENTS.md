@@ -40,7 +40,15 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
     - Use imperative, present tense ("add", "implement", "resolve", "update" — avoid "added", "fixing", "updated").
     - Keep commit titles clear, specific, and self-explanatory (avoid vague messages like "update files" or "fixes").
     - For non-trivial changes, include a concise body or bullet points detailing the business rationale and technical scope.
-- **Verification Before Commit**: Always verify the build succeeds (`npm run build`) and mobile assets sync (`npx cap sync` when web/native assets change) before committing.
+- **Mandatory Mobile Preparation & Version Bump on Commit**:
+  - Whenever changes are made and the user requests to commit changes (e.g. "commit changes"):
+    1. **ALWAYS** execute the preparation script:
+       ```bash
+       npm run prepare-mobile
+       ```
+       (which runs `npm run build && npx cap sync` to build the web bundle and sync native Android assets).
+    2. **ALWAYS** increment `versionCode` by +1 and appropriately increment `versionName` (patch bump, e.g. `1.1.26` -> `1.1.27`) in `android/app/build.gradle`.
+    3. Stage and include `android/app/build.gradle` along with all synchronized mobile assets in the commit.
 - **No Remote Push**: Do NOT execute git push. All pushes to the remote tracking branch are handled manually by the user.
 
 ## Iconography & UI Design Guidelines
@@ -69,4 +77,3 @@ Whenever building or redesigning modals, dialogs, forms, or new interactive surf
   - Secondary Action (Cancel / Later): `flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm`.
   - Primary Action (Save / Submit): `flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50` with `<Check size={16} />`. (For financial income/deposit actions, use semantic emerald `bg-emerald-600 hover:bg-emerald-700 text-white`).
   - Never use full-width electric purple/violet buttons (`bg-violet-600`) for standard modal forms.
-
