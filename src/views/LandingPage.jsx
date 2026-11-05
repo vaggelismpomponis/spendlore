@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    ArrowRight, ArrowLeft, Shield, TrendingUp, PieChart, ScanLine, Bell,
-    Repeat, Target, Fingerprint, Download, ChevronDown, ChevronUp,
-    Smartphone, Globe, CheckCircle2, Star, Wallet, BarChart3,
-    Tags, CreditCard, Lock, Eye, ArrowUpRight, Menu, X
+    ArrowRight, ArrowLeft, Shield, PieChart, ScanLine, Bell,
+    Repeat, Target, ChevronDown, ChevronUp,
+    Smartphone, Globe, CheckCircle2, Wallet, BarChart3,
+    Lock, ArrowUpRight, Menu, X
 } from 'lucide-react';
 import { PLAY_STORE_URL } from '../utils/platform';
 
@@ -133,7 +133,7 @@ const NavBar = ({ lang, setLang, onHome }) => {
     };
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/60 dark:border-white/[0.06]">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md border-b border-gray-200/90 dark:border-white/10">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
@@ -147,11 +147,13 @@ const NavBar = ({ lang, setLang, onHome }) => {
                         }}
                         className="flex items-center gap-2.5 group"
                     >
-                        <img
-                            src="/spendlore-mark.png"
-                            alt="Spendlore"
-                            className="w-8 h-8 object-contain"
-                        />
+                        <div className="w-8 h-8 rounded-xl bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
+                            <img
+                                src="/spendlore-mark.png"
+                                alt="Spendlore"
+                                className="w-full h-full object-contain"
+                            />
+                        </div>
                         <span className="text-lg font-black tracking-tight text-gray-900 dark:text-white font-display">
                             Spendlore
                         </span>
@@ -162,33 +164,33 @@ const NavBar = ({ lang, setLang, onHome }) => {
                         <a
                             href="#features"
                             onClick={(e) => handleAnchorClick(e, '#features')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
                         >
                             {lang === 'el' ? 'Δυνατότητες' : 'Features'}
                         </a>
                         <a
                             href="#pricing"
                             onClick={(e) => handleAnchorClick(e, '#pricing')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
                         >
                             {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
                         </a>
                         <a
                             href="#faq"
                             onClick={(e) => handleAnchorClick(e, '#faq')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
                         >
                             FAQ
                         </a>
                         <button
                             onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
-                            className="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2 py-1 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all"
+                            className="text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white px-2.5 py-1 rounded-lg border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all"
                         >
                             {lang === 'el' ? 'EN' : 'ΕΛ'}
                         </button>
                         <a
                             href={APP_URL}
-                            className="text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 px-5 py-2 rounded-xl hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                            className="text-sm font-bold text-white bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 px-4 py-2 rounded-xl transition-all active:scale-95 shadow-xs"
                         >
                             {lang === 'el' ? 'Είσοδος' : 'Sign In'}
                         </a>
@@ -199,7 +201,7 @@ const NavBar = ({ lang, setLang, onHome }) => {
                         <button
                             type="button"
                             onClick={() => setLang(lang === 'el' ? 'en' : 'el')}
-                            className="text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-xl border border-gray-200/80 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all"
+                            className="text-xs font-bold text-gray-700 dark:text-gray-200 hover:text-gray-950 dark:hover:text-white px-2.5 py-1.5 rounded-xl border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all"
                             aria-label="Toggle language"
                         >
                             {lang === 'el' ? 'EN' : 'ΕΛ'}
@@ -207,42 +209,42 @@ const NavBar = ({ lang, setLang, onHome }) => {
                         <button
                             type="button"
                             onClick={() => setMenuOpen(!menuOpen)}
-                            className="p-2 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            className="p-2 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                             aria-label="Toggle menu"
                         >
-                            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+                            {menuOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
                     </div>
                 </div>
 
                 {/* Mobile Nav */}
                 {menuOpen && (
-                    <div className="md:hidden pb-4 pt-2 border-t border-gray-100 dark:border-white/[0.06] space-y-2">
+                    <div className="md:hidden pb-4 pt-2 border-t border-gray-100 dark:border-white/10 space-y-2">
                         <a
                             href="#features"
                             onClick={(e) => handleAnchorClick(e, '#features')}
-                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-colors"
                         >
                             {lang === 'el' ? 'Δυνατότητες' : 'Features'}
                         </a>
                         <a
                             href="#pricing"
                             onClick={(e) => handleAnchorClick(e, '#pricing')}
-                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-colors"
                         >
                             {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
                         </a>
                         <a
                             href="#faq"
                             onClick={(e) => handleAnchorClick(e, '#faq')}
-                            className="block text-sm font-semibold text-gray-600 dark:text-gray-400 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-colors"
                         >
                             FAQ
                         </a>
                         <div className="px-3 pt-2">
                             <a
                                 href={APP_URL}
-                                className="w-full block text-center text-sm font-bold text-white bg-gray-900 dark:bg-white dark:text-gray-900 px-5 py-2.5 rounded-xl hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                                className="w-full block text-center text-sm font-bold text-white bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 px-5 py-2.5 rounded-xl transition-all active:scale-95 shadow-xs"
                             >
                                 {lang === 'el' ? 'Είσοδος' : 'Sign In'}
                             </a>
@@ -257,22 +259,22 @@ const NavBar = ({ lang, setLang, onHome }) => {
 const FAQItem = ({ item, lang }) => {
     const [open, setOpen] = useState(false);
     return (
-        <div className="border-b border-gray-200/80 dark:border-white/[0.06] last:border-b-0">
+        <div className="border-b border-gray-200 dark:border-white/10 last:border-b-0">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between py-5 px-1 text-left group cursor-pointer"
+                className="w-full flex items-center justify-between py-4 sm:py-5 px-1 text-left group cursor-pointer"
                 aria-expanded={open}
             >
-                <span className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white pr-4 leading-snug">
+                <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white pr-4 leading-snug">
                     {lang === 'el' ? item.q : item.qEn}
                 </span>
-                <span className="shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                <span className="shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
                     {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                 </span>
             </button>
             {open && (
                 <div className="pb-5 px-1">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-normal">
                         {lang === 'el' ? item.a : item.aEn}
                     </p>
                 </div>
@@ -385,7 +387,7 @@ const LandingPage = () => {
 
     if (legalView) {
         return (
-            <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50 flex flex-col">
+            <div className="landing-page min-h-dvh bg-gray-50 dark:bg-surface-dark text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 flex flex-col">
                 <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
 
                 <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-24 pb-12">
@@ -393,7 +395,7 @@ const LandingPage = () => {
                         <button
                             type="button"
                             onClick={closeLegal}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-xs font-bold text-gray-700 dark:text-gray-200 transition-all active:scale-95 shadow-xs"
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all active:scale-95 shadow-xs"
                         >
                             <ArrowLeft size={14} strokeWidth={2.5} />
                             <span>{lang === 'el' ? 'Επιστροφή στην Αρχική' : 'Back to Home'}</span>
@@ -409,14 +411,16 @@ const LandingPage = () => {
                     </React.Suspense>
                 </main>
 
-                <footer className="border-t border-gray-100 dark:border-white/5 py-10 px-4 sm:px-6 bg-gray-50/50 dark:bg-white/[0.01]">
+                <footer className="border-t border-gray-200 dark:border-white/10 py-10 px-4 sm:px-6 bg-white dark:bg-surface-dark">
                     <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-2.5">
-                            <img
-                                src="/spendlore-mark.png"
-                                alt="Spendlore"
-                                className="w-6 h-6 object-contain"
-                            />
+                            <div className="w-7 h-7 rounded-lg bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
+                                <img
+                                    src="/spendlore-mark.png"
+                                    alt="Spendlore"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
                             <span className="text-sm font-bold text-gray-900 dark:text-white font-display">
                                 Spendlore
                             </span>
@@ -428,7 +432,7 @@ const LandingPage = () => {
                                     e.preventDefault();
                                     openLegal('privacy');
                                 }}
-                                className={`hover:text-gray-900 dark:hover:text-white transition-colors ${legalView === 'privacy' ? 'font-bold text-gray-900 dark:text-white underline underline-offset-4' : ''}`}
+                                className={`hover:text-gray-950 dark:hover:text-white transition-colors ${legalView === 'privacy' ? 'font-bold text-gray-950 dark:text-white underline underline-offset-4' : ''}`}
                             >
                                 {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
                             </a>
@@ -439,16 +443,16 @@ const LandingPage = () => {
                                     e.preventDefault();
                                     openLegal('terms');
                                 }}
-                                className={`hover:text-gray-900 dark:hover:text-white transition-colors ${legalView === 'terms' ? 'font-bold text-gray-900 dark:text-white underline underline-offset-4' : ''}`}
+                                className={`hover:text-gray-950 dark:hover:text-white transition-colors ${legalView === 'terms' ? 'font-bold text-gray-950 dark:text-white underline underline-offset-4' : ''}`}
                             >
                                 {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
-                            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-950 dark:hover:text-white transition-colors">
                                 Google Play
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
-                            <a href={APP_URL} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <a href={APP_URL} className="hover:text-gray-950 dark:hover:text-white transition-colors">
                                 Web App
                             </a>
                         </div>
@@ -462,82 +466,65 @@ const LandingPage = () => {
     }
 
     return (
-        <div className="landing-page min-h-dvh bg-white dark:bg-gray-950 text-gray-900 dark:text-white font-sans selection:bg-violet-200 dark:selection:bg-violet-900/50">
+        <div className="landing-page min-h-dvh bg-gray-50 dark:bg-surface-dark text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20">
             <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
 
             {/* ── HERO ── */}
-            <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6 overflow-hidden">
-                {/* Subtle background accent */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-violet-100/40 via-transparent to-transparent dark:from-violet-950/20 rounded-full blur-3xl pointer-events-none" />
-
+            <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6">
                 <div className="relative max-w-4xl mx-auto text-center">
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-white/[0.06] border border-gray-200/80 dark:border-white/10 mb-6">
-                        <Shield size={14} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.5} />
-                        <span className="text-xs font-bold text-gray-600 dark:text-gray-400 tracking-wide">
-                            {lang === 'el' ? 'Χωρίς διαφημίσεις. Χωρίς πώληση δεδομένων.' : 'No ads. No data selling.'}
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 mb-6 shadow-xs">
+                        <Shield size={13} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
+                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">
+                            {lang === 'el' ? 'Χωρίς διαφημίσεις · Χωρίς πώληση δεδομένων' : 'Zero Ads · Full Privacy'}
                         </span>
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] font-display mb-5">
-                        {lang === 'el' ? (
-                            <>
-                                Τα οικονομικά σου,{' '}
-                                <span className="text-violet-600 dark:text-violet-400">
-                                    απλά.
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                Your finances,{' '}
-                                <span className="text-violet-600 dark:text-violet-400">
-                                    simplified.
-                                </span>
-                            </>
-                        )}
+                    <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] font-display text-gray-900 dark:text-white mb-5">
+                        {lang === 'el' ? 'Τα οικονομικά σου, με απόλυτο έλεγχο.' : 'Your finances, with absolute clarity.'}
                     </h1>
 
                     {/* Subtitle */}
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed mb-8 font-medium">
                         {lang === 'el'
                             ? 'Καταγραφή εξόδων, έξυπνοι προϋπολογισμοί, στόχοι αποταμίευσης και σάρωση αποδείξεων. Ό,τι χρειάζεσαι για να ελέγχεις τα χρήματά σου — δωρεάν.'
-                            : 'Expense tracking, smart budgets, savings goals, and receipt scanning. Everything you need to control your money — for free.'
+                            : 'Expense tracking, smart budgets, savings goals, and receipt scanning. Everything you need to master your money — for free.'
                         }
                     </p>
 
                     {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-10">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-10 max-w-md sm:max-w-none mx-auto">
                         <a
                             href={APP_URL}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-[15px] rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-xs transition-all active:scale-95 min-h-[46px]"
                         >
                             {lang === 'el' ? 'Ξεκίνα Δωρεάν' : 'Get Started Free'}
-                            <ArrowRight size={17} strokeWidth={2.5} />
+                            <ArrowRight size={16} strokeWidth={2.5} />
                         </a>
                         <a
                             href={PLAY_STORE_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gray-100 dark:bg-white/[0.06] text-gray-900 dark:text-white font-bold text-[15px] rounded-xl border border-gray-200/80 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.1] transition-all active:scale-95"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white dark:bg-surface-dark2 text-gray-900 dark:text-white font-bold text-sm rounded-xl border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 shadow-xs transition-all active:scale-95 min-h-[46px]"
                         >
-                            <Smartphone size={17} strokeWidth={2} />
+                            <Smartphone size={16} strokeWidth={2.2} />
                             Google Play
                         </a>
                     </div>
 
                     {/* Trust Indicators */}
-                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-gray-500 dark:text-gray-500">
+                    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
                         <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
+                            <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.5} />
                             {lang === 'el' ? 'Δωρεάν για πάντα' : 'Free forever'}
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
+                            <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.5} />
                             {lang === 'el' ? 'Android & Web' : 'Android & Web'}
                         </span>
                         <span className="inline-flex items-center gap-1.5">
-                            <CheckCircle2 size={14} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
+                            <CheckCircle2 size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.5} />
                             {lang === 'el' ? 'Ελληνικά & English' : 'Greek & English'}
                         </span>
                     </div>
@@ -545,11 +532,11 @@ const LandingPage = () => {
             </section>
 
             {/* ── FEATURES ── */}
-            <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015] scroll-mt-20">
+            <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-surface-dark2 border-y border-gray-200/80 dark:border-white/10 scroll-mt-20">
                 <div className="max-w-6xl mx-auto">
                     {/* Section Header */}
                     <div className="text-center mb-12 sm:mb-16">
-                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
+                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Ό,τι χρειάζεσαι, σε μία εφαρμογή' : 'Everything you need, in one app'}
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
@@ -567,15 +554,15 @@ const LandingPage = () => {
                             return (
                                 <div
                                     key={i}
-                                    className="group p-5 sm:p-6 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.12] transition-all"
+                                    className="p-5 sm:p-6 rounded-2xl bg-gray-50/80 dark:bg-surface-dark border border-gray-200/80 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                                 >
-                                    <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/[0.06] border border-gray-200/60 dark:border-white/[0.08] flex items-center justify-center mb-4 group-hover:bg-violet-50 dark:group-hover:bg-violet-500/10 group-hover:border-violet-200/60 dark:group-hover:border-violet-500/20 transition-colors">
-                                        <Icon size={20} className="text-gray-700 dark:text-gray-300 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors" strokeWidth={1.8} />
+                                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center mb-4 text-gray-900 dark:text-white shadow-xs">
+                                        <Icon size={19} strokeWidth={2} />
                                     </div>
-                                    <h3 className="text-[15px] font-bold text-gray-900 dark:text-white mb-1.5 leading-snug">
+                                    <h3 className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white mb-1.5 leading-snug">
                                         {lang === 'el' ? feat.title : feat.titleEn}
                                     </h3>
-                                    <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    <p className="text-xs sm:text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-normal">
                                         {lang === 'el' ? feat.desc : feat.descEn}
                                     </p>
                                 </div>
@@ -586,10 +573,10 @@ const LandingPage = () => {
             </section>
 
             {/* ── PLATFORMS ── */}
-            <section className="py-16 sm:py-24 px-4 sm:px-6">
+            <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/50 dark:bg-surface-dark">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-12">
-                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
+                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Παντού μαζί σου' : 'Available everywhere'}
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
@@ -606,49 +593,49 @@ const LandingPage = () => {
                             href={PLAY_STORE_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.12] transition-all"
+                            className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/60 dark:border-emerald-500/20 flex items-center justify-center shrink-0">
-                                <Smartphone size={22} className="text-emerald-600 dark:text-emerald-400" strokeWidth={1.8} />
+                            <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400 shadow-xs">
+                                <Smartphone size={20} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
+                                <p className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
                                     Google Play Store
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {lang === 'el' ? 'Κατέβασε δωρεάν' : 'Download for free'}
+                                    {lang === 'el' ? 'Κατέβασε δωρεάν για Android' : 'Download free for Android'}
                                 </p>
                             </div>
-                            <ArrowUpRight size={18} className="text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors shrink-0" />
+                            <ArrowUpRight size={17} className="text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
                         </a>
 
                         {/* Web App Card */}
                         <a
                             href={APP_URL}
-                            className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.12] transition-all"
+                            className="group flex items-center gap-4 p-5 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 shadow-xs hover:border-gray-300 dark:hover:border-white/20 transition-all"
                         >
-                            <div className="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-200/60 dark:border-violet-500/20 flex items-center justify-center shrink-0">
-                                <Globe size={22} className="text-violet-600 dark:text-violet-400" strokeWidth={1.8} />
+                            <div className="w-11 h-11 rounded-xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center shrink-0 text-gray-900 dark:text-white shadow-xs">
+                                <Globe size={20} strokeWidth={2} />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
+                                <p className="text-sm sm:text-[15px] font-bold text-gray-900 dark:text-white leading-snug">
                                     Web App
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                     {lang === 'el' ? 'Άνοιξε στον browser' : 'Open in browser'}
                                 </p>
                             </div>
-                            <ArrowUpRight size={18} className="text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors shrink-0" />
+                            <ArrowUpRight size={17} className="text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
                         </a>
                     </div>
                 </div>
             </section>
 
             {/* ── PRICING ── */}
-            <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015] scroll-mt-20">
+            <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-surface-dark2 border-y border-gray-200/80 dark:border-white/10 scroll-mt-20">
                 <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
+                    <div className="text-center mb-12 sm:mb-16">
+                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Απλή & Διαφανής Τιμολόγηση' : 'Simple & Transparent Pricing'}
                         </h2>
                         <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
@@ -661,7 +648,7 @@ const LandingPage = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
                         {/* Free Plan */}
-                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] flex flex-col justify-between">
+                        <div className="p-6 sm:p-7 rounded-2xl bg-gray-50/80 dark:bg-surface-dark border border-gray-200/90 dark:border-white/10 shadow-xs flex flex-col justify-between">
                             <div>
                                 <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
                                     {lang === 'el' ? 'Δωρεάν' : 'Free'}
@@ -669,7 +656,7 @@ const LandingPage = () => {
                                 <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
                                     €0
                                 </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 font-medium">
                                     {lang === 'el' ? 'για πάντα · χωρίς πιστωτική' : 'forever · no credit card'}
                                 </p>
                                 <ul className="space-y-3">
@@ -680,8 +667,8 @@ const LandingPage = () => {
                                         lang === 'el' ? '2 στόχοι αποταμίευσης' : '2 savings goals',
                                         lang === 'el' ? 'Φωνητική καταγραφή' : 'Voice input',
                                     ].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 size={16} className="text-emerald-500 shrink-0 mt-0.5" strokeWidth={2.5} />
+                                        <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2.2} />
                                             <span>{item}</span>
                                         </li>
                                     ))}
@@ -689,14 +676,14 @@ const LandingPage = () => {
                             </div>
                             <a
                                 href={APP_URL}
-                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-surface-dark2 hover:bg-gray-100 dark:hover:bg-surface-dark3 text-gray-900 dark:text-white font-bold text-sm rounded-xl border border-gray-200 dark:border-white/10 shadow-xs transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Ξεκίνα Δωρεάν' : 'Get Started'}
                             </a>
                         </div>
 
                         {/* Pro Monthly Plan */}
-                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.03] border border-gray-200/80 dark:border-white/[0.06] flex flex-col justify-between">
+                        <div className="p-6 sm:p-7 rounded-2xl bg-gray-50/80 dark:bg-surface-dark border border-gray-200/90 dark:border-white/10 shadow-xs flex flex-col justify-between">
                             <div>
                                 <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
                                     {lang === 'el' ? 'Pro Μηνιαίο' : 'Pro Monthly'}
@@ -707,7 +694,7 @@ const LandingPage = () => {
                                         /{lang === 'el' ? 'μήνα' : 'mo'}
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 font-medium">
                                     {lang === 'el' ? '7 ημέρες δωρεάν · Ακύρωση όποτε θες' : '7-day free trial · Cancel anytime'}
                                 </p>
                                 <ul className="space-y-3">
@@ -721,8 +708,8 @@ const LandingPage = () => {
                                         lang === 'el' ? 'Επαναλαμβανόμενες συναλλαγές' : 'Recurring transactions',
                                         lang === 'el' ? 'Priority υποστήριξη' : 'Priority support',
                                     ].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${i === 0 ? 'text-violet-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
+                                        <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2.2} />
                                             <span className={i === 0 ? 'font-bold' : ''}>{item}</span>
                                         </li>
                                     ))}
@@ -730,15 +717,15 @@ const LandingPage = () => {
                             </div>
                             <a
                                 href={isDevHost ? '/upgrade?plan=monthly&app=1' : `${APP_URL}/upgrade?plan=monthly`}
-                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] text-gray-700 dark:text-gray-200 font-bold text-sm rounded-xl border border-gray-300/60 dark:border-white/[0.1] hover:bg-gray-200 dark:hover:bg-white/[0.12] transition-all active:scale-95"
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-white dark:bg-surface-dark2 hover:bg-gray-100 dark:hover:bg-surface-dark3 text-gray-900 dark:text-white font-bold text-sm rounded-xl border border-gray-200 dark:border-white/10 shadow-xs transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Δοκίμασε Μηνιαίο' : 'Try Monthly'}
                             </a>
                         </div>
 
                         {/* Pro Annual Plan - Flagship */}
-                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-white/[0.04] border-2 border-gray-900 dark:border-white relative flex flex-col justify-between shadow-lg">
-                            <span className="absolute -top-3 left-6 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-sm">
+                        <div className="p-6 sm:p-7 rounded-2xl bg-white dark:bg-surface-dark3 border-2 border-gray-900 dark:border-white relative flex flex-col justify-between shadow-xs">
+                            <span className="absolute -top-3 left-6 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-md bg-gray-900 dark:bg-white text-white dark:text-gray-900 border border-gray-900 dark:border-white">
                                 {lang === 'el' ? 'Δημοφιλέστερο · -17%' : 'Best Value · Save 17%'}
                             </span>
                             <div>
@@ -766,8 +753,8 @@ const LandingPage = () => {
                                         lang === 'el' ? 'Επαναλαμβανόμενες συναλλαγές' : 'Recurring transactions',
                                         lang === 'el' ? 'Priority υποστήριξη' : 'Priority support',
                                     ].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
-                                            <CheckCircle2 size={16} className={`shrink-0 mt-0.5 ${i < 2 ? 'text-violet-500' : 'text-emerald-500'}`} strokeWidth={2.5} />
+                                        <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                                            <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" strokeWidth={2.2} />
                                             <span className={i < 2 ? 'font-bold' : ''}>{item}</span>
                                         </li>
                                     ))}
@@ -775,7 +762,7 @@ const LandingPage = () => {
                             </div>
                             <a
                                 href={isDevHost ? '/upgrade?plan=yearly&app=1' : `${APP_URL}/upgrade?plan=yearly`}
-                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                                className="mt-8 w-full inline-flex items-center justify-center gap-2 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-xs transition-all active:scale-95"
                             >
                                 {lang === 'el' ? 'Δοκίμασε Pro Ετήσιο' : 'Try Pro Annual'}
                             </a>
@@ -785,10 +772,10 @@ const LandingPage = () => {
             </section>
 
             {/* ── FAQ ── */}
-            <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 scroll-mt-20">
+            <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50/50 dark:bg-surface-dark scroll-mt-20">
                 <div className="max-w-2xl mx-auto">
                     <div className="text-center mb-10">
-                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
+                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                             {lang === 'el' ? 'Συχνές Ερωτήσεις' : 'Frequently Asked Questions'}
                         </h2>
                     </div>
@@ -801,37 +788,39 @@ const LandingPage = () => {
             </section>
 
             {/* ── CTA BANNER ── */}
-            <section className="py-16 sm:py-20 px-4 sm:px-6 bg-gray-50/70 dark:bg-white/[0.015]">
-                <div className="max-w-3xl mx-auto text-center">
-                    <img
-                        src="/spendlore-mark.png"
-                        alt="Spendlore"
-                        className="w-14 h-14 mx-auto mb-5 object-contain"
-                    />
-                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight font-display mb-3">
+            <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-surface-dark2 border-t border-gray-200/80 dark:border-white/10">
+                <div className="max-w-3xl mx-auto text-center p-8 sm:p-12 rounded-2xl bg-gray-50/80 dark:bg-surface-dark border border-gray-200/90 dark:border-white/10 shadow-xs">
+                    <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-white p-2.5 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center">
+                        <img
+                            src="/spendlore-mark.png"
+                            alt="Spendlore"
+                            className="w-full h-full object-contain"
+                        />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white font-display mb-3">
                         {lang === 'el' ? 'Πάρε τον έλεγχο των οικονομικών σου' : 'Take control of your finances'}
                     </h2>
-                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto mb-8">
+                    <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto mb-8 font-medium">
                         {lang === 'el'
                             ? 'Δημιούργησε δωρεάν λογαριασμό σε 30 δευτερόλεπτα. Χωρίς πιστωτική κάρτα.'
                             : 'Create a free account in 30 seconds. No credit card required.'
                         }
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-none mx-auto">
                         <a
                             href={APP_URL}
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold text-[15px] rounded-xl shadow-sm hover:bg-black dark:hover:bg-gray-100 transition-all active:scale-95"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm rounded-xl shadow-xs transition-all active:scale-95 min-h-[46px]"
                         >
                             {lang === 'el' ? 'Ξεκίνα Δωρεάν' : 'Get Started Free'}
-                            <ArrowRight size={17} strokeWidth={2.5} />
+                            <ArrowRight size={16} strokeWidth={2.5} />
                         </a>
                         <a
                             href={PLAY_STORE_URL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-gray-100 dark:bg-white/[0.06] text-gray-900 dark:text-white font-bold text-[15px] rounded-xl border border-gray-200/80 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.1] transition-all active:scale-95"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-white dark:bg-surface-dark2 text-gray-900 dark:text-white font-bold text-sm rounded-xl border border-gray-200/90 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-surface-dark3 shadow-xs transition-all active:scale-95 min-h-[46px]"
                         >
-                            <Smartphone size={17} strokeWidth={2} />
+                            <Smartphone size={16} strokeWidth={2.2} />
                             Google Play
                         </a>
                     </div>
@@ -839,15 +828,17 @@ const LandingPage = () => {
             </section>
 
             {/* ── FOOTER ── */}
-            <footer className="border-t border-gray-200/80 dark:border-white/[0.06] py-10 px-4 sm:px-6">
+            <footer className="border-t border-gray-200 dark:border-white/10 py-10 px-4 sm:px-6 bg-white dark:bg-surface-dark">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-2.5">
-                            <img
-                                src="/spendlore-mark.png"
-                                alt="Spendlore"
-                                className="w-6 h-6 object-contain"
-                            />
+                            <div className="w-7 h-7 rounded-lg bg-white p-1 border border-gray-200/80 dark:border-white/10 shadow-xs flex items-center justify-center shrink-0">
+                                <img
+                                    src="/spendlore-mark.png"
+                                    alt="Spendlore"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
                             <span className="text-sm font-bold text-gray-900 dark:text-white font-display">
                                 Spendlore
                             </span>
@@ -859,7 +850,7 @@ const LandingPage = () => {
                                     e.preventDefault();
                                     openLegal('privacy');
                                 }}
-                                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                                className="hover:text-gray-950 dark:hover:text-white transition-colors"
                             >
                                 {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
                             </a>
@@ -870,16 +861,16 @@ const LandingPage = () => {
                                     e.preventDefault();
                                     openLegal('terms');
                                 }}
-                                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                                className="hover:text-gray-950 dark:hover:text-white transition-colors"
                             >
                                 {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
-                            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-gray-950 dark:hover:text-white transition-colors">
                                 Google Play
                             </a>
                             <span className="text-gray-300 dark:text-gray-700">|</span>
-                            <a href={APP_URL} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                            <a href={APP_URL} className="hover:text-gray-950 dark:hover:text-white transition-colors">
                                 Web App
                             </a>
                         </div>
