@@ -16,17 +16,18 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel }) => {
+const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = false }) => {
     const settings = useSettings?.() || {};
     const effectiveLang = lang || settings.language || 'el';
     const isEL = effectiveLang === 'el';
+    const effectiveBack = hideBack ? null : onBack;
 
     return (
         <div className="h-full min-h-dvh bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300">
 
             {/* ─────── Mobile Sticky Header ─────── */}
             <ViewHeader
-                onBack={onBack}
+                onBack={effectiveBack}
                 title={isEL ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
                 subtitle={isEL ? 'Ενημέρωση: Οκτώβριος 2026' : 'Updated: October 2026'}
                 hideHeader={hideHeader}
@@ -38,7 +39,7 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel }) => {
 
                     {/* Desktop Navigation Breadcrumb Bar */}
                     <DesktopBreadcrumb
-                        onBack={onBack}
+                        onBack={effectiveBack}
                         backLabel={backLabel || (isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings')}
                         hideHeader={hideHeader}
                     />
@@ -50,9 +51,9 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel }) => {
                                 <Shield size={13} strokeWidth={2.2} />
                                 <span>{isEL ? 'Χάρτης Εμπιστοσύνης & Απορρήτου' : 'Privacy & Trust Charter'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
                                 {isEL ? 'Το Απόρρητό σας είναι Προτεραιότητα' : 'Your Privacy is Our Priority'}
-                            </h2>
+                            </h1>
                             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {isEL
                                     ? 'Κατανοούμε απόλυτα ότι τα οικονομικά σας δεδομένα είναι ευαίσθητα. Δείτε με διαφάνεια πώς τα συλλέγουμε, πώς τα προστατεύουμε και γιατί δεν τα διαμοιραζόμαστε ποτέ με διαφημιστές.'
@@ -353,13 +354,15 @@ const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel }) => {
                                 </div>
                             </div>
 
-                            <button
-                                type="button"
-                                onClick={onBack}
-                                className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-white font-extrabold text-xs active:scale-95 transition-all text-center shrink-0"
-                            >
-                                {isEL ? 'Επιστροφή' : 'Return'}
-                            </button>
+                            {effectiveBack && (
+                                <button
+                                    type="button"
+                                    onClick={effectiveBack}
+                                    className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] text-gray-700 dark:text-white font-extrabold text-xs active:scale-95 transition-all text-center shrink-0"
+                                >
+                                    {isEL ? 'Επιστροφή' : 'Return'}
+                                </button>
+                            )}
                         </div>
                     </div>
 

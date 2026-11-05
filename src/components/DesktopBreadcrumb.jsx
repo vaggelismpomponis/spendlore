@@ -12,7 +12,7 @@ const DesktopBreadcrumb = ({
     hideHeader = true,
     className = '',
 }) => {
-    if (!hideHeader) return null;
+    if (!hideHeader || !onBack) return null;
 
     return (
         <div className={`flex items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>

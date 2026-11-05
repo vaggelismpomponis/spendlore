@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useLegacyNavigation } from './hooks/useLegacyNavigation'; // App Root
 import {
     Plus,
@@ -1714,8 +1715,9 @@ function DevModeToggle({ isLanding }) {
 export default function App() {
     // On the marketing domain (spendlore.gr / www.spendlore.gr) show the SEO landing page.
     // On the app domain (app.spendlore.gr), localhost, or native — show the full app.
-    // Supports ?landing=1 or /landing for local preview.
-    const showLanding = isLandingDomain();
+    // Supports ?landing=1 or /landing for local preview, and dedicated public legal pages (/privacy, /terms).
+    const location = useLocation();
+    const showLanding = isLandingDomain(location?.pathname);
 
     if (showLanding) {
         return (

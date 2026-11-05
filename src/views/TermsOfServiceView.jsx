@@ -13,18 +13,18 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const TermsOfServiceView = ({ onBack, hideHeader, lang }) => {
+const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
     const settings = useSettings?.() || {};
     const effectiveLang = lang || settings.language || 'el';
     const isEL = effectiveLang === 'el';
 
-    const handleBack = onBack || (() => {
+    const handleBack = hideBack ? null : (onBack || (() => {
         if (typeof window !== 'undefined' && window.history.length > 1) {
             window.history.back();
         } else if (typeof window !== 'undefined') {
             window.location.href = '/';
         }
-    });
+    }));
 
     return (
         <div className="h-full min-h-dvh bg-gray-50 dark:bg-surface-dark flex flex-col transition-colors duration-300 overflow-y-auto custom-scrollbar">

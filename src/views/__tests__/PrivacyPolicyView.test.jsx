@@ -41,4 +41,12 @@ describe('PrivacyPolicyView', () => {
     expect(screen.getByText('What Data We Collect')).toBeInTheDocument();
     expect(screen.queryByText('Third-Party Services')).not.toBeInTheDocument();
   });
+
+  it('does not render back button when hideBack is true', () => {
+    useSettings.mockReturnValue({ language: 'el' });
+    render(<PrivacyPolicyView hideBack={true} hideHeader={true} />);
+
+    expect(screen.queryByText('Επιστροφή')).not.toBeInTheDocument();
+    expect(screen.queryByText('Επιστροφή στις Ρυθμίσεις')).not.toBeInTheDocument();
+  });
 });

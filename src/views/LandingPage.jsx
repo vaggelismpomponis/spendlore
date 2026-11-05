@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    ArrowRight, ArrowLeft, Shield, PieChart, ScanLine, Bell,
+    ArrowRight, Shield, PieChart, ScanLine, Bell,
     Repeat, Target, ChevronDown, ChevronUp,
     Smartphone, Globe, CheckCircle2, Wallet, BarChart3,
     Lock, ArrowUpRight, Menu, X
@@ -122,12 +123,17 @@ const faqItems = [
    SUB-COMPONENTS
 ───────────────────────────────────────────────────────────── */
 
-const NavBar = ({ lang, setLang, onHome }) => {
+const NavBar = ({ lang, setLang, onHome, legalView, onOpenLegal }) => {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const handleAnchorClick = (e, hash) => {
-        if (onHome) {
-            onHome();
+        if (legalView) {
+            e.preventDefault();
+            if (onHome) onHome();
+            setTimeout(() => {
+                const el = document.querySelector(hash);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
         }
         setMenuOpen(false);
     };
@@ -161,27 +167,72 @@ const NavBar = ({ lang, setLang, onHome }) => {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex items-center gap-6">
-                        <a
-                            href="#features"
-                            onClick={(e) => handleAnchorClick(e, '#features')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
-                        >
-                            {lang === 'el' ? 'Δυνατότητες' : 'Features'}
-                        </a>
-                        <a
-                            href="#pricing"
-                            onClick={(e) => handleAnchorClick(e, '#pricing')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
-                        >
-                            {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
-                        </a>
-                        <a
-                            href="#faq"
-                            onClick={(e) => handleAnchorClick(e, '#faq')}
-                            className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
-                        >
-                            FAQ
-                        </a>
+                        {legalView ? (
+                            <>
+                                <a
+                                    href="/"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (onHome) onHome();
+                                    }}
+                                    className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
+                                >
+                                    <span>{lang === 'el' ? 'Αρχική' : 'Home'}</span>
+                                </a>
+                                <a
+                                    href="/privacy"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (onOpenLegal) onOpenLegal('privacy');
+                                    }}
+                                    className={`text-sm transition-colors ${
+                                        legalView === 'privacy'
+                                            ? 'font-bold text-gray-950 dark:text-white underline underline-offset-4'
+                                            : 'font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white'
+                                    }`}
+                                >
+                                    {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
+                                </a>
+                                <a
+                                    href="/terms"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (onOpenLegal) onOpenLegal('terms');
+                                    }}
+                                    className={`text-sm transition-colors ${
+                                        legalView === 'terms'
+                                            ? 'font-bold text-gray-950 dark:text-white underline underline-offset-4'
+                                            : 'font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white'
+                                    }`}
+                                >
+                                    {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
+                                </a>
+                            </>
+                        ) : (
+                            <>
+                                <a
+                                    href="#features"
+                                    onClick={(e) => handleAnchorClick(e, '#features')}
+                                    className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
+                                >
+                                    {lang === 'el' ? 'Δυνατότητες' : 'Features'}
+                                </a>
+                                <a
+                                    href="#pricing"
+                                    onClick={(e) => handleAnchorClick(e, '#pricing')}
+                                    className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
+                                >
+                                    {lang === 'el' ? 'Τιμολόγηση' : 'Pricing'}
+                                </a>
+                                <a
+                                    href="#faq"
+                                    onClick={(e) => handleAnchorClick(e, '#faq')}
+                                    className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white transition-colors"
+                                >
+                                    FAQ
+                                </a>
+                            </>
+                        )}
                         <div role="group" aria-label="Language selection" className="flex items-center gap-1">
                             <button
                                 type="button"
@@ -261,7 +312,20 @@ const NavBar = ({ lang, setLang, onHome }) => {
 
                 {/* Mobile Nav */}
                 {menuOpen && (
-                    <div className="md:hidden pb-4 pt-2 border-t border-gray-100 dark:border-white/10 space-y-2">
+                    <div className="md:hidden pb-4 pt-2 border-t border-gray-100 dark:border-white/10 space-y-1">
+                        {legalView && (
+                            <a
+                                href="/"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (onHome) onHome();
+                                    setMenuOpen(false);
+                                }}
+                                className="block text-sm font-semibold text-gray-700 dark:text-gray-300 py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-colors"
+                            >
+                                {lang === 'el' ? 'Αρχική' : 'Home'}
+                            </a>
+                        )}
                         <a
                             href="#features"
                             onClick={(e) => handleAnchorClick(e, '#features')}
@@ -283,6 +347,40 @@ const NavBar = ({ lang, setLang, onHome }) => {
                         >
                             FAQ
                         </a>
+
+                        <div className="pt-2 border-t border-gray-100 dark:border-white/10 space-y-1">
+                            <a
+                                href="/privacy"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (onOpenLegal) onOpenLegal('privacy');
+                                    setMenuOpen(false);
+                                }}
+                                className={`block text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors ${
+                                    legalView === 'privacy'
+                                        ? 'bg-gray-100 dark:bg-white/10 text-gray-950 dark:text-white font-bold'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-dark3'
+                                }`}
+                            >
+                                {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
+                            </a>
+                            <a
+                                href="/terms"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    if (onOpenLegal) onOpenLegal('terms');
+                                    setMenuOpen(false);
+                                }}
+                                className={`block text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors ${
+                                    legalView === 'terms'
+                                        ? 'bg-gray-100 dark:bg-white/10 text-gray-950 dark:text-white font-bold'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-surface-dark3'
+                                }`}
+                            >
+                                {lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service'}
+                            </a>
+                        </div>
+
                         <div className="px-3 pt-2">
                             <a
                                 href={APP_URL}
@@ -342,15 +440,17 @@ const LandingPage = () => {
         return 'el'; // Greek default
     });
 
-    const [legalView, setLegalView] = useState(() => {
-        if (typeof window === 'undefined') return null;
-        const path = window.location.pathname.toLowerCase();
-        const hash = window.location.hash.toLowerCase();
-        const params = new URLSearchParams(window.location.search);
-        if (path.startsWith('/privacy') || hash === '#privacy' || params.get('tab') === 'privacy' || params.get('legal') === 'privacy') return 'privacy';
-        if (path.startsWith('/terms') || hash === '#terms' || params.get('tab') === 'terms' || params.get('legal') === 'terms') return 'terms';
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const legalView = useMemo(() => {
+        const path = (location?.pathname || '').toLowerCase();
+        const hash = (location?.hash || '').toLowerCase();
+        const params = new URLSearchParams(location?.search || '');
+        if (path === '/privacy' || path.startsWith('/privacy/') || hash === '#privacy' || params.get('tab') === 'privacy' || params.get('legal') === 'privacy') return 'privacy';
+        if (path === '/terms' || path.startsWith('/terms/') || hash === '#terms' || params.get('tab') === 'terms' || params.get('legal') === 'terms') return 'terms';
         return null;
-    });
+    }, [location?.pathname, location?.hash, location?.search]);
 
     const updateLang = (valOrFn) => {
         setLang(prev => {
@@ -364,50 +464,28 @@ const LandingPage = () => {
         });
     };
 
-    useEffect(() => {
-        const handlePopState = () => {
-            const path = window.location.pathname.toLowerCase();
-            const hash = window.location.hash.toLowerCase();
-            const params = new URLSearchParams(window.location.search);
-            if (path.startsWith('/privacy') || hash === '#privacy' || params.get('tab') === 'privacy' || params.get('legal') === 'privacy') {
-                setLegalView('privacy');
-                window.scrollTo(0, 0);
-            } else if (path.startsWith('/terms') || hash === '#terms' || params.get('tab') === 'terms' || params.get('legal') === 'terms') {
-                setLegalView('terms');
-                window.scrollTo(0, 0);
-            } else {
-                setLegalView(null);
-            }
-        };
-
-        window.addEventListener('popstate', handlePopState);
-        window.addEventListener('hashchange', handlePopState);
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-            window.removeEventListener('hashchange', handlePopState);
-        };
-    }, []);
-
     const openLegal = (type) => {
-        setLegalView(type);
-        try {
-            const nextPath = type === 'privacy' ? '/privacy' : '/terms';
-            window.history.pushState({}, '', nextPath);
-        } catch {
-            // ignore
-        }
+        const nextPath = type === 'privacy' ? '/privacy' : '/terms';
+        navigate(nextPath);
         window.scrollTo(0, 0);
     };
 
     const closeLegal = () => {
-        setLegalView(null);
-        try {
-            window.history.pushState({}, '', '/');
-        } catch {
-            // ignore
-        }
+        navigate('/');
         window.scrollTo(0, 0);
     };
+
+    useEffect(() => {
+        if (legalView === 'privacy') {
+            document.title = lang === 'el' ? 'Πολιτική Απορρήτου | Spendlore' : 'Privacy Policy | Spendlore';
+        } else if (legalView === 'terms') {
+            document.title = lang === 'el' ? 'Όροι Χρήσης | Spendlore' : 'Terms of Service | Spendlore';
+        } else {
+            document.title = lang === 'el'
+                ? 'Spendlore — Έξυπνη Διαχείριση Προσωπικών Οικονομικών'
+                : 'Spendlore — Smart Personal Finance Tracker';
+        }
+    }, [legalView, lang]);
 
     useEffect(() => {
         document.documentElement.lang = lang;
@@ -428,27 +506,52 @@ const LandingPage = () => {
     }, []);
 
     if (legalView) {
+        const isPrivacy = legalView === 'privacy';
+        const pageTitle = isPrivacy
+            ? (lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy')
+            : (lang === 'el' ? 'Όροι Χρήσης' : 'Terms of Service');
+        const pagePath = isPrivacy ? '/privacy' : '/terms';
+
         return (
             <div className="landing-page min-h-dvh bg-gray-50 dark:bg-surface-dark text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20 flex flex-col">
-                <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
+                <NavBar
+                    lang={lang}
+                    setLang={updateLang}
+                    onHome={closeLegal}
+                    legalView={legalView}
+                    onOpenLegal={openLegal}
+                />
 
                 <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 pt-24 pb-12">
-                    <div className="mb-4">
-                        <button
-                            type="button"
-                            onClick={closeLegal}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-surface-dark3 transition-all active:scale-95 shadow-xs"
-                        >
-                            <ArrowLeft size={14} strokeWidth={2.5} />
-                            <span>{lang === 'el' ? 'Επιστροφή στην Αρχική' : 'Back to Home'}</span>
-                        </button>
+                    {/* Header bar with breadcrumb and explicit visible URL badge */}
+                    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-gray-200 dark:border-white/10">
+                        <div className="flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                            <a
+                                href="/"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    closeLegal();
+                                }}
+                                className="hover:text-gray-900 dark:hover:text-white transition-colors"
+                            >
+                                spendlore.gr
+                            </a>
+                            <span className="text-gray-400">/</span>
+                            <span className="font-semibold text-gray-900 dark:text-white">{pageTitle}</span>
+                        </div>
+
+                        {/* Explicit URL Affordance Pill */}
+                        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-[11px] font-mono text-gray-600 dark:text-gray-300 self-start sm:self-auto">
+                            <Globe size={12} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>spendlore.gr{pagePath}</span>
+                        </div>
                     </div>
 
                     <React.Suspense fallback={<div className="p-12 text-center text-sm text-gray-400">Loading...</div>}>
-                        {legalView === 'privacy' ? (
-                            <PrivacyPolicyView onBack={closeLegal} hideHeader={true} lang={lang} />
+                        {isPrivacy ? (
+                            <PrivacyPolicyView hideHeader={true} hideBack={true} lang={lang} />
                         ) : (
-                            <TermsOfServiceView onBack={closeLegal} hideHeader={true} lang={lang} />
+                            <TermsOfServiceView hideHeader={true} hideBack={true} lang={lang} />
                         )}
                     </React.Suspense>
                 </main>
@@ -509,15 +612,32 @@ const LandingPage = () => {
 
     return (
         <div className="landing-page min-h-dvh bg-gray-50 dark:bg-surface-dark text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-white/20">
-            <NavBar lang={lang} setLang={updateLang} onHome={closeLegal} />
+            <NavBar
+                lang={lang}
+                setLang={updateLang}
+                onHome={closeLegal}
+                legalView={null}
+                onOpenLegal={openLegal}
+            />
 
             {/* ── HERO ── */}
             <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 px-4 sm:px-6">
                 <div className="relative max-w-4xl mx-auto text-center">
                     {/* Eyebrow */}
-                    <div className="flex items-center justify-center gap-1.5 mb-5 text-[11px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 mb-5 text-[11px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                         <Shield size={13} className="shrink-0" strokeWidth={2.2} />
                         <span>{lang === 'el' ? 'Χωρίς διαφημίσεις · Χωρίς πώληση δεδομένων' : 'Zero Ads · Full Privacy'}</span>
+                        <span className="text-gray-300 dark:text-gray-700 mx-1">·</span>
+                        <a
+                            href="/privacy"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                openLegal('privacy');
+                            }}
+                            className="underline underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-300 normal-case font-semibold text-xs tracking-normal"
+                        >
+                            {lang === 'el' ? 'Πολιτική Απορρήτου' : 'Privacy Policy'}
+                        </a>
                     </div>
 
                     {/* Title */}
