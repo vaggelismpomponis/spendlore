@@ -326,16 +326,14 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
                         {/* ── Column 1: Login & Authentication ── */}
-                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5">
-                            <div className="flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
-                                    <Lock size={20} strokeWidth={2.3} />
-                                </div>
+                        <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-xs space-y-5">
+                            <div className="flex items-start gap-3">
+                                <Lock size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                 <div>
-                                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gray-200/60 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-300/60 dark:border-white/[0.1]">
+                                    <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/60">
                                         {isEL ? 'Προστασία' : 'Protection'}
                                     </span>
-                                    <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
+                                    <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mt-0.5">
                                         {translate('login_auth') || 'Login & Authentication'}
                                     </h3>
                                 </div>
@@ -566,16 +564,14 @@ const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <ShieldCheck size={20} strokeWidth={2.3} />
-                            </div>
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 shadow-xs">
+                        <div className="flex items-start gap-3 mb-4">
+                            <ShieldCheck size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                             <div>
-                                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
                                     {isEL ? 'Αρχιτεκτονική Ασφάλειας & Κρυπτογράφησης Υλικού' : 'Hardware Security & Encryption Architecture'}
                                 </h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                                <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
                                     {isEL ? 'Πολυεπίπεδη προστασία σχεδιασμένη για ιδιωτικότητα και αξιοπιστία' : 'Multi-layer protection designed for privacy and resilience'}
                                 </p>
                             </div>

@@ -79,8 +79,9 @@ const MobileHeader = ({ onBack, hideHeader, t }) => (
         <div className="flex items-center justify-center min-h-[40px] relative">
             <button
                 onClick={onBack}
-                className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
+                className="absolute left-0 w-8 h-8 rounded-xl bg-gray-100 dark:bg-white/[0.08]
                            flex items-center justify-center text-gray-500 dark:text-white/50
+                           border border-gray-200/60 dark:border-white/10
                            hover:bg-gray-200 dark:hover:bg-white/[0.14] active:scale-90 transition-all duration-150"
             >
                 <ArrowLeft size={15} strokeWidth={2.5} />
@@ -510,8 +511,8 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
             <div className="flex flex-col h-full bg-gray-50 dark:bg-surface-dark animate-fade-in">
                 {!isDesktop && <MobileHeader onBack={onBack} hideHeader={hideHeader} t={t} />}
                 <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-6 max-w-lg mx-auto">
-                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-violet-500/30">
-                        <Lightbulb size={44} className="text-white" />
+                    <div className="w-16 h-16 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 flex items-center justify-center text-gray-900 dark:text-white shadow-xs">
+                        <Lightbulb size={30} strokeWidth={1.75} />
                     </div>
                     <div>
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 font-display">{t('advisor_empty_title')}</h2>
@@ -598,7 +599,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                         </h2>
                                     </div>
                                     {prevMonthScore !== null && (
-                                        <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-black backdrop-blur-md border shrink-0 ${
+                                        <div className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold border shrink-0 ${
                                             scoreTrend > 0
                                                 ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20'
                                                 : scoreTrend < 0
@@ -932,10 +933,10 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
                                                             ? (t('breakdown_on_track') || 'On Track')
                                                             : `↑ ${t('breakdown_over_target') || 'Over Target'}`);
                                                     return (
-                                                        <span className={`text-xs font-black mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full ${
+                                                        <span className={`text-xs font-bold mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md ${
                                                             isGood
-                                                                ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400'
-                                                                : 'bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400'
+                                                                ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40 dark:border-emerald-800/40'
+                                                                : 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-300/40 dark:border-rose-800/40'
                                                         }`}>
                                                             {statusText}
                                                         </span>

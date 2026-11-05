@@ -78,7 +78,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                                 className="absolute -bottom-1 -right-2 select-none"
                                 title="Pro Member"
                             >
-                                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/90 text-violet-600 dark:text-violet-400 border border-violet-200/80 dark:border-violet-800/60 shadow-sm shadow-violet-500/10">
+                                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-gray-900 text-white dark:bg-white dark:text-gray-950 border border-gray-900 dark:border-white shadow-xs">
                                     PRO
                                 </span>
                             </div>
@@ -87,8 +87,10 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                 </div>
 
                 {/* Name Edit */}
-                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-5 rounded-2xl mb-3">
-                    <label className="block text-[13px] font-bold text-gray-500 dark:text-white/50 mb-2">Όνομα Χρήστη / Username</label>
+                <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 p-5 rounded-2xl shadow-xs mb-3">
+                    <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-widest">
+                        Όνομα Χρήστη / Username
+                    </label>
                     {editingName ? (
                         <div className="flex flex-col gap-3 w-full">
                             <input
@@ -96,13 +98,20 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                                 value={nameInput}
                                 onChange={e => setNameInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') { setEditingName(false); setNameInput(displayName); } }}
-                                className="w-full text-[18px] leading-tight font-extrabold bg-white dark:bg-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all shadow-sm"
+                                className="w-full text-base font-semibold bg-white dark:bg-surface-dark3 rounded-xl px-4 py-2.5 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all shadow-xs"
                             />
                             <div className="flex items-center gap-2">
-                                <button onClick={handleSaveName} className="flex-1 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-[14px] rounded-full active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                <button
+                                    onClick={handleSaveName}
+                                    disabled={savingName}
+                                    className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold text-sm rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50"
+                                >
                                     <CheckCircle2 size={16} /> {translate('save') === 'save' ? 'Αποθήκευση' : translate('save')}
                                 </button>
-                                <button onClick={() => { setEditingName(false); setNameInput(displayName); }} className="flex-1 py-2.5 bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white font-bold text-[14px] rounded-full active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                                <button
+                                    onClick={() => { setEditingName(false); setNameInput(displayName); }}
+                                    className="flex-1 py-2.5 bg-gray-200/70 dark:bg-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 border border-gray-300/60 dark:border-white/10 font-bold text-sm rounded-xl active:scale-95 transition-all flex items-center justify-center gap-1.5"
+                                >
                                     <X size={16} /> {translate('cancel') === 'cancel' ? 'Ακύρωση' : translate('cancel')}
                                 </button>
                             </div>
@@ -114,7 +123,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                             </h2>
                             <button
                                 onClick={() => setEditingName(true)}
-                                className="inline-flex items-center px-4 py-2 rounded-full bg-gray-200/60 dark:bg-white/10 text-[13px] font-bold text-gray-700 dark:text-white/90 active:scale-95 transition-transform hover:bg-gray-300/80 dark:hover:bg-white/20 shrink-0 ml-4"
+                                className="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 text-xs font-bold text-gray-700 dark:text-white/90 border border-gray-200 dark:border-white/10 active:scale-95 transition-all shrink-0 ml-4"
                             >
                                 {translate('edit') === 'edit' ? 'Επεξεργασία' : translate('edit')}
                             </button>
@@ -123,17 +132,17 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                 </div>
 
                 {/* Readonly details */}
-                <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-5 rounded-2xl space-y-4">
+                <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 p-5 rounded-2xl shadow-xs space-y-4">
                     <div>
-                        <span className="block text-[12px] font-bold text-gray-400 dark:text-white/40 mb-1">{translate('email') || 'Email'}</span>
+                        <span className="block text-[11px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest mb-1">{translate('email') || 'Email'}</span>
                         <span className="block text-[15px] font-semibold text-gray-800 dark:text-white/90">{user?.email || '—'}</span>
                     </div>
                     <div>
-                        <span className="block text-[12px] font-bold text-gray-400 dark:text-white/40 mb-1">{translate('provider') || 'Provider'}</span>
+                        <span className="block text-[11px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest mb-1">{translate('provider') || 'Provider'}</span>
                         <span className="block text-[15px] font-semibold text-gray-800 dark:text-white/90 capitalize">{provider}</span>
                     </div>
                     <div>
-                        <span className="block text-[12px] font-bold text-gray-400 dark:text-white/40 mb-1">{translate('member_since') || 'Member Since'}</span>
+                        <span className="block text-[11px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest mb-1">{translate('member_since') || 'Member Since'}</span>
                         <span className="block text-[15px] font-semibold text-gray-800 dark:text-white/90">{createdAt}</span>
                     </div>
                 </div>

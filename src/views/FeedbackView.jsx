@@ -166,7 +166,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Feedback Form Card ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
 
                             {/* Type Selection */}
@@ -256,21 +256,21 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder={getPlaceholder()}
                                     rows={5}
-                                    className="w-full p-4 rounded-2xl bg-gray-50/70 dark:bg-surface-dark border border-gray-200/80 dark:border-white/[0.08] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 dark:focus:ring-violet-400 transition-all resize-y min-h-[140px]"
+                                    className="w-full p-3.5 rounded-xl bg-gray-50/70 dark:bg-surface-dark border border-gray-200/80 dark:border-white/[0.08] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all resize-y min-h-[140px]"
                                     required
                                 />
                             </div>
 
                             {/* User Context & Privacy Banner */}
                             {user?.email && (
-                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] text-xs text-gray-600 dark:text-gray-400">
+                                <div className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] text-xs text-gray-600 dark:text-gray-400">
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <ShieldCheck size={16} className="text-violet-600 dark:text-violet-400 shrink-0" />
+                                        <ShieldCheck size={16} className="text-gray-900 dark:text-white shrink-0" />
                                         <span className="truncate">
                                             {translate('feedback_submitting_as') || 'Submitting as'}: <strong className="text-gray-900 dark:text-white">{user.email}</strong>
                                         </span>
                                     </div>
-                                    <span className="text-[10px] uppercase font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-2 py-0.5 rounded-md shrink-0 ml-2">
+                                    <span className="text-[10px] uppercase font-bold text-gray-700 dark:text-gray-300 bg-gray-200/60 dark:bg-white/10 px-2 py-0.5 rounded-md shrink-0 ml-2">
                                         Verified
                                     </span>
                                 </div>
@@ -280,7 +280,7 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                             <button
                                 type="submit"
                                 disabled={isSending || !message.trim()}
-                                className="w-full py-4 rounded-2xl bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 font-bold text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-2.5 rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold text-sm shadow-xs active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {isSending ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -295,16 +295,14 @@ const FeedbackView = ({ user, onBack, hideHeader }) => {
                     </div>
 
                     {/* ─────── Bottom Bento: Trust & Process Card ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <ShieldCheck size={20} strokeWidth={2.3} />
-                            </div>
+                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 shadow-xs">
+                        <div className="flex items-start gap-3 mb-4">
+                            <ShieldCheck size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                             <div>
-                                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
                                     {translate('feedback_promise_title') || 'How We Handle Your Feedback'}
                                 </h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                                <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
                                     Transparent, continuous development
                                 </p>
                             </div>

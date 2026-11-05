@@ -716,17 +716,14 @@ const StatsView = ({ transactions }) => {
 
             {/* ── Anti-Persona Insights (Epic 3) ── */}
             {antiPersona.length > 0 && (
-                <div className="bg-[#f5f5f5] dark:bg-white/[0.04] rounded-[20px] p-6 relative overflow-hidden">
-                    {/* Background glow */}
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 blur-[40px] rounded-full pointer-events-none" />
-                    
+                <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200/80 dark:border-white/10 p-6 shadow-xs relative overflow-hidden">
                     <div className="flex items-center justify-between mb-4 relative z-10">
                         <div>
-                            <h3 className="text-sm font-black text-rose-500 flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
                                 <ThumbsDown size={18} />
                                 Anti-Persona
                             </h3>
-                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Highest Regret Categories</p>
+                            <p className="text-[11px] font-bold text-gray-500 dark:text-white/60 mt-1 uppercase tracking-widest">Highest Regret Categories</p>
                         </div>
                     </div>
                     
@@ -822,7 +819,7 @@ const StatsView = ({ transactions }) => {
                                         </div>
                                         <button 
                                             onClick={() => setSelectedCategory(null)}
-                                            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
+                                            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                                         >
                                             <X size={16} />
                                         </button>

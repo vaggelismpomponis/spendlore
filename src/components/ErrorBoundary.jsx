@@ -90,14 +90,14 @@ class ErrorBoundaryClass extends React.Component {
         if (this.state.hasError) {
             removeInlineLoaderSafely();
             return (
-                <div className="min-h-screen flex items-center justify-center p-6 bg-surface-light dark:bg-surface-dark transition-colors duration-300 relative z-[10001] select-none">
-                    <div className="max-w-md w-full bg-white dark:bg-surface-dark3 rounded-3xl shadow-premium p-8 flex flex-col items-center text-center border border-gray-100 dark:border-white/10">
+                <div className="min-h-dvh flex items-center justify-center p-6 bg-surface-light dark:bg-surface-dark transition-colors duration-300 relative z-[10001] select-none">
+                    <div className="max-w-md w-full bg-white dark:bg-surface-dark3 rounded-2xl shadow-xs p-8 flex flex-col items-center text-center border border-gray-200/80 dark:border-white/10">
                         {/* Red Icon Badge */}
-                        <div className="w-20 h-20 bg-rose-50 dark:bg-rose-500/10 rounded-2xl flex items-center justify-center mb-6 text-rose-500 shadow-glow-sm shrink-0">
-                            <AlertCircle size={40} strokeWidth={2} />
+                        <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-6 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
+                            <AlertCircle size={32} strokeWidth={2} />
                         </div>
                         
-                        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
                             {t('something_went_wrong')}
                         </h1>
                         
@@ -110,16 +110,16 @@ class ErrorBoundaryClass extends React.Component {
                             <button
                                 type="button"
                                 onClick={this.handleReload}
-                                className="w-full py-3.5 px-4 bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2.5 font-bold cursor-pointer active:scale-[0.98]"
+                                className="w-full py-3 px-4 bg-gray-950 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 rounded-xl transition-all duration-200 shadow-xs flex items-center justify-center gap-2.5 font-bold cursor-pointer active:scale-95 text-sm"
                             >
-                                <RefreshCw size={18} className={this.state.isReloading ? "animate-spin" : ""} strokeWidth={2.2} />
+                                <RefreshCw size={16} className={this.state.isReloading ? "animate-spin" : ""} strokeWidth={2} />
                                 {t('reload_app')}
                             </button>
 
                             <button
                                 type="button"
                                 onClick={this.handleResetAndRestart}
-                                className="w-full py-3 px-4 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-xs cursor-pointer active:scale-[0.98] border border-gray-200/60 dark:border-white/5"
+                                className="w-full py-2.5 px-4 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-xs cursor-pointer active:scale-95 border border-gray-200/60 dark:border-white/10"
                             >
                                 <RotateCcw size={15} strokeWidth={2} />
                                 {t('clear_cache_restart') || 'Εκκαθάριση & Επανεκκίνηση'}

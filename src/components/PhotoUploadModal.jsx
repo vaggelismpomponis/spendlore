@@ -115,8 +115,11 @@ const PhotoUploadModal = ({ isOpen, onClose, onUpload }) => {
                 {/* Header */}
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-transparent">
                     <h3 className="text-lg font-bold">Αλλαγή Φωτογραφίας</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
-                        <X size={20} />
+                    <button
+                        onClick={onClose}
+                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
+                    >
+                        <X size={18} />
                     </button>
                 </div>
 

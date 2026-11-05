@@ -399,9 +399,10 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     <div className="flex items-center gap-3 min-w-0">
                         <button
                             onClick={onBack}
-                            className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
+                            className="absolute left-0 w-8 h-8 rounded-xl bg-gray-100 dark:bg-white/[0.08]
                                        flex items-center justify-center
                                        text-gray-500 dark:text-white/50
+                                       border border-gray-200/60 dark:border-white/10
                                        hover:bg-gray-200 dark:hover:bg-white/[0.14]
                                        active:scale-90 transition-all duration-150"
                         >
@@ -549,20 +550,19 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                             <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
                         </div>
                     ) : budgets.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-24 text-center px-4 bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm mt-4">
-                            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 dark:from-indigo-900/40 dark:to-purple-900/40 rounded-full flex items-center justify-center mb-6 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-white/20 dark:bg-white/5 backdrop-blur-md" />
-                                <Target size={44} className="text-indigo-500 dark:text-indigo-400 relative z-10 drop-shadow-sm" />
+                        <div className="flex flex-col items-center justify-center py-20 text-center px-4 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200/80 dark:border-white/10 shadow-xs mt-4">
+                            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center mb-5 text-gray-900 dark:text-white shadow-xs">
+                                <Target size={30} strokeWidth={1.75} />
                             </div>
-                            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 font-display tracking-tight">{t('no_budgets')}</h3>
-                            <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 max-w-[240px] mb-8 leading-relaxed">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">{t('no_budgets')}</h3>
+                            <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 max-w-[260px] mb-6 leading-relaxed">
                                 {t('create_first_budget')}
                             </p>
                             <button
                                 onClick={openAddModal}
-                                className="flex items-center gap-2 px-6 py-3.5 bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 font-bold rounded-xl shadow-sm transition-all active:scale-95 group"
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold text-sm rounded-xl shadow-xs transition-all active:scale-95 group"
                             >
-                                <Plus size={18} className="transition-transform group-hover:rotate-90" /> {t('create_budget')}
+                                <Plus size={16} className="transition-transform group-hover:rotate-90" /> {t('create_budget')}
                             </button>
                         </div>
                     ) : (

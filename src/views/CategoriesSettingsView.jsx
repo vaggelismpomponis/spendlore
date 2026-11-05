@@ -302,15 +302,15 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
 
                         {/* Inline Add Category Form */}
                         {isAdding && (
-                            <form onSubmit={handleAddCategory} className="p-4 rounded-2xl bg-violet-50/50 dark:bg-violet-500/[0.05] border border-violet-200/80 dark:border-violet-500/20 space-y-3 animate-fade-in">
+                            <form onSubmit={handleAddCategory} className="p-4 rounded-2xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 shadow-xs space-y-3 animate-fade-in">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-violet-900 dark:text-violet-300">
+                                    <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                                         {translate('add_category') || 'Νέα Προσαρμοσμένη Κατηγορία'} ({activeType === 'expense' ? (isEL ? 'Έξοδο' : 'Expense') : (isEL ? 'Έσοδο' : 'Income')})
                                     </span>
                                     <button
                                         type="button"
                                         onClick={() => { setIsAdding(false); setNewCatName(''); }}
-                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-white"
+                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-lg"
                                     >
                                         <X size={16} />
                                     </button>
@@ -323,13 +323,13 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                         onChange={(e) => setNewCatName(e.target.value)}
                                         placeholder={translate('category_name_placeholder') || 'π.χ. Συνδρομές, Φροντιστήριο...'}
                                         maxLength={40}
-                                        className="flex-1 px-3.5 py-2.5 rounded-xl text-sm border border-violet-200 dark:border-white/10 bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                        className="flex-1 px-3.5 py-2.5 rounded-xl text-sm border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-dark2 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all shadow-xs"
                                     />
                                     <div className="flex gap-2">
                                         <button
                                             type="submit"
                                             disabled={!newCatName.trim()}
-                                            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shadow-violet-600/20"
+                                            className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 disabled:opacity-50 text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-95"
                                         >
                                             <Check size={16} />
                                             <span>{translate('save') || 'Αποθήκευση'}</span>
@@ -337,7 +337,7 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
                                         <button
                                             type="button"
                                             onClick={() => { setIsAdding(false); setNewCatName(''); }}
-                                            className="px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+                                            className="px-3.5 py-2.5 rounded-xl border border-gray-300/60 dark:border-white/10 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-xs font-bold transition-all active:scale-95"
                                         >
                                             {translate('cancel') || 'Ακύρωση'}
                                         </button>
@@ -366,8 +366,8 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader })
 
                         {currentCustomList.length === 0 ? (
                             <div className="py-12 px-4 text-center rounded-2xl bg-gray-50/60 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-white/10 space-y-3">
-                                <div className="w-12 h-12 rounded-2xl bg-violet-100/70 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mx-auto">
-                                    <Tag size={22} strokeWidth={2} />
+                                <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 flex items-center justify-center mx-auto border border-gray-200/60 dark:border-white/10 shadow-xs">
+                                    <Tag size={20} strokeWidth={2} />
                                 </div>
                                 <h4 className="font-extrabold text-sm text-gray-800 dark:text-white">
                                     {translate('no_custom_categories_title') || 'Δεν υπάρχουν προσαρμοσμένες κατηγορίες'}

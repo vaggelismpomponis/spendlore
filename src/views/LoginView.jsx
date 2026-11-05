@@ -281,14 +281,9 @@ const LoginView = ({
     return (
         <div className="min-h-[100dvh] w-full flex flex-col items-center justify-between relative overflow-y-auto overflow-x-hidden bg-[#08070D] px-4 py-8 sm:py-12 selection:bg-violet-500/30">
 
-            {/* Ambient Background Glows */}
-            <div className="fixed -top-32 -left-32 w-96 h-96 sm:w-[500px] sm:h-[500px] rounded-full bg-violet-600/20 blur-[130px] pointer-events-none animate-pulse" />
-            <div className="fixed -bottom-28 -right-28 w-80 h-80 sm:w-[450px] sm:h-[450px] rounded-full bg-indigo-600/20 blur-[140px] pointer-events-none" />
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-fuchsia-600/10 blur-[120px] pointer-events-none" />
-
             {/* Micro Dot Matrix Grid */}
             <div
-                className="fixed inset-0 pointer-events-none opacity-[0.14]"
+                className="fixed inset-0 pointer-events-none opacity-[0.08]"
                 style={{
                     backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)',
                     backgroundSize: '24px 24px'
@@ -305,14 +300,13 @@ const LoginView = ({
                     transition={{ duration: 0.4, ease: "easeOut" }}
                     className="flex flex-col items-center text-center mb-6 sm:mb-8"
                 >
-                    {/* Glowing Squircle App Icon */}
-                    <div className="relative group cursor-pointer mb-3.5">
-                        <div className="absolute -inset-1 rounded-[26px] bg-gradient-to-tr from-violet-600 via-indigo-500 to-fuchsia-500 opacity-40 blur-xl group-hover:opacity-70 transition duration-500" />
-                        <div className="relative w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-[24px] bg-white border border-white/40 p-3.5 shadow-2xl flex items-center justify-center backdrop-blur-xl ring-1 ring-black/5 group-hover:scale-105 transition-transform duration-300">
+                    {/* App Icon */}
+                    <div className="relative cursor-pointer mb-3.5">
+                        <div className="w-20 h-20 sm:w-[88px] sm:h-[88px] rounded-2xl bg-white/10 border border-white/15 p-3.5 shadow-sm flex items-center justify-center">
                             <img
                                 src="/spendlore-mark.png"
                                 alt="Spendlore Icon"
-                                className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(124,58,237,0.3)]"
+                                className="w-full h-full object-contain"
                             />
                         </div>
                     </div>
@@ -335,10 +329,8 @@ const LoginView = ({
                     initial={{ opacity: 0, scale: 0.98, y: 12 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-                    className="w-full bg-[#131120]/90 backdrop-blur-2xl border border-white/[0.12] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.15)] relative overflow-hidden"
+                    className="w-full bg-[#111018] border border-white/10 rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden"
                 >
-                    {/* Top Edge Ambient Highlight Line */}
-                    <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-violet-400/50 to-transparent pointer-events-none" />
 
                     <AnimatePresence mode="wait">
                         {/* ── OTP Verification Flow ── */}
@@ -389,8 +381,8 @@ const LoginView = ({
                                             aria-label={`Digit ${idx + 1}`}
                                             className="w-8 h-11 sm:w-9 sm:h-12 text-center text-base sm:text-lg font-bold rounded-xl
                                                      bg-white/[0.05] border border-white/10
-                                                     focus:border-violet-500 focus:bg-white/10 focus:ring-2 focus:ring-violet-500/20
-                                                     text-white outline-none transition-all shadow-sm"
+                                                     focus:border-white focus:bg-white/10 focus:ring-1 focus:ring-white
+                                                     text-white outline-none transition-all shadow-xs"
                                         />
                                     ))}
                                 </div>
@@ -400,13 +392,12 @@ const LoginView = ({
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handleVerify}
                                     disabled={isLoading || verificationCode.some(d => !d)}
-                                    className="w-full py-4 rounded-2xl font-bold text-sm text-white
-                                             bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
-                                             hover:from-violet-500 hover:to-indigo-500
-                                             shadow-[0_8px_25px_rgba(124,58,237,0.35)]
+                                    className="w-full py-3 rounded-xl font-bold text-sm text-gray-950
+                                             bg-white hover:bg-gray-100
+                                             shadow-xs
                                              flex items-center justify-center gap-2
-                                             transition-all duration-200
-                                             disabled:opacity-60 disabled:cursor-not-allowed"
+                                             transition-all duration-150
+                                             disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isLoading ? (
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -473,7 +464,7 @@ const LoginView = ({
                                             <motion.div
                                                 layoutId="auth-tab-pill"
                                                 transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                                                className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl shadow-[0_4px_16px_rgba(124,58,237,0.35)]"
+                                                className="absolute inset-0 bg-white/15 border border-white/10 rounded-xl shadow-xs"
                                                 style={{ zIndex: -1 }}
                                             />
                                         )}
@@ -492,7 +483,7 @@ const LoginView = ({
                                             <motion.div
                                                 layoutId="auth-tab-pill"
                                                 transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                                                className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl shadow-[0_4px_16px_rgba(124,58,237,0.35)]"
+                                                className="absolute inset-0 bg-white/15 border border-white/10 rounded-xl shadow-xs"
                                                 style={{ zIndex: -1 }}
                                             />
                                         )}
@@ -686,17 +677,15 @@ const LoginView = ({
                                             whileTap={{ scale: 0.98 }}
                                             type="submit"
                                             disabled={isLoading}
-                                            className="w-full py-4 rounded-2xl font-bold text-sm text-white
-                                                             bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
-                                                             hover:from-violet-500 hover:to-indigo-500
-                                                             shadow-[0_8px_25px_rgba(124,58,237,0.35)]
-                                                             hover:shadow-[0_10px_30px_rgba(124,58,237,0.45)]
+                                            className="w-full py-3.5 rounded-xl font-bold text-sm text-gray-950
+                                                             bg-white hover:bg-gray-100
+                                                             shadow-xs
                                                              flex items-center justify-center gap-2
-                                                             transition-all duration-200 mt-2
-                                                             disabled:opacity-60 disabled:cursor-not-allowed"
+                                                             transition-all duration-150 mt-2
+                                                             disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isLoading ? (
-                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
                                             ) : (
                                                 <>
                                                     <span>
@@ -770,7 +759,7 @@ const LoginView = ({
                                 <button
                                     type="button"
                                     onClick={() => setShowForgotModal(false)}
-                                    className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                                    className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-gray-400 hover:text-white transition-colors"
                                 >
                                     <X size={18} />
                                 </button>
@@ -801,16 +790,16 @@ const LoginView = ({
                                             Email
                                         </label>
                                         <div className="relative group">
-                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-400 transition-colors pointer-events-none" size={17} />
+                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors pointer-events-none" size={17} />
                                             <input
                                                 type="email"
                                                 value={resetEmail}
                                                 onChange={e => setResetEmail(e.target.value)}
                                                 placeholder={t('email_placeholder') || 'youremail@gmail.com'}
                                                 required
-                                                className="w-full pl-11 pr-4 py-3.5 rounded-2xl text-sm font-medium
+                                                className="w-full pl-11 pr-4 py-3 rounded-xl text-sm font-medium
                                                          bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08]
-                                                         border border-white/10 focus:border-violet-500
+                                                         border border-white/10 focus:border-white focus:ring-1 focus:ring-white
                                                          text-white placeholder:text-gray-500
                                                          outline-none transition-all"
                                             />
@@ -821,10 +810,7 @@ const LoginView = ({
                                         whileTap={{ scale: 0.98 }}
                                         type="submit"
                                         disabled={resetStatus.loading}
-                                        className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-500
-                                                 text-white font-bold text-sm
-                                                 shadow-[0_8px_25px_rgba(124,58,237,0.35)]
-                                                 transition-all duration-200 disabled:opacity-60"
+                                        className="w-full py-3 rounded-xl bg-white hover:bg-gray-100 text-gray-950 font-bold text-sm shadow-xs transition-all duration-150 disabled:opacity-50"
                                     >
                                         {resetStatus.loading ? (t('sending') || 'Αποστολή...') : (t('send_link') || 'Αποστολή Συνδέσμου')}
                                     </motion.button>

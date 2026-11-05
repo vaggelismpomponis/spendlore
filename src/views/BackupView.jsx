@@ -296,17 +296,15 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Export Card */}
-                            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col justify-between space-y-6">
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-300 border border-violet-500/20 flex items-center justify-center shrink-0">
-                                            <Download size={22} strokeWidth={2.3} />
-                                        </div>
+                                    <div className="flex items-start gap-3">
+                                        <Download size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                         <div>
-                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
+                                            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/60">
                                                 {isEL ? 'Εξαγωγή' : 'Export'}
                                             </span>
-                                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
+                                            <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mt-0.5">
                                                 {translate('backup_export_title') || (isEL ? 'Δημιουργία Αντιγράφου' : 'Create Full Backup')}
                                             </h3>
                                         </div>
@@ -326,9 +324,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                             translate('backup_check_settings') || 'Custom categories & regional settings'
                                         ].map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-2">
-                                                <div className="w-4 h-4 rounded-md bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
-                                                    <Check size={11} strokeWidth={3} />
-                                                </div>
+                                                <Check size={14} strokeWidth={2.5} className="text-gray-900 dark:text-white shrink-0" />
                                                 <span className="text-[12px] text-gray-700 dark:text-gray-300">
                                                     {item}
                                                 </span>
@@ -342,7 +338,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <button
                                         onClick={handleExportBackup}
                                         disabled={isExporting}
-                                        className="w-full py-3.5 px-5 rounded-2xl bg-gray-950 hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 font-bold text-xs shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full py-2.5 px-5 rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold text-sm shadow-xs active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         {isExporting ? (
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -373,17 +369,15 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                             </div>
 
                             {/* Restore Card */}
-                            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm flex flex-col justify-between space-y-6">
+                            <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col justify-between space-y-6">
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 border border-cyan-500/20 flex items-center justify-center shrink-0">
-                                            <Upload size={22} strokeWidth={2.3} />
-                                        </div>
+                                    <div className="flex items-start gap-3">
+                                        <Upload size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
                                         <div>
-                                            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 dark:bg-cyan-500/10 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-500/20">
+                                            <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/60">
                                                 {isEL ? 'Επαναφορά' : 'Restore'}
                                             </span>
-                                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
+                                            <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mt-0.5">
                                                 {translate('backup_restore_title') || (isEL ? 'Επαναφορά από Αντίγραφο' : 'Restore from Backup')}
                                             </h3>
                                         </div>
@@ -403,9 +397,7 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                             translate('backup_check_dedup') || 'Automatic duplicate avoidance when merging'
                                         ].map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-2">
-                                                <div className="w-4 h-4 rounded-md bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0">
-                                                    <Check size={11} strokeWidth={3} />
-                                                </div>
+                                                <Check size={14} strokeWidth={2.5} className="text-gray-900 dark:text-white shrink-0" />
                                                 <span className="text-[12px] text-gray-700 dark:text-gray-300">
                                                     {item}
                                                 </span>
@@ -426,9 +418,9 @@ const BackupView = ({ user, onBack, hideHeader }) => {
                                     <button
                                         type="button"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="w-full py-3.5 px-5 rounded-2xl bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                        className="w-full py-2.5 px-5 rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold text-sm shadow-xs active:scale-95 transition-all flex items-center justify-center gap-2"
                                     >
-                                        <FileJson size={15} strokeWidth={2.3} />
+                                        <FileJson size={16} strokeWidth={2} />
                                         <span>{translate('backup_choose_file') || 'Choose Backup File'}</span>
                                     </button>
                                 </div>

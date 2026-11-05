@@ -578,10 +578,10 @@ const AdminView = ({ onBack, hideHeader }) => {
                         <button
                             type="button"
                             onClick={fetchAllData}
-                            className="w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400 active:rotate-180 transition-all duration-500"
+                            className="w-8 h-8 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200 flex items-center justify-center border border-gray-200/60 dark:border-white/10 active:scale-95 transition-all"
                             aria-label="Refresh Data"
                         >
-                            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
                         </button>
                     }
                 >
@@ -672,13 +672,9 @@ const AdminView = ({ onBack, hideHeader }) => {
                     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto pb-16">
 
                         {/* ─────── Executive Command Center Hero Banner ─────── */}
-                        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-indigo-900 dark:from-violet-950 dark:via-indigo-950 dark:to-surface-dark3 border border-violet-400/30 dark:border-white/10 shadow-xl shadow-violet-500/15 text-white p-6 sm:p-8">
-                            {/* Ambient decorative glowing backdrops */}
-                            <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-violet-400/25 blur-3xl pointer-events-none" />
-                            <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-indigo-400/25 blur-3xl pointer-events-none" />
-
-                            <div className="relative z-10 max-w-3xl space-y-3">
-                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
+                        <div className="rounded-2xl bg-gray-900 dark:bg-surface-dark2 border border-gray-800 dark:border-white/10 shadow-xs text-white p-6 sm:p-8">
+                            <div className="max-w-3xl space-y-3">
+                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/10 border border-white/10 text-xs font-semibold text-gray-200 tracking-wider uppercase">
                                     <Activity size={13} />
                                     <span>System Command Center</span>
                                 </div>
@@ -687,26 +683,26 @@ const AdminView = ({ onBack, hideHeader }) => {
                                     <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
                                         Spendlore Operations Console
                                     </h1>
-                                    <p className="text-sm sm:text-base text-violet-100/90 leading-relaxed font-medium">
+                                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-normal">
                                         Real-time user engagement analytics, subscription sovereignty, data auditing, and system broadcasts.
                                     </p>
                                 </div>
 
-                                {/* Live Telemetry Pills (2x2 grid on mobile, flex row on tablet/desktop) */}
+                                {/* Live Telemetry Pills */}
                                 <div className="pt-2 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs font-semibold">
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <Users size={13} className="shrink-0" />
                                         <span className="truncate">{stats.users} Total Accounts</span>
                                     </span>
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <Activity size={13} className="shrink-0" />
                                         <span className="truncate">{metrics.proUsers} Pro Subscribers</span>
                                     </span>
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <CheckCircle2 size={13} className="shrink-0" />
                                         <span className="truncate">{stats.transactions} Ledger Entries</span>
                                     </span>
-                                    <span className="px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-xl bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-200 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
+                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
                                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                                         <span className="truncate">Database Online</span>
                                     </span>
@@ -785,32 +781,44 @@ const AdminView = ({ onBack, hideHeader }) => {
             {/* Notes Modal */}
             {showNotesModal && (
                 <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
-                    <div className="relative w-full max-w-lg bg-white dark:bg-surface-dark2 rounded-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col border border-gray-100 dark:border-white/10">
-                        <div className="p-6 border-b border-gray-100 dark:border-white/[0.06] flex items-center justify-between">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
+                    <div className="relative w-full max-w-lg bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-300 dark:border-white/10">
+                        <div className="p-5 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-black text-gray-900 dark:text-white">{translate('admin_notes')}</h3>
-                                <p className="text-xs text-gray-400">{notesTarget?.email}</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{translate('admin_notes')}</h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{notesTarget?.email}</p>
                             </div>
-                            <button onClick={() => setShowNotesModal(false)} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full hover:bg-gray-200 transition-colors">
+                            <button
+                                onClick={() => setShowNotesModal(false)}
+                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
+                            >
                                 <X size={18} />
                             </button>
                         </div>
-                        <div className="p-6 space-y-4">
+                        <div className="p-5 space-y-4">
                             <textarea
                                 value={editingNotes}
                                 onChange={e => setEditingNotes(e.target.value)}
-                                className="w-full p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/[0.06] text-[13px] min-h-[200px] focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all resize-none font-medium"
+                                className="w-full p-3.5 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 text-sm min-h-[160px] focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all resize-none font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                                 placeholder="Write internal notes about this account..."
                             />
-                            <button
-                                onClick={handleSaveNotesModal}
-                                disabled={isSavingNotes}
-                                className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-violet-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-60 text-sm"
-                            >
-                                {isSavingNotes ? <RefreshCw size={18} className="animate-spin" /> : null}
-                                {translate('save') || 'Save Notes'}
-                            </button>
+                            <div className="flex gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowNotesModal(false)}
+                                    className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                >
+                                    {translate('cancel') || 'Cancel'}
+                                </button>
+                                <button
+                                    onClick={handleSaveNotesModal}
+                                    disabled={isSavingNotes}
+                                    className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-xs active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm"
+                                >
+                                    {isSavingNotes ? <RefreshCw size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                                    {translate('save') || 'Save Notes'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
