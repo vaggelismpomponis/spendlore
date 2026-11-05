@@ -29,7 +29,7 @@ import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 
-const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader }) => {
+const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader = false }) => {
     const { language, updateLanguage, t: translate, customCategories } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();

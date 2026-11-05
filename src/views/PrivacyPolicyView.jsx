@@ -16,7 +16,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const PrivacyPolicyView = ({ onBack, hideHeader, lang, backLabel, hideBack = false }) => {
+const PrivacyPolicyView = ({ onBack, hideHeader = false, lang, backLabel, hideBack = false }) => {
     const settings = useSettings?.() || {};
     const effectiveLang = lang || settings.language || 'el';
     const isEL = effectiveLang === 'el';

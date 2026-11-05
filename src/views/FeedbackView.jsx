@@ -16,7 +16,7 @@ import { useToast } from '../contexts/ToastContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const FeedbackView = ({ user, onBack, hideHeader }) => {
+const FeedbackView = ({ user, onBack, hideHeader = false }) => {
     const { t: translate } = useSettings();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');

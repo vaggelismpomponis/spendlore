@@ -34,7 +34,7 @@ const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
 
 
-const SecuritySettingsView = ({ user, onBack, hideHeader }) => {
+const SecuritySettingsView = ({ user, onBack, hideHeader = false }) => {
     const { isBiometricsEnabled, toggleBiometrics, isPinEnabled, setPin, removePin, appPin,
         isPrivacyScreenEnabled, togglePrivacyScreen, t: translate, language } = useSettings();
     const isEL = language === 'el';

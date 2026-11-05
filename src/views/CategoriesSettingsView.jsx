@@ -26,7 +26,7 @@ import ProBadge from '../components/ProBadge';
 const BASE_EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 const BASE_INCOME_CATEGORIES = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλα Έσοδα'];
 
-const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader }) => {
+const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = false }) => {
     const {
         language,
         t: translate,

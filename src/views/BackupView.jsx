@@ -60,7 +60,7 @@ const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color
     );
 };
 
-const BackupView = ({ user, onBack, hideHeader }) => {
+const BackupView = ({ user, onBack, hideHeader = false }) => {
     const { t: translate, customCategories, addCustomCategory, language, currency, theme } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();

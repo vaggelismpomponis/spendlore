@@ -13,7 +13,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const TermsOfServiceView = ({ onBack, hideHeader, lang, hideBack = false }) => {
+const TermsOfServiceView = ({ onBack, hideHeader = false, lang, hideBack = false }) => {
     const settings = useSettings?.() || {};
     const effectiveLang = lang || settings.language || 'el';
     const isEL = effectiveLang === 'el';

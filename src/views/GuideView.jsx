@@ -23,7 +23,7 @@ import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
-const GuideView = ({ onBack, hideHeader, onStartTour, onNavigate }) => {
+const GuideView = ({ onBack, hideHeader = false, onStartTour, onNavigate }) => {
     const { t: translate } = useSettings();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');

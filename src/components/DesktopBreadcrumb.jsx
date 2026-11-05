@@ -9,13 +9,13 @@ const DesktopBreadcrumb = ({
     onBack,
     backLabel = 'Back to Settings',
     rightAction,
-    hideHeader = true,
+    hideHeader = false,
     className = '',
 }) => {
     if (!hideHeader || !onBack) return null;
 
     return (
-        <div className={`flex items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>
+        <div className={`hidden lg:flex items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>
             <button
                 type="button"
                 onClick={onBack}
