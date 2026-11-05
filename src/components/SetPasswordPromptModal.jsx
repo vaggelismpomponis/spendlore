@@ -72,7 +72,7 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
             <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
             
             <div className="relative w-full max-w-sm sm:max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-2xl border border-gray-300 dark:border-white/10 animate-pop">
-                <div className="p-6">
+                <div className="p-5 sm:p-6">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6">
                         <div>
@@ -142,29 +142,29 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
                         />
 
                         {/* Two-Button Action Row */}
-                        <div className="flex gap-3 pt-2">
+                        <div className="flex gap-3 pt-2 items-stretch">
                             <button
                                 type="button"
                                 onClick={onClose}
                                 disabled={loading}
-                                className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm"
+                                className="flex-1 py-2.5 px-3 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm flex items-center justify-center text-center whitespace-nowrap min-h-[42px]"
                             >
-                                {translate('set_password_later') || 'Remind me later'}
+                                {translate('set_password_later') || 'Later'}
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+                                className="flex-1 py-2.5 px-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50 whitespace-nowrap min-h-[42px]"
                             >
                                 {loading ? (
                                     <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white dark:border-gray-900/30 dark:border-t-gray-900 rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white dark:border-gray-900/30 dark:border-t-gray-900 rounded-full animate-spin shrink-0" />
                                         <span>{translate('set_password_saving') || 'Saving...'}</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Check size={16} />
-                                        <span>{translate('set_password_btn') || 'Save Password'}</span>
+                                        <Check size={16} className="shrink-0" />
+                                        <span>{translate('set_password_btn') || 'Save'}</span>
                                     </>
                                 )}
                             </button>
