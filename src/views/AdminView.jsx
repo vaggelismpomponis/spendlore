@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
     ArrowLeft, RefreshCw, Search, X,
     LayoutDashboard, Users, MessageSquare, Radio,
     Filter, ChevronLeft, ChevronRight, ShieldCheck,
-    Activity, CheckCircle2, SlidersHorizontal, ArrowRight
+    Activity, CheckCircle2, SlidersHorizontal, ArrowRight,
+    ShieldAlert
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -18,6 +20,9 @@ import AdminUserDetail from '../components/admin/AdminUserDetail';
 import AdminFeedback from '../components/admin/AdminFeedback';
 import AdminUpdates from '../components/admin/AdminUpdates';
 import AdminBroadcast from '../components/admin/AdminBroadcast';
+import AdminSentryErrors from '../components/admin/AdminSentryErrors';
+import sentryLogger from '../utils/sentryLogger';
+import logger from '../utils/logger';
 
 /* ─── Desktop Sidebar Tab ─── */
 const SidebarTab = ({ tab, isActive, onClick }) => {
@@ -75,6 +80,9 @@ const AdminView = ({ onBack, hideHeader }) => {
     const [broadcastTitle, setBroadcastTitle] = useState('');
     const [broadcastMessage, setBroadcastMessage] = useState('');
 
+    // Sentry Errors State
+    const [sentryErrors, setSentryErrors] = useState([]);
+
     // Subscription Management State
     const [showSubModal, setShowSubModal] = useState(false);
     const [subTarget, setSubTarget] = useState(null);
@@ -85,6 +93,11 @@ const AdminView = ({ onBack, hideHeader }) => {
     const [notesTarget, setNotesTarget] = useState(null);
     const [editingNotes, setEditingNotes] = useState('');
     const [isSavingNotes, setIsSavingNotes] = useState(false);
+
+    // Delete User State
+    const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [isDeletingUser, setIsDeletingUser] = useState(false);
 
     // User Detail State
     const [selectedProfile, setSelectedProfile] = useState(null);
@@ -129,6 +142,10 @@ const AdminView = ({ onBack, hideHeader }) => {
             setUpdates(upData || []);
             setSessions(sessData || []);
 
+            // Fetch Sentry error logs
+            const errs = await sentryLogger.fetchAllErrors();
+            setSentryErrors(errs || []);
+
             const allUserIds = new Set([
                 ...(profData || []).map(p => p.id),
                 ...(sessData || []).map(s => s.user_id)
@@ -140,6 +157,19 @@ const AdminView = ({ onBack, hideHeader }) => {
                 }
                 return acc;
             }, {});
+
+            // Batch user statistics calculation via RPC (bypasses RLS)
+            let batchStats = {};
+            try {
+                const { data: allStats, error: allStatsErr } = await supabase.rpc('admin_get_all_users_stats');
+                if (!allStatsErr && allStats) {
+                    batchStats = allStats;
+                } else if (allStatsErr) {
+                    console.warn('admin_get_all_users_stats RPC warning:', allStatsErr);
+                }
+            } catch (e) {
+                console.warn('admin_get_all_users_stats call failed:', e);
+            }
 
             const enhancedProfiles = Array.from(allUserIds).map((uid, index) => {
                 const profile = (profData || []).find(p => p.id === uid);
@@ -155,6 +185,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                     last_sign_in_at: profile?.last_sign_in_at || null,
                     displayId: index + 1,
                     latest_session: latestSession || null,
+                    stats: batchStats[uid] || profile?.stats || { transactions: 0, budgets: 0, goals: 0 },
                     is_virtual: !profile
                 };
             });
@@ -166,11 +197,27 @@ const AdminView = ({ onBack, hideHeader }) => {
                 return updated ? { ...prev, ...updated } : prev;
             });
 
+            // Fetch platform-wide totals across all users
+            let totalPlatformTransactions = profRes?.totalTransactions;
+            let totalPlatformFeedback = fCount || 0;
+
+            try {
+                const { data: overviewRpc, error: rpcErr } = await supabase.rpc('admin_get_overview_stats');
+                if (!rpcErr && overviewRpc) {
+                    if (overviewRpc.transactions !== undefined) totalPlatformTransactions = Number(overviewRpc.transactions);
+                    if (overviewRpc.feedback !== undefined) totalPlatformFeedback = Number(overviewRpc.feedback);
+                }
+            } catch (_) {}
+
+            if (totalPlatformTransactions === undefined || totalPlatformTransactions === null) {
+                totalPlatformTransactions = tCount || 0;
+            }
+
             const uniqueUsers = allUserIds.size;
             setStats({
                 users: uniqueUsers,
-                transactions: tCount || 0,
-                feedback: fCount || 0,
+                transactions: totalPlatformTransactions,
+                feedback: totalPlatformFeedback,
                 activity: sessData?.length || 0
             });
 
@@ -304,20 +351,63 @@ const AdminView = ({ onBack, hideHeader }) => {
         setSelectedProfile(profile);
         setActiveSection('users');
         setLoadingProfileData(true);
+
+        // Tier 1: Immediately populate from cached sessions and pre-loaded profile.stats
+        const cachedSessions = (sessions || []).filter(s => s.user_id === profile.id);
+        setProfileSessions(cachedSessions);
+        if (profile.stats) {
+            setProfileStats(profile.stats);
+        }
+
         try {
-            const [
-                { count: tCount },
-                { count: bCount },
-                { count: gCount },
-                { data: sData }
-            ] = await Promise.all([
-                supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
-                supabase.from('budgets').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
-                supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
-                supabase.from('sessions').select('*').eq('user_id', profile.id).order('last_active', { ascending: false })
-            ]);
-            setProfileStats({ transactions: tCount || 0, budgets: bCount || 0, goals: gCount || 0 });
-            setProfileSessions(sData || []);
+            let freshStats = profile.stats ? { ...profile.stats } : { transactions: 0, budgets: 0, goals: 0 };
+
+            // Tier 2: Try Security Definer RPC admin_get_user_stats (bypasses RLS)
+            const { data: rpcStats, error: rpcErr } = await supabase.rpc('admin_get_user_stats', { target_user_id: String(profile.id) });
+            if (!rpcErr && rpcStats) {
+                freshStats = {
+                    transactions: Number(rpcStats.transactions || 0),
+                    budgets: Number(rpcStats.budgets || 0),
+                    goals: Number(rpcStats.goals || 0)
+                };
+            } else {
+                if (rpcErr) {
+                    console.warn('admin_get_user_stats RPC warning:', rpcErr);
+                }
+                // Tier 3: Direct queries with Admin RLS policy
+                const [
+                    { count: tCount, error: tErr },
+                    { count: bCount, error: bErr },
+                    { count: gCount, error: gErr }
+                ] = await Promise.all([
+                    supabase.from('transactions').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
+                    supabase.from('budgets').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
+                    supabase.from('goals').select('*', { count: 'exact', head: true }).eq('user_id', profile.id)
+                ]);
+                if (tErr) console.warn('Direct count transactions error:', tErr);
+                freshStats = {
+                    transactions: tCount !== null && tCount !== undefined ? tCount : (profile.stats?.transactions || 0),
+                    budgets: bCount !== null && bCount !== undefined ? bCount : (profile.stats?.budgets || 0),
+                    goals: gCount !== null && gCount !== undefined ? gCount : (profile.stats?.goals || 0)
+                };
+            }
+
+            setProfileStats(freshStats);
+
+            // Fetch live session history and merge with cached sessions
+            const { data: sData } = await supabase
+                .from('sessions')
+                .select('*')
+                .eq('user_id', profile.id)
+                .order('last_active', { ascending: false });
+
+            if (sData && sData.length > 0) {
+                const sessionMap = new Map();
+                cachedSessions.forEach(s => sessionMap.set(s.id || s.last_active, s));
+                sData.forEach(s => sessionMap.set(s.id || s.last_active, s));
+                const merged = Array.from(sessionMap.values()).sort((a, b) => new Date(b.last_active) - new Date(a.last_active));
+                setProfileSessions(merged);
+            }
         } catch (err) {
             console.error('Error fetching profile data:', err);
         } finally {
@@ -339,6 +429,77 @@ const AdminView = ({ onBack, hideHeader }) => {
             setNotesTarget(profile);
             setEditingNotes(profile.admin_notes || '');
             setShowNotesModal(true);
+        } else if (action === 'delete') {
+            if (profile.id === '86177767-e1f2-4356-b98b-e43503cab0da') {
+                return showToast(translate('admin_cannot_delete_self') || 'Cannot delete master admin account', 'error');
+            }
+            setUserToDelete(profile);
+            setShowDeleteUserModal(true);
+        }
+    };
+
+    const confirmDeleteUser = async () => {
+        if (!userToDelete) return;
+        const target = userToDelete;
+        setIsDeletingUser(true);
+        try {
+            let success = false;
+
+            // 1. Try invoking Edge Function admin-delete-user
+            try {
+                const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+                    body: { targetUserId: target.id }
+                });
+                if (!error && (data?.success || !data?.error)) {
+                    success = true;
+                }
+            } catch (efErr) {
+                console.warn('Edge function admin-delete-user failed:', efErr);
+            }
+
+            // 2. If Edge function didn't succeed, fallback to RPC function admin_delete_user
+            if (!success) {
+                try {
+                    const { error: rpcError } = await supabase.rpc('admin_delete_user', {
+                        target_user_id: target.id
+                    });
+                    if (!rpcError) {
+                        success = true;
+                    } else {
+                        console.warn('RPC admin_delete_user failed:', rpcError);
+                    }
+                } catch (rpcErr) {
+                    console.warn('RPC invoke exception:', rpcErr);
+                }
+            }
+
+            // 3. Fallback: delete public records directly
+            if (!success) {
+                await Promise.allSettled([
+                    supabase.from('transactions').delete().eq('user_id', target.id),
+                    supabase.from('recurring_transactions').delete().eq('user_id', target.id),
+                    supabase.from('budgets').delete().eq('user_id', target.id),
+                    supabase.from('goals').delete().eq('user_id', target.id),
+                    supabase.from('sessions').delete().eq('user_id', target.id),
+                    supabase.from('feedback').delete().eq('user_id', target.id),
+                    supabase.from('profiles').delete().eq('id', target.id)
+                ]);
+            }
+
+            setProfiles(prev => prev.filter(p => p.id !== target.id));
+            if (selectedProfile?.id === target.id) {
+                setSelectedProfile(null);
+            }
+
+            showToast(translate('admin_user_deleted_success') || 'User deleted successfully', 'success');
+            await fetchAllData();
+        } catch (err) {
+            console.error('Delete user error:', err);
+            showToast((translate('admin_delete_user_error') || 'Error deleting user: ') + (err.message || ''), 'error');
+        } finally {
+            setIsDeletingUser(false);
+            setShowDeleteUserModal(false);
+            setUserToDelete(null);
         }
     };
 
@@ -389,6 +550,42 @@ const AdminView = ({ onBack, hideHeader }) => {
         }
     };
 
+    // Real-time Sentry error listener
+    useEffect(() => {
+        const handleRecorded = (e) => {
+            if (e.detail) {
+                setSentryErrors(prev => [e.detail, ...prev.filter(item => item.id !== e.detail.id)]);
+            }
+        };
+        const handleCleared = () => {
+            setSentryErrors([]);
+        };
+
+        window.addEventListener('spendlore:sentry-error-recorded', handleRecorded);
+        window.addEventListener('spendlore:sentry-error-cleared', handleCleared);
+
+        return () => {
+            window.removeEventListener('spendlore:sentry-error-recorded', handleRecorded);
+            window.removeEventListener('spendlore:sentry-error-cleared', handleCleared);
+        };
+    }, []);
+
+    const handleClearSentryErrors = async () => {
+        await sentryLogger.clearErrors();
+        setSentryErrors([]);
+        showToast('All Sentry error logs cleared', 'success');
+    };
+
+    const handleTestSentryError = () => {
+        logger.error(
+            'Manual telemetry verification test from Admin Console',
+            new Error('Sentry Telemetry Diagnostic Test (Code: 200)'),
+            'AdminConsole',
+            { testTriggeredBy: 'AdminUser', timestamp: new Date().toISOString() }
+        );
+        showToast('Test error captured and sent to Sentry', 'info');
+    };
+
     const filteredFeedback = feedback.filter(f => {
         const matchesFilter = filter === 'all' || f.type === filter;
         const matchesSearch = (f.message || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -402,20 +599,19 @@ const AdminView = ({ onBack, hideHeader }) => {
         { id: 'feedback', icon: MessageSquare, label: translate('admin_tab_feedback') || 'Feedback', badge: feedback.length || null },
         { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') || 'Updates', badge: updates.length || null },
         { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') || 'Broadcast', badge: 'Live' },
+        { id: 'sentry', icon: ShieldAlert, label: translate('admin_tab_sentry') || 'Sentry Errors', badge: sentryErrors.length || null },
     ];
 
     /* ─── Content Renderer ─── */
     const renderContent = () => {
         if (loading) {
             return (
-                <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-surface-dark2 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-4 shadow-sm">
-                        <RefreshCw size={24} className="animate-spin" />
-                    </div>
-                    <p className="text-sm font-bold text-gray-800 dark:text-white mb-1">
+                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs">
+                    <RefreshCw size={24} className="animate-spin text-violet-600 dark:text-violet-400 mb-3" />
+                    <p className="text-sm font-extrabold text-gray-900 dark:text-white mb-1">
                         {translate('admin_loading') || 'Loading telemetry data...'}
                     </p>
-                    <p className="text-xs text-gray-400">Fetching live database metrics from Supabase</p>
+                    <p className="text-xs text-gray-400 font-medium">Fetching live database metrics from Supabase</p>
                 </div>
             );
         }
@@ -430,6 +626,9 @@ const AdminView = ({ onBack, hideHeader }) => {
                         sessions={sessions}
                         onNavigateUsers={() => setActiveSection('users')}
                         onUserClick={handleProfileClick}
+                        onSubClick={handleSubClick}
+                        onDropdownAction={handleDropdownAction}
+                        translate={translate}
                     />
                 );
             case 'users':
@@ -442,6 +641,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                         onBack={() => setSelectedProfile(null)}
                         onSubClick={handleSubClick}
                         onSaveNotes={handleSaveNotes}
+                        onDeleteUser={(profile) => handleDropdownAction('delete', profile)}
                         isSavingNotes={isSavingNotes}
                         showToast={showToast}
                         translate={translate}
@@ -460,36 +660,11 @@ const AdminView = ({ onBack, hideHeader }) => {
                 );
             case 'feedback':
                 return (
-                    <div className="space-y-4">
-                        {/* Search & Filters */}
-                        <div className="bg-white dark:bg-surface-dark2 p-4 sm:p-5 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm space-y-3">
-                            <div className="relative">
-                                <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder={translate('search_feedback') || 'Search feedback submissions...'}
-                                    value={searchTerm}
-                                    onChange={e => setSearchTerm(e.target.value)}
-                                    className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.05] border border-gray-100 dark:border-transparent rounded-2xl text-[13px] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500/30 transition-all font-medium"
-                                />
-                            </div>
-                            <div className="flex gap-2 flex-wrap items-center">
-                                {['all', 'idea', 'bug', 'other'].map(t => (
-                                    <button
-                                        key={t}
-                                        onClick={() => setFilter(t)}
-                                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all
-                                            ${filter === t
-                                                ? 'bg-violet-600 text-white shadow-md shadow-violet-500/20'
-                                                : 'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/[0.1]'}`}
-                                    >
-                                        {translate(t)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <AdminFeedback feedback={filteredFeedback} onDelete={handleDeleteClick} translate={translate} />
-                    </div>
+                    <AdminFeedback
+                        feedback={feedback}
+                        onDelete={handleDeleteClick}
+                        translate={translate}
+                    />
                 );
             case 'updates':
                 return (
@@ -515,6 +690,20 @@ const AdminView = ({ onBack, hideHeader }) => {
                         broadcastMessage={broadcastMessage}
                         setBroadcastMessage={setBroadcastMessage}
                         onSend={handleSendBroadcast}
+                        translate={translate}
+                    />
+                );
+            case 'sentry':
+                return (
+                    <AdminSentryErrors
+                        errors={sentryErrors}
+                        onClear={handleClearSentryErrors}
+                        onRefresh={async () => {
+                            const errs = await sentryLogger.fetchAllErrors();
+                            setSentryErrors(errs || []);
+                        }}
+                        onTriggerTest={handleTestSentryError}
+                        loading={loading}
                         translate={translate}
                     />
                 );
@@ -669,45 +858,6 @@ const AdminView = ({ onBack, hideHeader }) => {
                 <main className="flex-1 overflow-y-auto custom-scrollbar">
                     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto pb-16">
 
-                        {/* ─────── Executive Command Center Hero Banner ─────── */}
-                        <div className="rounded-2xl bg-gray-900 dark:bg-surface-dark2 border border-gray-800 dark:border-white/10 shadow-xs text-white p-6 sm:p-8">
-                            <div className="max-w-3xl space-y-3">
-                                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-white/10 border border-white/10 text-xs font-semibold text-gray-200 tracking-wider uppercase">
-                                    <Activity size={13} />
-                                    <span>System Command Center</span>
-                                </div>
-
-                                <div className="space-y-1">
-                                    <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
-                                        Spendlore Operations Console
-                                    </h1>
-                                    <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-normal">
-                                        Real-time user engagement analytics, subscription sovereignty, data auditing, and system broadcasts.
-                                    </p>
-                                </div>
-
-                                {/* Live Telemetry Pills */}
-                                <div className="pt-2 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 text-[11px] sm:text-xs font-semibold">
-                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
-                                        <Users size={13} className="shrink-0" />
-                                        <span className="truncate">{stats.users} Total Accounts</span>
-                                    </span>
-                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
-                                        <Activity size={13} className="shrink-0" />
-                                        <span className="truncate">{metrics.proUsers} Pro Subscribers</span>
-                                    </span>
-                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
-                                        <CheckCircle2 size={13} className="shrink-0" />
-                                        <span className="truncate">{stats.transactions} Ledger Entries</span>
-                                    </span>
-                                    <span className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center sm:justify-start gap-1.5 min-w-0">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                                        <span className="truncate">Database Online</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Section Header */}
                         <div className="flex items-center justify-between">
                             <div>
@@ -776,10 +926,24 @@ const AdminView = ({ onBack, hideHeader }) => {
                 type="danger"
             />
 
+            {/* Delete User Modal */}
+            <ConfirmationModal
+                isOpen={showDeleteUserModal}
+                onClose={() => { if (!isDeletingUser) { setShowDeleteUserModal(false); setUserToDelete(null); } }}
+                onConfirm={confirmDeleteUser}
+                title={translate('admin_delete_user_title') || 'Delete User Account'}
+                message={
+                    translate('admin_delete_user_message', { email: userToDelete?.email || 'this user' }) ||
+                    `Are you sure you want to permanently delete account "${userToDelete?.email}"? All associated data, transactions, sessions, and authentication records will be erased.`
+                }
+                confirmText={isDeletingUser ? 'Deleting...' : (translate('admin_delete_user_btn') || 'Delete User')}
+                type="danger"
+            />
+
             {/* Notes Modal */}
-            {showNotesModal && (
-                <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
+            {typeof document !== 'undefined' && showNotesModal && createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowNotesModal(false)} />
                     <div className="relative w-full max-w-lg bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-gray-300 dark:border-white/10">
                         <div className="p-5 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
                             <div>
@@ -819,7 +983,8 @@ const AdminView = ({ onBack, hideHeader }) => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

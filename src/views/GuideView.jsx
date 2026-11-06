@@ -22,9 +22,10 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { getAppVersionString } from '../utils/version';
 
 const GuideView = ({ onBack, hideHeader = false, onStartTour, onNavigate }) => {
-    const { t: translate } = useSettings();
+    const { t: translate, language } = useSettings();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
 
@@ -530,7 +531,7 @@ const GuideView = ({ onBack, hideHeader = false, onStartTour, onNavigate }) => {
                     {/* Footer Signature */}
                     <div className="text-center pt-4 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; Financial Freedom &bull; Version 2.0
+                            Spendlore &bull; {language === 'el' ? 'Οικονομική Ελευθερία' : 'Financial Freedom'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 

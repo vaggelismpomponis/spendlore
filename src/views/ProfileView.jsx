@@ -17,6 +17,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { isNative } from '../utils/platform';
+import { APP_RELEASE_YEAR } from '../utils/version';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 
@@ -101,6 +102,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const MAX_IMG_RETRIES = 3;
 
     const photoURL = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.photoURL;
+    const avatarSrc = photoURL ? (imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL) : null;
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name
         || user?.displayName || user?.email?.split('@')[0]
         || translate('anonymous_user');
@@ -201,26 +203,29 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             <div className="flex-1 overflow-y-auto">
                 <div className="p-4 pb-12 space-y-5">
 
-                    {/* ════ Avatar + Name Hero — centered ════ */}
-                    <div className="flex flex-col items-center pt-6 pb-6 gap-3">
+                    {/* ════ User Identity Hero — centered ════ */}
+                    <div className="flex flex-col items-center pt-4 pb-4 gap-2">
                         {/* Avatar */}
                         <motion.div
-                            className="relative"
-                            initial={{ scale: 0.7, opacity: 0 }}
+                            className="relative mb-2"
+                            initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: 'spring', stiffness: 320, damping: 28, delay: 0.08 }}
+                            transition={{ delay: 0.08, duration: 0.3 }}
                         >
-                            <div className="w-[96px] h-[96px] rounded-full overflow-hidden
-                                            bg-gray-100 dark:bg-white/10
-                                            ring-4 ring-white dark:ring-surface-dark2 shadow-xl">
-                                {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-surface-dark2 border-4 border-gray-100 dark:border-white/10 shadow-lg shadow-black/10">
+                                {avatarSrc ? (
                                     <img
-                                        src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                                        alt="Profile"
-                                        referrerPolicy="no-referrer"
-                                        crossOrigin="anonymous"
+                                        key={`profile-avatar-${imgRetries}`}
+                                        src={avatarSrc}
+                                        alt={displayName}
                                         className="w-full h-full object-cover"
-                                        onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                                        crossOrigin="anonymous"
+                                        referrerPolicy="no-referrer"
+                                        onError={() => {
+                                            if (imgRetries < MAX_IMG_RETRIES) {
+                                                setTimeout(() => setImgRetries(r => r + 1), 600 * (imgRetries + 1));
+                                            }
+                                        }}
                                     />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
@@ -244,26 +249,20 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             )}
                         </motion.div>
 
-                        {/* Name */}
-                        <motion.h2
-                            className="text-[22px] leading-tight font-extrabold text-gray-900 dark:text-white text-center px-4"
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.14, duration: 0.3 }}
-                        >
-                            {displayName}
-                        </motion.h2>
-
-                        {/* Edit profile button */}
+                        <div className="flex items-center gap-2">
+                            <motion.h2
+                                className="text-2xl leading-tight font-black text-gray-900 dark:text-white text-center"
+                            >
+                                {displayName || user?.email?.split('@')[0] || 'User'}
+                            </motion.h2>
+                        </div>
+                        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">
+                            {user?.email || 'Spendlore Account'}
+                        </p>
                         <motion.button
                             onClick={onAccount}
                             whileTap={{ scale: 0.94 }}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.3 }}
-                            className="inline-flex items-center px-5 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 text-[13px] font-bold text-gray-900 dark:text-white
-                                       shadow-sm hover:bg-gray-50 dark:hover:bg-white/10
-                                       active:scale-95 transition-all"
+                            className="mt-2 inline-flex items-center px-4 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 text-xs font-bold text-gray-900 dark:text-white hover:bg-gray-200/70 dark:hover:bg-white/10 active:scale-95 transition-all"
                         >
                             {translate('edit_profile') || 'Επεξεργασία προφίλ'}
                         </motion.button>
@@ -422,7 +421,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             <span className="text-[11px] font-bold gradient-text">Spendlore</span>
                         </div>
                         <p className="text-[10px] text-gray-300 dark:text-white/60 tracking-wide">
-                            {translate('version') || 'v1.0.0'} · 2026
+                            {translate('version')} · {APP_RELEASE_YEAR}
                         </p>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ import { Capacitor } from '@capacitor/core';
  */
 export const requestNotificationPermissions = async () => {
     if (!Capacitor.isNativePlatform()) return true;
-    
+
     try {
         const { display } = await LocalNotifications.requestPermissions();
         return display === 'granted';
@@ -34,14 +34,27 @@ export const scheduleRegretCheckin = async (transaction) => {
     const scheduleDate = new Date();
     scheduleDate.setDate(scheduleDate.getDate() + 14);
 
+    const currency = typeof localStorage !== 'undefined' ? (localStorage.getItem('currency') || '€') : '€';
+    const language = typeof localStorage !== 'undefined' ? (localStorage.getItem('language') || 'el') : 'el';
+    const isGreek = language === 'el' || (!language && typeof navigator !== 'undefined' && navigator.language?.startsWith('el'));
+    const formattedAmount = (transaction.amount / 100).toFixed(2);
+
+    const title = isGreek ? 'Αξιολόγηση Δαπάνης' : 'Expense Review';
+    const body = isGreek
+        ? `Έχουν περάσει 14 ημέρες από τη δαπάνη ${formattedAmount}${currency}. Ήταν χρήσιμη η αγορά σας;`
+        : `It has been 14 days since your ${formattedAmount}${currency} purchase. Was it worth it?`;
+
     try {
         await LocalNotifications.schedule({
             notifications: [
                 {
-                    title: 'Time for a Check-in! 🕰️',
-                    body: `It's been 14 days since you spent €${(transaction.amount / 100).toFixed(2)}. Was it worth it?`,
+                    title,
+                    body,
                     id: Math.floor(Math.random() * 1000000),
                     schedule: { at: scheduleDate },
+                    smallIcon: 'ic_stat_spendlore',
+                    largeIcon: 'ic_spendlore_logo',
+                    iconColor: '#7C3AED',
                     extra: {
                         transactionId: transaction.id,
                         action: 'regret_checkin'

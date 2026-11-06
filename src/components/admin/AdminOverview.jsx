@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     Users, RefreshCw, MessageSquare, Award, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
-    Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2
+    Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
+    MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert
 } from 'lucide-react';
 
 /* ─── Donut Chart (Enhanced SVG) ─── */
-const DonutChart = ({ segments, size = 110, strokeWidth = 16 }) => {
+const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
     const r = (size - strokeWidth) / 2;
     const circ = 2 * Math.PI * r;
     const cx = size / 2;
@@ -51,58 +52,55 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 16 }) => {
     );
 };
 
-/* ─── KPI Stat Card ─── */
+/* ─── KPI Bento Card ─── */
 const StatCard = ({
     icon: Icon,
     label,
     value,
     subtext,
     color,
-    bgColor,
-    iconBg,
     onClick,
     trend,
     badge
 }) => (
     <div
         onClick={onClick}
-        className={`relative bg-white dark:bg-surface-dark2 p-5 sm:p-6 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm
-                    flex flex-col justify-between overflow-hidden transition-all duration-300 group
-                    ${onClick ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1 hover:border-violet-300/60 dark:hover:border-violet-500/30' : 'hover:shadow-md'}`}
+        className={`bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs
+                    flex flex-col justify-between transition-all duration-200 group
+                    ${onClick ? 'cursor-pointer hover:border-violet-300 dark:hover:border-violet-500/30' : ''}`}
     >
-        {/* Ambient background glow orb */}
-        <div className={`absolute -top-6 -right-6 w-28 h-28 rounded-full blur-2xl opacity-50 dark:opacity-20 pointer-events-none ${bgColor}`} />
-
-        <div className="flex items-center justify-between relative z-10">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconBg} ${color} shadow-sm border border-white/60 dark:border-white/10 group-hover:scale-110 transition-transform duration-300`}>
-                <Icon size={20} strokeWidth={2.2} />
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Icon size={18} strokeWidth={2.2} className={`${color} shrink-0`} />
+                <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest truncate">
+                    {label}
+                </span>
             </div>
             {badge && (
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 border border-gray-200/50 dark:border-white/[0.06]">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-white/[0.06]">
                     {badge}
                 </span>
             )}
             {onClick && !badge && (
-                <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-white/[0.05] flex items-center justify-center text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:translate-x-0.5 transition-all">
-                    <ChevronRight size={15} />
-                </div>
+                <ChevronRight size={14} className="text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors" />
             )}
         </div>
 
-        <div className="mt-4 relative z-10">
-            <p className="text-[11px] font-extrabold text-gray-400 dark:text-gray-400 uppercase tracking-widest mb-1 truncate">{label}</p>
-            <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">{value}</span>
-            </div>
+        <div className="mt-4">
+            <span className="block text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                {value}
+            </span>
 
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.05] flex items-center justify-between text-xs">
+            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-xs">
                 {trend !== undefined ? (
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                         <ArrowUpRight size={12} strokeWidth={2.5} />
                         +{trend} this month
                     </span>
                 ) : (
-                    <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">{subtext || 'Telemetry active'}</span>
+                    <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                        {subtext || 'Telemetry active'}
+                    </span>
                 )}
                 {onClick && (
                     <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
@@ -121,9 +119,7 @@ const PlatformBar = ({ label, count, total, color, icon: Icon }) => {
         <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center text-gray-500 dark:text-gray-400">
-                        <Icon size={13} />
-                    </div>
+                    <Icon size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
                     <span className="font-bold text-gray-700 dark:text-gray-200">{label}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -142,29 +138,33 @@ const PlatformBar = ({ label, count, total, color, icon: Icon }) => {
 };
 
 /* ─── Most Active Users Row ─── */
-const UserLeaderboardRow = ({ user, idx, onClick }) => {
-    const rankBadges = [
-        { label: '#1', bg: 'bg-amber-500 text-white shadow-md shadow-amber-500/30' },
-        { label: '#2', bg: 'bg-slate-400 text-white shadow-md shadow-slate-400/30' },
-        { label: '#3', bg: 'bg-amber-700 text-white shadow-md shadow-amber-700/30' },
-        { label: `#${idx + 1}`, bg: 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300' }
+const UserLeaderboardRow = ({
+    user,
+    idx,
+    onClick,
+    onDropdownAction,
+    onSubClick,
+    translate = (k) => k,
+    activeDropdown,
+    setActiveDropdown
+}) => {
+    const rankColors = [
+        'bg-amber-500 text-white',
+        'bg-slate-400 text-white',
+        'bg-amber-700 text-white',
+        'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300'
     ];
-    const badge = rankBadges[idx] || rankBadges[3];
-    const initials = (user.display_name || user.email || '?').slice(0, 2).toUpperCase();
+    const rankColor = rankColors[idx] || rankColors[3];
+    const isDropdownOpen = activeDropdown === user.id;
 
     return (
         <div
             onClick={() => onClick && onClick(user)}
-            className="flex items-center gap-3.5 p-3.5 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/[0.04] border border-transparent hover:border-gray-100 dark:hover:border-white/[0.05] transition-all cursor-pointer group"
+            className={`flex items-center gap-3.5 p-3 sm:p-3.5 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer group relative last:rounded-b-2xl ${isDropdownOpen ? 'z-30' : 'z-0'}`}
         >
             {/* Rank badge */}
-            <div className={`w-7 h-7 rounded-xl flex items-center justify-center text-[10px] font-black shrink-0 ${badge.bg}`}>
-                {badge.label}
-            </div>
-
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center font-black text-white text-xs shadow-sm shrink-0">
-                {initials}
+            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-extrabold shrink-0 ${rankColor}`}>
+                #{idx + 1}
             </div>
 
             {/* Info */}
@@ -174,8 +174,8 @@ const UserLeaderboardRow = ({ user, idx, onClick }) => {
                         {user.display_name || user.email?.split('@')[0]}
                     </p>
                     {user.subscription_status === 'pro' && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-gradient-to-r from-amber-200 to-yellow-400 text-yellow-900 uppercase tracking-widest shrink-0 flex items-center gap-0.5 shadow-sm">
-                            <Crown size={8} className="fill-yellow-900" /> PRO
+                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 uppercase tracking-widest shrink-0 flex items-center gap-0.5">
+                            <Crown size={8} /> PRO
                         </span>
                     )}
                 </div>
@@ -186,18 +186,171 @@ const UserLeaderboardRow = ({ user, idx, onClick }) => {
             <div className="text-right shrink-0">
                 <div className="flex items-center gap-1 justify-end">
                     <Activity size={12} className="text-violet-500" />
-                    <p className="text-base font-black text-gray-900 dark:text-white">{user.sessionCount}</p>
+                    <p className="text-sm font-extrabold text-gray-900 dark:text-white">{user.sessionCount}</p>
                 </div>
-                <p className="text-[9px] text-gray-400 uppercase font-extrabold tracking-wider">sessions</p>
+                <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">sessions</p>
             </div>
 
-            <ChevronRight size={15} className="text-gray-300 dark:text-gray-600 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+            {/* Actions: Grant/Revoke Pro + 3-dots Menu */}
+            <div className="flex items-center gap-1 shrink-0">
+                {onSubClick && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSubClick(user, user.subscription_status === 'pro' ? 'free' : 'pro');
+                        }}
+                        className={`hidden sm:block px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all border whitespace-nowrap active:scale-95
+                            ${user.subscription_status === 'pro'
+                                ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:hover:bg-rose-500/10 dark:text-rose-400'
+                                : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10 dark:text-emerald-400'
+                            }`}
+                    >
+                        {user.subscription_status === 'pro' ? (translate('admin_revoke_pro') || 'Revoke Pro') : (translate('admin_grant_pro') || 'Grant Pro')}
+                    </button>
+                )}
+
+                {onDropdownAction && (
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveDropdown(isDropdownOpen ? null : user.id);
+                            }}
+                            className={`p-1.5 rounded-lg transition-all ${
+                                isDropdownOpen
+                                    ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400'
+                                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400'
+                            }`}
+                            aria-label="User actions"
+                        >
+                            <MoreVertical size={16} />
+                        </button>
+
+                        {isDropdownOpen && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveDropdown(null);
+                                    }}
+                                />
+                                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl shadow-lg z-50 overflow-hidden py-1.5 animate-fade-in text-left">
+                                    {/* Mobile only: grant/revoke */}
+                                    {onSubClick && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onSubClick(user, user.subscription_status === 'pro' ? 'free' : 'pro');
+                                                setActiveDropdown(null);
+                                            }}
+                                            className="sm:hidden w-full text-left px-4 py-2.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
+                                        >
+                                            {user.subscription_status === 'pro' ? (
+                                                <>
+                                                    <ShieldAlert size={14} className="text-rose-500 shrink-0" />
+                                                    <span>{translate('admin_revoke_pro') || 'Revoke Pro'}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
+                                                    <span>{translate('admin_grant_pro') || 'Grant Pro'}</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDropdownAction('stripe', user);
+                                            setActiveDropdown(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
+                                    >
+                                        <ExternalLink size={14} className="text-gray-400 shrink-0" />
+                                        <span>{translate('admin_view_on_stripe') || 'View on Stripe'}</span>
+                                    </button>
+
+                                    <a
+                                        href={`mailto:${user.email}`}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveDropdown(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
+                                    >
+                                        <Mail size={14} className="text-gray-400 shrink-0" />
+                                        <span>{translate('admin_send_email') || 'Send Email'}</span>
+                                    </a>
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDropdownAction('copyId', user);
+                                            setActiveDropdown(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
+                                    >
+                                        <Copy size={14} className="text-gray-400 shrink-0" />
+                                        <span>{translate('admin_copy_user_id') || 'Copy User ID'}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDropdownAction('notes', user);
+                                            setActiveDropdown(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium border-t border-gray-100 dark:border-white/5"
+                                    >
+                                        <FileText size={14} className="text-gray-400 shrink-0" />
+                                        <span>{translate('admin_notes') || 'Notes'}</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDropdownAction('delete', user);
+                                            setActiveDropdown(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-2.5 transition-colors font-bold border-t border-gray-100 dark:border-white/5"
+                                    >
+                                        <Trash2 size={14} className="text-rose-500 shrink-0" />
+                                        <span>{translate('admin_delete_user') || 'Delete User'}</span>
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 group-hover:text-violet-500 transition-colors shrink-0" />
+            </div>
         </div>
     );
 };
 
 /* ─── Main AdminOverview Component ─── */
-const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, onUserClick }) => {
+const AdminOverview = ({
+    stats,
+    metrics,
+    profiles,
+    sessions,
+    onNavigateUsers,
+    onUserClick,
+    onDropdownAction,
+    onSubClick,
+    translate = (k) => k
+}) => {
+    const [activeDropdown, setActiveDropdown] = useState(null);
 
     // Platform breakdown from session data
     const platformCounts = useMemo(() => {
@@ -237,17 +390,83 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
     const totalPlatform = platformCounts.mobile + platformCounts.desktop + platformCounts.other;
 
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-5 animate-fade-in">
+
+            {/* ─────── Executive Overview Hub Header ─────── */}
+            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
+                    <div className="flex items-center gap-3">
+                        <LayoutDashboard size={22} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.2} />
+                        <div>
+                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
+                                Operations & Telemetry Overview
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                Live user engagement, subscription conversion, ledger activity, and client distribution
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0">
+                        <button
+                            type="button"
+                            onClick={onNavigateUsers}
+                            className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
+                        >
+                            <Users size={14} />
+                            <span>View All Accounts</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Status Chips Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            Total Accounts
+                        </span>
+                        <span className="block text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+                            {stats.users}
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                            Pro Conversion
+                        </span>
+                        <span className="block text-xl font-extrabold text-violet-600 dark:text-violet-400 mt-1">
+                            {proConversionRate}% ({metrics.proUsers})
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                            Active (7 Days)
+                        </span>
+                        <span className="block text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+                            {metrics.active7Days} ({active7DaysRate}%)
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                            Client Sessions
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-1 text-xl font-extrabold text-blue-600 dark:text-blue-400">
+                            <span>{stats.activity}</span>
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Syncing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* ─────── 4 Core KPI Bento Cards ─────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 min-[1106px]:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 min-[1106px]:grid-cols-4 gap-3.5">
                 <StatCard
                     icon={Users}
                     label="Total User Base"
                     value={stats.users}
                     color="text-blue-500"
-                    bgColor="bg-blue-500"
-                    iconBg="bg-blue-50 dark:bg-blue-500/10"
                     onClick={onNavigateUsers}
                     trend={joinedThisMonth > 0 ? joinedThisMonth : undefined}
                     badge={`${proConversionRate}% Pro`}
@@ -258,8 +477,6 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                     value={stats.transactions}
                     subtext={`~${avgTxPerUser} entries / user`}
                     color="text-emerald-500"
-                    bgColor="bg-emerald-500"
-                    iconBg="bg-emerald-50 dark:bg-emerald-500/10"
                     badge="Ledger Live"
                 />
                 <StatCard
@@ -268,9 +485,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                     value={stats.feedback}
                     subtext="Community submissions"
                     color="text-amber-500"
-                    bgColor="bg-amber-500"
-                    iconBg="bg-amber-50 dark:bg-amber-500/10"
-                    badge={stats.feedback > 0 ? `${stats.feedback} Submissions` : 'Zero Bugs'}
+                    badge={stats.feedback > 0 ? `${stats.feedback} Submissions` : 'Clean'}
                 />
                 <StatCard
                     icon={Activity}
@@ -278,38 +493,34 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                     value={stats.activity}
                     subtext={`${metrics.active7Days} active in last 7d`}
                     color="text-violet-500"
-                    bgColor="bg-violet-500"
-                    iconBg="bg-violet-50 dark:bg-violet-500/10"
                     badge="Heartbeat Online"
                 />
             </div>
 
             {/* ─────── Mid Section: Subscription Split + Engagement + Platform ─────── */}
-            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-4">
 
-                {/* Subscription Sovereignty Card */}
-                <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm flex flex-col justify-between">
+                {/* Subscription Split Card */}
+                <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/[0.05] mb-5">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center text-violet-600 dark:text-violet-400">
-                                    <Crown size={16} strokeWidth={2.2} />
-                                </div>
+                        <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
+                            <div className="flex items-center gap-2">
+                                <Crown size={17} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-black text-gray-900 dark:text-white">Subscription Split</h3>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Subscription Split</h3>
                                     <p className="text-[11px] text-gray-400 font-medium">Tier breakdown & estimated MRR</p>
                                 </div>
                             </div>
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300 border border-violet-200/50 dark:border-violet-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
                                 ~€{estimatedMrr}/mo
                             </span>
                         </div>
 
                         <div className="flex items-center gap-5 my-2">
                             <div className="relative shrink-0">
-                                <DonutChart segments={subSegments} size={110} strokeWidth={16} />
+                                <DonutChart segments={subSegments} size={100} strokeWidth={14} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <p className="text-xl font-black text-gray-900 dark:text-white leading-none">{stats.users}</p>
+                                    <p className="text-lg font-black text-gray-900 dark:text-white leading-none">{stats.users}</p>
                                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Users</span>
                                 </div>
                             </div>
@@ -317,11 +528,11 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                             <div className="flex-1 space-y-2.5">
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-violet-500 shadow-sm" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-violet-500" />
                                         <span className="font-bold text-gray-700 dark:text-gray-200">Pro Tier</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="font-black text-violet-600 dark:text-violet-400">{metrics.proUsers}</span>
+                                        <span className="font-extrabold text-violet-600 dark:text-violet-400">{metrics.proUsers}</span>
                                         <span className="text-[11px] text-gray-400 font-semibold ml-1">({proConversionRate}%)</span>
                                     </div>
                                 </div>
@@ -332,7 +543,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                                         <span className="font-bold text-gray-700 dark:text-gray-200">Free Tier</span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="font-black text-gray-900 dark:text-white">{metrics.freeUsers}</span>
+                                        <span className="font-extrabold text-gray-900 dark:text-white">{metrics.freeUsers}</span>
                                         <span className="text-[11px] text-gray-400 font-semibold ml-1">({stats.users > 0 ? 100 - proConversionRate : 0}%)</span>
                                     </div>
                                 </div>
@@ -343,87 +554,85 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                                             <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                                             <span className="font-bold text-gray-700 dark:text-gray-200">Canceled</span>
                                         </div>
-                                        <span className="font-black text-rose-600 dark:text-rose-400">{metrics.canceledUsers}</span>
+                                        <span className="font-extrabold text-rose-600 dark:text-rose-400">{metrics.canceledUsers}</span>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.05] flex items-center justify-between text-[11px] text-gray-400 font-medium">
+                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
                         <span>Conversion Rate</span>
                         <span className="font-extrabold text-violet-600 dark:text-violet-400">{proConversionRate}% of user base</span>
                     </div>
                 </div>
 
                 {/* User Engagement & Retention Card */}
-                <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/[0.05] mb-5">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                    <Activity size={16} strokeWidth={2.2} />
-                                </div>
+                        <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
+                            <div className="flex items-center gap-2">
+                                <Activity size={17} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-black text-gray-900 dark:text-white">User Engagement</h3>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">User Engagement</h3>
                                     <p className="text-[11px] text-gray-400 font-medium">Active retention telemetry</p>
                                 </div>
                             </div>
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20">
                                 Live
                             </span>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {/* Last 7 Days */}
-                            <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-100/60 dark:border-emerald-500/15">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
+                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center gap-1.5">
                                         <Clock size={13} className="text-emerald-600 dark:text-emerald-400" />
-                                        <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Last 7 Days (WAU)</span>
+                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 7 Days (WAU)</span>
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-lg font-black text-emerald-700 dark:text-emerald-300">{metrics.active7Days}</span>
-                                        <span className="text-[10px] font-semibold text-emerald-600/70 dark:text-emerald-400/70">users</span>
+                                        <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-300">{metrics.active7Days}</span>
+                                        <span className="text-[10px] font-semibold text-gray-400">users</span>
                                     </div>
                                 </div>
-                                <div className="h-2 bg-emerald-200/50 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-gray-200/70 dark:bg-white/10 rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-emerald-500 rounded-full transition-all duration-700"
                                         style={{ width: `${active7DaysRate}%` }}
                                     />
                                 </div>
-                                <p className="text-[10px] text-emerald-700/70 dark:text-emerald-400/70 mt-1.5 font-semibold">
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium">
                                     {active7DaysRate}% of registered user base
                                 </p>
                             </div>
 
                             {/* Last 30 Days */}
-                            <div className="p-3.5 rounded-2xl bg-blue-50/70 dark:bg-blue-500/10 border border-blue-100/60 dark:border-blue-500/15">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="flex items-center gap-2">
+                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <div className="flex items-center gap-1.5">
                                         <Calendar size={13} className="text-blue-600 dark:text-blue-400" />
-                                        <span className="text-xs font-bold text-blue-800 dark:text-blue-300">Last 30 Days (MAU)</span>
+                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 30 Days (MAU)</span>
                                     </div>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-lg font-black text-blue-700 dark:text-blue-300">{metrics.active30Days}</span>
-                                        <span className="text-[10px] font-semibold text-blue-600/70 dark:text-blue-400/70">users</span>
+                                        <span className="text-base font-extrabold text-blue-700 dark:text-blue-300">{metrics.active30Days}</span>
+                                        <span className="text-[10px] font-semibold text-gray-400">users</span>
                                     </div>
                                 </div>
-                                <div className="h-2 bg-blue-200/50 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                                <div className="h-1.5 bg-gray-200/70 dark:bg-white/10 rounded-full overflow-hidden">
                                     <div
                                         className="h-full bg-blue-500 rounded-full transition-all duration-700"
                                         style={{ width: `${active30DaysRate}%` }}
                                     />
                                 </div>
-                                <p className="text-[10px] text-blue-700/70 dark:text-blue-400/70 mt-1.5 font-semibold">
+                                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium">
                                     {active30DaysRate}% of registered user base
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.05] flex items-center justify-between text-[11px] text-gray-400 font-medium">
+                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
                         <span>Stickiness (7d/30d)</span>
                         <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
                             {metrics.active30Days > 0 ? Math.round((metrics.active7Days / metrics.active30Days) * 100) : 0}%
@@ -432,36 +641,34 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                 </div>
 
                 {/* Platform & Client Distribution Card */}
-                <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm flex flex-col justify-between">
+                <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-white/[0.05] mb-5">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                                    <Globe size={16} strokeWidth={2.2} />
-                                </div>
+                        <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
+                            <div className="flex items-center gap-2">
+                                <Globe size={17} className="text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-black text-gray-900 dark:text-white">Platform Split</h3>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Platform Split</h3>
                                     <p className="text-[11px] text-gray-400 font-medium">Client OS & form factor telemetry</p>
                                 </div>
                             </div>
-                            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-500/20">
                                 {totalPlatform} Sessions
                             </span>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3.5">
                             <PlatformBar
                                 label="Mobile (iOS & Android)"
                                 count={platformCounts.mobile}
                                 total={totalPlatform}
-                                color="bg-gradient-to-r from-violet-500 to-indigo-500"
+                                color="bg-violet-600"
                                 icon={Smartphone}
                             />
                             <PlatformBar
                                 label="Desktop Web & PWA"
                                 count={platformCounts.desktop}
                                 total={totalPlatform}
-                                color="bg-gradient-to-r from-blue-500 to-cyan-500"
+                                color="bg-blue-600"
                                 icon={Monitor}
                             />
                             {platformCounts.other > 0 && (
@@ -476,7 +683,7 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                         </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.05] flex items-center justify-between text-[11px] text-gray-400 font-medium">
+                    <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
                         <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                             Multi-client sync active
@@ -487,27 +694,26 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
             </div>
 
             {/* ─────── Most Active Users Leaderboard ─────── */}
-            <div className="bg-white dark:bg-surface-dark2 rounded-3xl border border-gray-100 dark:border-white/[0.06] shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between p-5 sm:p-6 border-b border-gray-100 dark:border-white/[0.05]">
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                            <Trophy size={18} strokeWidth={2.2} />
-                        </div>
+            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs relative">
+                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-white/[0.06] rounded-t-2xl">
+                    <div className="flex items-center gap-2.5">
+                        <Trophy size={18} className="text-amber-500 shrink-0" strokeWidth={2.2} />
                         <div>
-                            <h3 className="text-base font-black text-gray-900 dark:text-white">Most Active Accounts</h3>
+                            <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Most Active Accounts</h3>
                             <p className="text-[11px] text-gray-400 font-medium">Top user engagement leaderboard by app sessions</p>
                         </div>
                     </div>
                     <button
+                        type="button"
                         onClick={onNavigateUsers}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20 text-xs font-bold transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20 text-xs font-bold transition-all"
                     >
                         <span>View All Users</span>
                         <ArrowRight size={13} />
                     </button>
                 </div>
 
-                <div className="p-3 sm:p-4 divide-y divide-gray-50 dark:divide-white/[0.03]">
+                <div className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {metrics.mostActiveUsers.length > 0 ? (
                         metrics.mostActiveUsers.map((user, idx) => (
                             <UserLeaderboardRow
@@ -515,12 +721,17 @@ const AdminOverview = ({ stats, metrics, profiles, sessions, onNavigateUsers, on
                                 user={user}
                                 idx={idx}
                                 onClick={onUserClick}
+                                onDropdownAction={onDropdownAction}
+                                onSubClick={onSubClick}
+                                translate={translate}
+                                activeDropdown={activeDropdown}
+                                setActiveDropdown={setActiveDropdown}
                             />
                         ))
                     ) : (
-                        <div className="text-center py-12">
-                            <Activity size={32} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">No session telemetry recorded yet</p>
+                        <div className="text-center py-10 rounded-b-2xl">
+                            <Activity size={24} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">No session telemetry recorded yet</p>
                         </div>
                     )}
                 </div>

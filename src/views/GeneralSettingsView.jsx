@@ -8,7 +8,6 @@ import {
     Database,
     UserX,
     Shield,
-    CheckCircle2,
     SlidersHorizontal,
     X,
     Tag,
@@ -27,6 +26,7 @@ import ProBadge from '../components/ProBadge';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { getAppVersionString } from '../utils/version';
 
 
 const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader = false }) => {
@@ -204,15 +204,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                         <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <SlidersHorizontal size={24} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.3} />
-                                    <div>
-                                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
-                                            {isEL ? 'Προτιμήσεις' : 'Preferences'}
-                                        </span>
-                                        <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                            {isEL ? 'Τοπικοποίηση & Αυτοματισμοί' : 'Localization & Reading'}
-                                        </h3>
-                                    </div>
+                                    <SlidersHorizontal size={22} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.3} />
+                                    <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
+                                        {isEL ? 'Προτιμήσεις' : 'Preferences'}
+                                    </h3>
                                 </div>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -344,15 +339,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                         <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-rose-200/80 dark:border-rose-900/40 rounded-2xl p-6 sm:p-7 shadow-sm space-y-5 flex flex-col justify-between">
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3">
-                                    <AlertTriangle size={24} className="text-rose-500 shrink-0" strokeWidth={2.3} />
-                                    <div>
-                                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200/60 dark:border-rose-500/20">
-                                            {isEL ? 'Ζώνη Κινδύνου' : 'Danger Zone'}
-                                        </span>
-                                        <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight mt-1">
-                                            {isEL ? 'Μη Αναστρέψιμες Ενέργειες' : 'Irreversible Actions'}
-                                        </h3>
-                                    </div>
+                                    <AlertTriangle size={22} className="text-rose-500 shrink-0" strokeWidth={2.3} />
+                                    <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
+                                        {isEL ? 'Ζώνη Κινδύνου' : 'Danger Zone'}
+                                    </h3>
                                 </div>
 
                                 <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
@@ -408,48 +398,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                         </div>
                     </div>
 
-                    {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                            <Shield size={22} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.3} />
-                            <div>
-                                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                    {isEL ? 'Αυτονομία Δεδομένων & Διαφάνεια' : 'Data Autonomy & Transparency'}
-                                </h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    {isEL ? 'Τα οικονομικά σας δεδομένα παραμένουν ιδιωτικά και υπό τον απόλυτο έλεγχό σας' : 'Your personal finance records remain private and under your control'}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                            <div className="flex items-start gap-2.5">
-                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Όλα τα αντίγραφα και οι εξαγωγές JSON αποθηκεύονται απευθείας στη συσκευή σας.' : 'All backups and JSON exports download directly onto your device.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Η ανάγνωση ειδοποιήσεων πραγματοποιείται αποκλειστικά τοπικά στη συσκευή σας.' : 'Notification readers only scan incoming financial receipts locally.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <CheckCircle2 size={16} strokeWidth={2.5} className="text-violet-600 dark:text-violet-400 shrink-0 mt-0.5" />
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Η διαγραφή λογαριασμού εξαλείφει οριστικά όλες τις εγγραφές και το ιστορικό χρήστη.' : 'Account deletion purges database rows and auth identity completely.'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 

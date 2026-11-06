@@ -46,6 +46,11 @@ export default function AppRouter(props) {
         ...rest
     } = props;
 
+    const isAdmin = user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' ||
+        user?.role === 'admin' ||
+        user?.app_metadata?.role === 'admin' ||
+        user?.user_metadata?.role === 'admin';
+
     // Desktop: Renders everything in the main view pane
     if (isDesktop) {
         return (
@@ -101,7 +106,7 @@ export default function AppRouter(props) {
                         {activeTab === 'feedback' && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'security' && <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'backup' && <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
-                        {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && <AdminView onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {activeTab === 'admin' && isAdmin && <AdminView onBack={() => setActiveTab(previousTab || 'home')} hideHeader={true} />}
                         {activeTab === 'upgrade' && <UpgradePage onBack={() => setActiveTab(previousTab || 'home')} />}
                         {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
                         {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
@@ -188,7 +193,7 @@ export default function AppRouter(props) {
                                 <BackupView user={user} onBack={() => setActiveTab('profile')} />
                             </div>
                         )}
-                        {activeTab === 'admin' && user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
+                        {activeTab === 'admin' && isAdmin && (
                             <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                 <AdminView onBack={() => setActiveTab('profile')} />
                             </div>

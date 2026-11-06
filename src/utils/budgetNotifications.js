@@ -57,7 +57,16 @@ export const BudgetNotificationManager = {
             const percentageSpent = (newTotalSpent / targetBudget.amount) * 100;
 
             if (percentageSpent >= targetBudget.notification_threshold) {
-                await this.sendBudgetAlert(targetBudget.category, percentageSpent.toFixed(0), targetBudget.amount);
+                const currency = typeof localStorage !== 'undefined' ? (localStorage.getItem('currency') || '€') : '€';
+                const language = typeof localStorage !== 'undefined' ? (localStorage.getItem('language') || 'el') : 'el';
+                await this.sendBudgetAlert(
+                    targetBudget.category,
+                    percentageSpent.toFixed(0),
+                    targetBudget.amount,
+                    newTotalSpent.toFixed(2),
+                    currency,
+                    language
+                );
 
                 await supabase.from('budgets')
                     .update({ last_notified_month: currentMonthStr })
@@ -69,18 +78,47 @@ export const BudgetNotificationManager = {
         }
     },
 
-    async sendBudgetAlert(category, percentage, totalAmount) {
+    async sendBudgetAlert(category, percentage, totalAmount, spentAmount = null, currency = '€', language = 'el') {
         try {
             const hasPermission = await this.requestPermissions();
             if (!hasPermission) return;
 
+            const isExceeded = Number(percentage) >= 100;
+            const isGreek = language === 'el' || (!language && typeof navigator !== 'undefined' && navigator.language?.startsWith('el'));
+
+            const title = isGreek
+                ? (isExceeded ? 'Υπέρβαση Προϋπολογισμού' : 'Ειδοποίηση Προϋπολογισμού')
+                : (isExceeded ? 'Budget Limit Exceeded' : 'Budget Alert');
+
+            let body;
+            if (spentAmount != null) {
+                body = isGreek
+                    ? (isExceeded
+                        ? `Προϋπολογισμός «${category}»: Υπέρβαση στο ${percentage}% του μηνιαίου σας ορίου (${spentAmount}${currency} από ${totalAmount}${currency}).`
+                        : `Προϋπολογισμός «${category}»: Έχετε φτάσει στο ${percentage}% του μηνιαίου σας ορίου (${spentAmount}${currency} από ${totalAmount}${currency}).`)
+                    : (isExceeded
+                        ? `Budget "${category}": Limit exceeded at ${percentage}% of your monthly budget (${spentAmount}${currency} of ${totalAmount}${currency}).`
+                        : `Budget "${category}": You have reached ${percentage}% of your monthly limit (${spentAmount}${currency} of ${totalAmount}${currency}).`);
+            } else {
+                body = isGreek
+                    ? (isExceeded
+                        ? `Προϋπολογισμός «${category}»: Υπέρβαση στο ${percentage}% του μηνιαίου σας προϋπολογισμού (${totalAmount}${currency}).`
+                        : `Προϋπολογισμός «${category}»: Έχετε φτάσει στο ${percentage}% του μηνιαίου σας προϋπολογισμού (${totalAmount}${currency}).`)
+                    : (isExceeded
+                        ? `Budget "${category}": Limit exceeded at ${percentage}% of your monthly budget (${totalAmount}${currency}).`
+                        : `Budget "${category}": You have reached ${percentage}% of your monthly budget (${totalAmount}${currency}).`);
+            }
+
             await LocalNotifications.schedule({
                 notifications: [
                     {
-                        title: `Προσοχή: Όριο ${category}`,
-                        body: `Έχετε ξεπεράσει το ${percentage}% του προϋπολογισμού σας (${totalAmount}€).`,
+                        title,
+                        body,
                         id: new Date().getTime(),
                         schedule: { at: new Date(Date.now() + 1000) },
+                        smallIcon: 'ic_stat_spendlore',
+                        largeIcon: 'ic_spendlore_logo',
+                        iconColor: '#7C3AED',
                         sound: null,
                         attachments: null,
                         actionTypeId: '',

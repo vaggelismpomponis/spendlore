@@ -30,6 +30,7 @@ import { trackSession } from './utils/session';
 import { setupNotificationListener } from './utils/notificationListener';
 import { parseNotificationTransaction } from './utils/transactionParser';
 import { isLandingDomain } from './utils/platform';
+import { getCategoryTranslation } from './utils/categoryTranslations';
 import { useAppStore } from './store/useAppStore';
 
 // Components
@@ -75,7 +76,7 @@ const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) 
 
 function MainContent() {
     const { isPro: isContextPro } = useSubscription();
-    const { isLocked, theme, toggleTheme, t: translate, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode, syncCategoriesFromTransactions } = useSettings();
+    const { isLocked, theme, toggleTheme, t: translate, currency, language, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode, syncCategoriesFromTransactions } = useSettings();
     const { showToast } = useToast();
     const { addNotification, unreadCount } = useNotifications();
     const windowWidth = useWindowWidth();
@@ -367,7 +368,7 @@ function MainContent() {
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
 
-        const handleDeepLink = (data) => {
+        const handleDeepLink = async (data) => {
             if (!data || !data.url) return;
             try {
                 const rawUrl = data.url;
@@ -387,8 +388,18 @@ function MainContent() {
 
                 // Check for payment success
                 if (searchParams.get('upgraded') === 'true' || rawUrl.includes('payment-success')) {
-                    setShowPaymentSuccess(true);
                     Browser.close().catch(() => { }); // Close the in-app browser if it's still open
+                    
+                    // Verify that the user is actually Pro before showing success modal
+                    const currentUserId = user?.id || (await supabase.auth.getUser())?.data?.user?.id;
+                    if (currentUserId) {
+                        verifySubscriptionActive(currentUserId).then((isPro) => {
+                            if (isPro) {
+                                setShowPaymentSuccess(true);
+                            }
+                        }).catch(() => { });
+                    }
+                    return;
                 }
 
                 // Check for payment cancellation
@@ -410,11 +421,48 @@ function MainContent() {
             }
         });
 
-        // Also check if returning from Stripe checkout in in-app browser
-        const checkPendingCheckout = () => {
+        // Helper to query Stripe and Supabase to verify if subscription was actually purchased
+        const verifySubscriptionActive = async (targetUserId) => {
+            try {
+                if (!targetUserId) return false;
+                const { data: syncData, error: syncError } = await supabase.functions.invoke('sync-subscription', {
+                    body: { userId: targetUserId },
+                });
+                if (!syncError && syncData?.isPro) {
+                    return true;
+                }
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_status, subscription_expiry')
+                    .eq('id', targetUserId)
+                    .single();
+                return profile?.subscription_status === 'pro' &&
+                    (!profile?.subscription_expiry || new Date(profile.subscription_expiry) > new Date());
+            } catch (e) {
+                logger.error('Subscription verification error', e, 'App');
+                return false;
+            }
+        };
+
+        // Check if returning from Stripe checkout in in-app browser
+        // CRITICAL FIX: Do NOT blindly set showPaymentSuccess=true without verifying Stripe!
+        const checkPendingCheckout = async () => {
             if (sessionStorage.getItem('pending_stripe_checkout') === 'true') {
                 sessionStorage.removeItem('pending_stripe_checkout');
-                setShowPaymentSuccess(true);
+
+                const currentUserId = user?.id || (await supabase.auth.getUser())?.data?.user?.id;
+                if (!currentUserId) return;
+
+                let isPro = await verifySubscriptionActive(currentUserId);
+                // Allow a brief 1.5s retry in case of slight network latency on Stripe confirmation
+                if (!isPro) {
+                    await new Promise(r => setTimeout(r, 1500));
+                    isPro = await verifySubscriptionActive(currentUserId);
+                }
+
+                if (isPro) {
+                    setShowPaymentSuccess(true);
+                }
             }
         };
 
@@ -1214,16 +1262,29 @@ function MainContent() {
         });
 
         const percentage = (totalSpent / budget.amount) * 100;
+        const pctFloor = Math.floor(percentage);
 
         if (percentage >= budget.notification_threshold) {
-            showToast(`⚠️ ${budget.category}: ${percentage.toFixed(0)}% του budget!`, 'warning');
+            const isExceeded = pctFloor >= 100;
+            const categoryName = getCategoryTranslation(budget.category, translate) || budget.category;
+            const notifTitle = translate(isExceeded ? 'budget_exceeded_title' : 'budget_alert_title');
+
+            const rawBodyTemplate = translate(isExceeded ? 'budget_exceeded_body' : 'budget_alert_body');
+            const notifBody = (rawBodyTemplate || '')
+                .replace('{category}', categoryName)
+                .replace('{percent}', pctFloor.toString())
+                .replace('{spent}', totalSpent.toFixed(2))
+                .replace('{budget}', budget.amount.toFixed(2))
+                .replace(/\{currency\}/g, currency || '€');
+
+            showToast(notifBody, isExceeded ? 'error' : 'warning');
             addNotification(
                 'info',
-                `${budget.category}: ${percentage.toFixed(0)}% του budget`,
+                notifBody,
                 {
                     category: budget.category,
                     amount: budget.amount,
-                    percentage: Math.floor(percentage)
+                    percentage: pctFloor
                 }
             );
 
@@ -1231,10 +1292,13 @@ function MainContent() {
                 try {
                     await LocalNotifications.schedule({
                         notifications: [{
-                            title: '⚠️ Budget Alert',
-                            body: `${budget.category}: έφτασες το ${percentage.toFixed(0)}% του ορίου!`,
+                            title: notifTitle,
+                            body: notifBody,
                             id: Math.floor(Math.random() * 100000),
                             schedule: { at: new Date(Date.now() + 500) },
+                            smallIcon: 'ic_stat_spendlore',
+                            largeIcon: 'ic_spendlore_logo',
+                            iconColor: '#7C3AED',
                             actionTypeId: '',
                             extra: null
                         }]
@@ -1248,7 +1312,7 @@ function MainContent() {
                 await supabase.from('budgets')
                     .update({
                         last_notified_month: currentMonthStr,
-                        last_notified_pct: Math.floor(percentage)
+                        last_notified_pct: pctFloor
                     })
                     .eq('id', budget.id);
             } catch (e) {

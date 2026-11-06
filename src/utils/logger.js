@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react';
+import sentryLogger from './sentryLogger';
 
 const isDev = import.meta.env.DEV;
 
@@ -85,6 +86,15 @@ const logger = {
             const fullMsg = errStr ? `${message} -> ${errStr}` : message;
             console.error(formatMessage('error', context, fullMsg), error ?? '');
         }
+
+        // Record to Admin Sentry Error Logging
+        sentryLogger.recordError({
+            message,
+            error,
+            context,
+            level: 'error',
+            extras
+        });
 
         // Report to Sentry
         Sentry.withScope((scope) => {

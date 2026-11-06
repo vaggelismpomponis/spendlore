@@ -1,7 +1,11 @@
 import React from 'react';
 import * as Sentry from '@sentry/react';
+import sentryLogger from '../utils/sentryLogger';
 import { useSettings } from '../contexts/SettingsContext';
 import { AlertCircle, RefreshCw, RotateCcw, ChevronDown, ChevronRight, Copy, CheckCircle2 } from 'lucide-react';
+
+const AUTO_RETRY_KEY = 'spendlore_error_boundary_retry';
+const AUTO_RETRY_COOLDOWN_MS = 15000;
 
 const removeInlineLoaderSafely = () => {
     if (typeof document !== 'undefined') {
@@ -25,6 +29,7 @@ class ErrorBoundaryClass extends React.Component {
             errorInfo: null,
             showDetails: false,
             isReloading: false,
+            autoRetrying: false,
             copied: false,
         };
         removeInlineLoaderSafely();
@@ -45,18 +50,65 @@ class ErrorBoundaryClass extends React.Component {
         removeInlineLoaderSafely();
         console.error("Uncaught error:", error, errorInfo);
         this.setState({ errorInfo });
+
         // Report to Sentry with component stack as extra context
         Sentry.withScope((scope) => {
             scope.setTag('context', 'ErrorBoundary');
             scope.setExtra('componentStack', errorInfo?.componentStack);
             Sentry.captureException(error);
         });
+
+        sentryLogger.recordError({
+            message: `ErrorBoundary: ${error?.message || String(error)}`,
+            error,
+            context: 'ErrorBoundary',
+            level: 'fatal',
+            stack: errorInfo?.componentStack || error?.stack,
+            extras: { componentStack: errorInfo?.componentStack }
+        });
+
+        // Smart single-attempt auto-recovery with circuit breaker
+        this.attemptAutoRecovery(error);
     }
+
+    attemptAutoRecovery = (error) => {
+        // Only run auto-recovery in browser environment and when not an inline boundary
+        if (typeof window === 'undefined' || this.props.disableAutoRetry || this.props.inline) {
+            return;
+        }
+
+        try {
+            const now = Date.now();
+            const lastRetry = parseInt(sessionStorage.getItem(AUTO_RETRY_KEY) || '0', 10);
+
+            // Circuit breaker: Only attempt reload if no reload occurred within the cooldown window
+            if (now - lastRetry > AUTO_RETRY_COOLDOWN_MS) {
+                sessionStorage.setItem(AUTO_RETRY_KEY, String(now));
+                this.setState({ autoRetrying: true });
+
+                // Brief pause so logger / Sentry dispatch before reload
+                setTimeout(() => {
+                    try {
+                        window.location.reload();
+                    } catch (e) {
+                        console.error('Auto-reload invocation failed:', e);
+                        this.setState({ autoRetrying: false });
+                    }
+                }, 120);
+            }
+        } catch (e) {
+            console.warn('SessionStorage unavailable or auto-retry check failed:', e);
+        }
+    };
 
     handleReload = () => {
         removeInlineLoaderSafely();
         this.setState({ isReloading: true });
-        window.location.reload();
+        try {
+            window.location.reload();
+        } catch {
+            window.location.href = window.location.pathname;
+        }
     };
 
     handleResetAndRestart = () => {
@@ -89,84 +141,136 @@ class ErrorBoundaryClass extends React.Component {
 
         if (this.state.hasError) {
             removeInlineLoaderSafely();
+
+            // Custom inline fallback prop support
+            if (this.props.fallback) {
+                return typeof this.props.fallback === 'function'
+                    ? this.props.fallback(this.state.error, this.handleReload)
+                    : this.props.fallback;
+            }
+
+            // Auto-recovery screen while single-attempt reload is executing
+            if (this.state.autoRetrying) {
+                return (
+                    <div className="min-h-dvh flex items-center justify-center p-4 sm:p-6 bg-surface-light dark:bg-surface-dark transition-colors duration-200 relative z-[10001] select-none">
+                        <div className="w-full max-w-sm bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-6 flex flex-col items-center text-center shadow-xs">
+                            <RefreshCw size={24} className="animate-spin text-gray-900 dark:text-white mb-3" strokeWidth={2.2} />
+                            <h2 className="text-sm font-bold text-gray-900 dark:text-white">
+                                {t('auto_recovering')}
+                            </h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {t('auto_recovering_desc')}
+                            </p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Compact layout for inline sub-boundaries
+            if (this.props.inline) {
+                return (
+                    <div className="p-4 bg-white dark:bg-surface-dark2 rounded-xl border border-gray-200 dark:border-white/10 flex flex-col items-center text-center gap-2">
+                        <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
+                            <AlertCircle size={15} strokeWidth={2.2} />
+                            <span className="text-xs font-bold">{t('system_interruption')}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs">
+                            {t('something_went_wrong')}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={this.handleReload}
+                            className="mt-1 py-1.5 px-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer"
+                        >
+                            <RefreshCw size={12} className={this.state.isReloading ? "animate-spin" : ""} />
+                            {t('reload_app')}
+                        </button>
+                    </div>
+                );
+            }
+
+            // Executive Full-Screen Error Boundary (Anti-Slop AI Design)
             return (
-                <div className="min-h-dvh flex items-center justify-center p-6 bg-surface-light dark:bg-surface-dark transition-colors duration-300 relative z-[10001] select-none">
-                    <div className="max-w-md w-full bg-white dark:bg-surface-dark3 rounded-2xl shadow-xs p-8 flex flex-col items-center text-center border border-gray-200/80 dark:border-white/10">
-                        {/* Red Icon Badge */}
-                        <div className="w-16 h-16 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-6 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0">
-                            <AlertCircle size={32} strokeWidth={2} />
+                <div className="min-h-dvh flex items-center justify-center p-4 sm:p-6 bg-surface-light dark:bg-surface-dark transition-colors duration-200 relative z-[10001] select-none">
+                    <div className="w-full max-w-md bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 flex flex-col shadow-xs">
+                        {/* Pure Unboxed Overline & Icon */}
+                        <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 mb-2">
+                            <AlertCircle size={18} className="shrink-0" strokeWidth={2.2} />
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                                {t('system_interruption')}
+                            </span>
                         </div>
 
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
+                        {/* Typography */}
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                             {t('something_went_wrong')}
                         </h1>
 
-                        <p className="text-gray-500 dark:text-gray-400 mb-8 leading-relaxed text-sm">
+                        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">
                             {t('error_message_generic')}
                         </p>
 
-                        {/* Action Buttons */}
-                        <div className="w-full space-y-3 mb-6">
+                        {/* Balanced Action Button Row */}
+                        <div className="flex flex-col sm:flex-row gap-2.5 pt-4 w-full">
                             <button
                                 type="button"
                                 onClick={this.handleReload}
-                                className="w-full py-3 px-4 bg-gray-950 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 rounded-xl transition-all duration-200 shadow-xs flex items-center justify-center gap-2.5 font-bold cursor-pointer active:scale-95 text-sm"
+                                disabled={this.state.isReloading}
+                                className="flex-1 py-2.5 px-4 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer disabled:opacity-50"
                             >
-                                <RefreshCw size={16} className={this.state.isReloading ? "animate-spin" : ""} strokeWidth={2} />
+                                <RefreshCw size={14} className={this.state.isReloading ? "animate-spin" : ""} strokeWidth={2} />
                                 {t('reload_app')}
                             </button>
 
                             <button
                                 type="button"
                                 onClick={this.handleResetAndRestart}
-                                className="w-full py-2.5 px-4 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-semibold text-xs cursor-pointer active:scale-95 border border-gray-200/60 dark:border-white/10"
+                                disabled={this.state.isReloading}
+                                className="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-200 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-xs cursor-pointer disabled:opacity-50"
                             >
-                                <RotateCcw size={15} strokeWidth={2} />
-                                {t('clear_cache_restart') || 'Εκκαθάριση & Επανεκκίνηση'}
+                                <RotateCcw size={14} strokeWidth={2} />
+                                {t('clear_cache_restart')}
                             </button>
                         </div>
 
-                        {/* Expandable Technical Details */}
-                        <div className="w-full text-left pt-2 border-t border-gray-100 dark:border-white/5">
-                            <button
-                                type="button"
-                                onClick={() => this.setState({ showDetails: !this.state.showDetails })}
-                                className="flex items-center justify-between w-full text-xs font-semibold text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors py-2 cursor-pointer"
-                            >
-                                <span className="flex items-center gap-1.5">
-                                    {this.state.showDetails ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
-                                    {t('error_details')}
-                                </span>
+                        {/* Collapsible Technical Details */}
+                        <div className="w-full text-left pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
+                            <div className="flex items-center justify-between">
+                                <button
+                                    type="button"
+                                    onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors py-1 cursor-pointer"
+                                >
+                                    {this.state.showDetails ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                    <span>{t('error_details')}</span>
+                                </button>
                                 {this.state.showDetails && (
                                     <button
                                         type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            this.handleCopyError();
-                                        }}
-                                        className="flex items-center gap-1 text-[11px] text-violet-600 dark:text-violet-400 font-bold hover:underline"
+                                        onClick={this.handleCopyError}
+                                        className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 font-semibold hover:text-gray-900 dark:hover:text-white transition-colors"
                                     >
                                         {this.state.copied ? (
                                             <>
-                                                <CheckCircle2 size={13} />
-                                                <span>{t('copied') || 'Αντιγράφηκε'}</span>
+                                                <CheckCircle2 size={12} className="text-emerald-500" />
+                                                <span>{t('copied')}</span>
                                             </>
                                         ) : (
                                             <>
-                                                <Copy size={13} />
-                                                <span>{t('copy_error') || 'Αντιγραφή'}</span>
+                                                <Copy size={12} />
+                                                <span>{t('copy_error')}</span>
                                             </>
                                         )}
                                     </button>
                                 )}
-                            </button>
+                            </div>
 
                             {this.state.showDetails && (
-                                <div className="mt-2.5 p-3.5 bg-gray-50 dark:bg-black/30 rounded-xl border border-gray-200/80 dark:border-white/5 overflow-hidden text-left">
-                                    <p className="font-mono text-[11px] break-all text-rose-500 dark:text-rose-400 mb-2 font-semibold">
+                                <div className="mt-2.5 p-3.5 bg-gray-50 dark:bg-black/30 rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden text-left">
+                                    <p className="font-mono text-[11px] break-all text-rose-600 dark:text-rose-400 mb-2 font-semibold select-text">
                                         {this.state.error && this.state.error.toString()}
                                     </p>
-                                    <div className="font-mono text-[10px] text-gray-500 dark:text-gray-400 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed custom-scrollbar">
+                                    <div className="font-mono text-[10px] text-gray-500 dark:text-gray-400 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed custom-scrollbar select-text">
                                         {this.state.errorInfo && this.state.errorInfo.componentStack}
                                     </div>
                                 </div>
@@ -185,11 +289,11 @@ const ErrorBoundary = (props) => {
     let settings;
     try {
         settings = useSettings();
-    } catch (e) {
+    } catch {
         settings = null;
     }
 
-    // Fallback translation if context is missing
+    // Resilient fallback translation if context is missing during fatal boot crash
     const t = (key) => {
         if (settings?.t) return settings.t(key);
         const lang = (typeof localStorage !== 'undefined' && localStorage.getItem('language')) || 'el';
@@ -200,6 +304,9 @@ const ErrorBoundary = (props) => {
                 reload_app: 'Ανανέωση Εφαρμογής',
                 clear_cache_restart: 'Εκκαθάριση & Επανεκκίνηση',
                 error_details: 'Λεπτομέρειες Σφάλματος',
+                system_interruption: 'Σφάλμα Εφαρμογής',
+                auto_recovering: 'Ανάκτηση εφαρμογής...',
+                auto_recovering_desc: 'Αυτόματη ανανέωση για αποκατάσταση της κατάστασης.',
                 copy_error: 'Αντιγραφή',
                 copied: 'Αντιγράφηκε',
             },
@@ -209,7 +316,10 @@ const ErrorBoundary = (props) => {
                 reload_app: 'Reload App',
                 clear_cache_restart: 'Clear Cache & Restart',
                 error_details: 'Error Details',
-                copy_error: 'Copy',
+                system_interruption: 'Application Error',
+                auto_recovering: 'Recovering application...',
+                auto_recovering_desc: 'Automatic reload to restore app state.',
+                copy_error: 'Copy Details',
                 copied: 'Copied',
             }
         };
@@ -220,12 +330,3 @@ const ErrorBoundary = (props) => {
 };
 
 export default ErrorBoundary;
-
-
-
-
-
-
-
-
-

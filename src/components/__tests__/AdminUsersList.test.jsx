@@ -34,6 +34,7 @@ describe('AdminUsersList Component', () => {
             admin_send_email: 'Send Email',
             admin_copy_user_id: 'Copy User ID',
             admin_notes: 'Notes',
+            admin_delete_user: 'Delete User',
             admin_grant_pro: 'Grant Pro',
             admin_revoke_pro: 'Revoke Pro'
         };
@@ -88,6 +89,7 @@ describe('AdminUsersList Component', () => {
         expect(screen.getByText('Send Email')).toBeInTheDocument();
         expect(screen.getByText('Copy User ID')).toBeInTheDocument();
         expect(screen.getByText('Notes')).toBeInTheDocument();
+        expect(screen.getByText('Delete User')).toBeInTheDocument();
     });
 
     it('closes dropdown when Escape key is pressed', () => {

@@ -3,7 +3,6 @@ import { Capacitor } from '@capacitor/core';
 import {
     ArrowLeft,
     Smartphone,
-    ShieldCheck,
     ChevronLeft,
     ChevronRight,
     KeyRound,
@@ -29,6 +28,7 @@ import ProBadge from '../components/ProBadge';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { getAppVersionString } from '../utils/version';
 
 const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
@@ -558,54 +558,10 @@ const SecuritySettingsView = ({ user, onBack, hideHeader = false }) => {
                         </div>
                     </div>
 
-                    {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 shadow-xs">
-                        <div className="flex items-start gap-3 mb-4">
-                            <ShieldCheck size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
-                            <div>
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                                    {isEL ? 'Αρχιτεκτονική Ασφάλειας & Κρυπτογράφησης Υλικού' : 'Hardware Security & Encryption Architecture'}
-                                </h4>
-                                <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {isEL ? 'Πολυεπίπεδη προστασία σχεδιασμένη για ιδιωτικότητα και αξιοπιστία' : 'Multi-layer protection designed for privacy and resilience'}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Τα βιομετρικά πρότυπα παραμένουν απομονωμένα εντός των Apple Secure Enclave & Android Keystore.' : 'Biometric templates stay isolated inside Apple Secure Enclave & Android Keystore.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Τα αναγνωριστικά ταυτοποίησης εναλλάσσονται συνεχώς με κρυπτογραφημένες χειραψίες HTTPS.' : 'Authenticated tokens rotate continuously with encrypted HTTPS session handshakes.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <Lock size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Μηδενική γνώση δεδομένων — οι κωδικοί και τα PIN δεν αποθηκεύονται ποτέ σε απλό κείμενο.' : 'Zero-knowledge data privacy — your passwords and raw PINs are never stored plain-text.'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; {isEL ? 'Κρυπτογραφική Προστασία Enterprise Επιπέδου' : 'Enterprise Grade Cryptographic Protection'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Κρυπτογραφική Προστασία Enterprise Επιπέδου' : 'Enterprise Grade Cryptographic Protection'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 

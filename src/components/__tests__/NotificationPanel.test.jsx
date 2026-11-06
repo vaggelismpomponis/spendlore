@@ -131,4 +131,78 @@ describe('NotificationPanel', () => {
     fireEvent.click(confirmClearBtn);
     expect(mockClearAll).toHaveBeenCalledTimes(1);
   });
+
+  it('groups notifications by date (Today and Yesterday)', () => {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const mockNotifications = [
+      {
+        id: 'n-today',
+        type: 'add',
+        message: 'New expense recorded',
+        read: false,
+        timestamp: today.toISOString(),
+      },
+      {
+        id: 'n-yesterday',
+        type: 'info',
+        message: 'System alert',
+        read: true,
+        timestamp: yesterday.toISOString(),
+      },
+    ];
+
+    useNotifications.mockReturnValue({
+      notifications: mockNotifications,
+      unreadCount: 1,
+      clearAll: mockClearAll,
+      deleteNotification: mockDeleteNotification,
+      markAllRead: mockMarkAllRead,
+    });
+
+    render(<NotificationPanel isOpen={true} onClose={mockOnClose} />);
+
+    // Date group headers
+    expect(screen.getByText('t_date_today')).toBeInTheDocument();
+    expect(screen.getByText('t_date_yesterday')).toBeInTheDocument();
+
+    // Filter chips
+    expect(screen.getByText('t_sent_as')).toBeInTheDocument();
+    expect(screen.getByText('t_filter_date')).toBeInTheDocument();
+  });
+
+  it('allows marking all as read via the 3-dots actions menu', () => {
+    const mockNotifications = [
+      {
+        id: 'n1',
+        type: 'add',
+        message: 'New expense recorded',
+        read: false,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+
+    useNotifications.mockReturnValue({
+      notifications: mockNotifications,
+      unreadCount: 1,
+      clearAll: mockClearAll,
+      deleteNotification: mockDeleteNotification,
+      markAllRead: mockMarkAllRead,
+    });
+
+    render(<NotificationPanel isOpen={true} onClose={mockOnClose} />);
+
+    // Open more menu
+    const moreBtn = screen.getByRole('button', { name: 'More options' });
+    fireEvent.click(moreBtn);
+
+    // Click mark all as read
+    const markAllReadBtn = screen.getByText('t_mark_all_read_full');
+    expect(markAllReadBtn).toBeInTheDocument();
+    fireEvent.click(markAllReadBtn);
+
+    expect(mockMarkAllRead).toHaveBeenCalled();
+  });
 });

@@ -1,10 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/react'
+import sentryLogger from './utils/sentryLogger'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 import { registerSW } from 'virtual:pwa-register'
 import { isNative } from './utils/platform'
+import { APP_VERSION } from './utils/version'
 import './index.css'
 
 // Suppress unhandled errors and rejections from third-party browser extensions (e.g. Urban VPN 200.js harvester scripts)
@@ -76,7 +78,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
         Sentry.init({
             dsn: import.meta.env.VITE_SENTRY_DSN,
             environment: import.meta.env.MODE,           // 'development' | 'production'
-            release: import.meta.env.VITE_APP_VERSION,  // optional — set in .env
+            release: import.meta.env.VITE_APP_VERSION || `spendlore@${APP_VERSION}`,
             // Capture 100% of errors, 10% of performance traces
             tracesSampleRate: 0.1,
             integrations: [
@@ -85,6 +87,27 @@ if (import.meta.env.VITE_SENTRY_DSN) {
                     tracePropagationTargets: [/^\//]
                 }),
             ],
+            beforeSend(event, hint) {
+                try {
+                    const ex = event.exception?.values?.[0];
+                    const message = ex ? `${ex.type || 'Error'}: ${ex.value || ''}` : (event.message || 'Sentry Captured Event');
+                    const stack = ex?.stacktrace?.frames
+                        ? ex.stacktrace.frames.map(f => `at ${f.function || '?'} (${f.filename || '?'}:${f.lineno || '?'})`).reverse().join('\n')
+                        : (hint?.originalException instanceof Error ? hint.originalException.stack : null);
+
+                    sentryLogger.recordError({
+                        message,
+                        level: event.level || 'error',
+                        context: event.tags?.context || 'SentryCaptured',
+                        sentryEventId: event.event_id,
+                        stack: stack || null,
+                        extras: event.extra || null
+                    });
+                } catch (e) {
+                    // Ignore error during capture
+                }
+                return event;
+            },
         });
     };
     if ('requestIdleCallback' in window) {

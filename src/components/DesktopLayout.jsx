@@ -111,9 +111,9 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                 </div>
                 <div className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl
                                 ${cashFlow >= 0
-                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                                    : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
-                                }`}>
+                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400'
+                    }`}>
                     <span className="text-[10px] font-black uppercase tracking-wider">Net Flow</span>
                     <span className="text-sm font-black">
                         {cashFlow >= 0 ? '+' : '−'}<Amount value={Math.abs(cashFlow)} showSign={false} />
@@ -211,8 +211,10 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         advisor: t('advisor_title'),
         guide: t('guide'),
         'profile-details': t('nav_profile'),
-        admin: 'Admin Panel',
-        privacy: 'Privacy Policy',
+        admin: t('admin_panel') || 'Admin Panel',
+        categories: t('custom_categories') || t('categories') || 'Custom Categories',
+        privacy: t('privacy_policy') || 'Privacy Policy',
+        terms: t('terms_of_service') || 'Terms of Service',
         upgrade: t('upgrade_to_pro') || 'Spendlore Pro',
     };
 
@@ -261,7 +263,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
             ) : (
                 <h2 className="absolute left-1/2 -translate-x-1/2
                                text-[16px] font-bold text-gray-900 dark:text-white
-                               truncate max-w-[220px] text-center
+                               truncate max-w-[280px] sm:max-w-[420px] text-center
                                pointer-events-none select-none">
                     {tabTitles[activeTab] || ''}
                 </h2>
@@ -326,8 +328,8 @@ const DesktopLayout = ({
     const handleToggleNotifications = onToggleNotifications || (() => setShowNotificationPanel?.(prev => !prev));
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
-    const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'security', 'backup',
-        'feedback', 'guide', 'admin', 'privacy', 'upgrade'].includes(activeTab);
+    const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'categories', 'security', 'backup',
+        'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade'].includes(activeTab);
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">
@@ -362,7 +364,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className={`h-full ${['home', 'advisor'].includes(activeTab) ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
+                        <div className={`h-full ${activeTab === 'admin' ? 'p-0' : ['home', 'advisor'].includes(activeTab) ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
                             {children}
                         </div>
                     </main>

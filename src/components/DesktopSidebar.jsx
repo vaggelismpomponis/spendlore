@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Home, BarChart3, History, Settings, Target,
     RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
-    PiggyBank, User, ShieldCheck, ArrowRight
+    PiggyBank, User, ShieldCheck, ArrowRight, LayoutDashboard
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -16,26 +16,24 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
                     outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0
                     transition-all duration-200 group relative select-none border
                     ${active
-                        ? 'bg-gray-100 dark:bg-surface-dark3 text-gray-950 dark:text-white font-bold border-gray-200 dark:border-white/10 shadow-xs'
-                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
-                    }`}
+                ? 'bg-gray-100 dark:bg-surface-dark3 text-gray-950 dark:text-white font-bold border-gray-200 dark:border-white/10 shadow-xs'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
+            }`}
     >
         <Icon
             size={18}
-            className={`shrink-0 transition-transform duration-200 ${
-                active
+            className={`shrink-0 transition-transform duration-200 ${active
                     ? 'text-violet-600 dark:text-violet-400 scale-105'
                     : 'text-gray-500 dark:text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 group-hover:scale-110'
-            }`}
+                }`}
         />
         <span className="text-sm flex-1 truncate">{label}</span>
         {badge && (
             <span
-                className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                    active
-                        ? 'bg-violet-100 dark:bg-violet-900/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-700/50'
-                        : 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30'
-                }`}
+                className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md ${active
+                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                        : 'bg-gray-200/70 dark:bg-white/10 text-gray-700 dark:text-gray-300'
+                    }`}
             >
                 {badge}
             </span>
@@ -50,7 +48,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
 );
 
 const SectionLabel = ({ label }) => (
-    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500 px-3.5 mb-1.5 mt-5 select-none">
+    <p className="px-3.5 pt-4 pb-1.5 text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest select-none">
         {label}
     </p>
 );
@@ -66,6 +64,11 @@ const DesktopSidebar = ({
     const { isPro, openUpgradeModal } = useSubscription();
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
+
+    const isAdmin = user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' ||
+        user?.role === 'admin' ||
+        user?.app_metadata?.role === 'admin' ||
+        user?.user_metadata?.role === 'admin';
 
     const effectiveName = displayName || user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('user') || 'User';
     const effectivePhoto = photoURL || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || user?.photoURL;
@@ -120,7 +123,7 @@ const DesktopSidebar = ({
                             )}
                         </div>
                         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 truncate -mt-0.5">
-                            Personal Finance
+                            {t('personal_finance') || 'Personal Finance'}
                         </p>
                     </div>
                 </button>
@@ -147,9 +150,23 @@ const DesktopSidebar = ({
                     id="nav-profile"
                     icon={Settings}
                     label={t('settings') || 'Ρυθμίσεις'}
-                    active={['profile', 'account', 'general', 'security', 'backup', 'feedback', 'guide', 'admin', 'profile-details', 'categories'].includes(activeTab)}
+                    active={['profile', 'account', 'general', 'security', 'backup', 'feedback', 'guide', 'profile-details', 'categories'].includes(activeTab)}
                     onClick={() => navTo('profile')}
                 />
+
+                {isAdmin && (
+                    <NavItem
+                        id="nav-admin"
+                        icon={LayoutDashboard}
+                        label={t('admin_panel') || 'Πίνακας Διαχείρισης'}
+                        active={activeTab === 'admin'}
+                        badge="ADMIN"
+                        onClick={() => {
+                            if (setPreviousTab) setPreviousTab(activeTab);
+                            navTo('admin');
+                        }}
+                    />
+                )}
             </div>
 
             {/* ── User Profile & Quick Controls Footer ── */}
@@ -171,11 +188,10 @@ const DesktopSidebar = ({
                                    border border-gray-200 dark:border-white/10
                                    hover:border-gray-300 dark:hover:border-white/20
                                    hover:bg-gray-200/60 dark:hover:bg-white/[0.04]
-                                   active:scale-[0.99] block select-none ${
-                                       activeTab === 'upgrade'
-                                           ? 'ring-1 ring-gray-950 dark:ring-white'
-                                           : ''
-                                   }`}
+                                   active:scale-[0.99] block select-none ${activeTab === 'upgrade'
+                                ? 'ring-1 ring-gray-950 dark:ring-white'
+                                : ''
+                            }`}
                     >
                         <div className="flex items-center justify-between gap-2 mb-1">
                             <div className="flex items-center gap-1.5 min-w-0">
@@ -203,38 +219,37 @@ const DesktopSidebar = ({
                 {/* User Profile Mini Capsule */}
                 <div
                     onClick={() => navTo('profile')}
-                    className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all cursor-pointer group border ${
-                        activeTab === 'profile'
+                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-all cursor-pointer group border ${activeTab === 'profile'
                             ? 'bg-gray-200/80 dark:bg-surface-dark border-gray-300 dark:border-white/20'
                             : 'bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
-                    }`}
+                        }`}
                 >
-                    <div className="relative shrink-0">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 shrink-0 flex items-center justify-center">
                         {effectivePhoto && imgRetries < MAX_IMG_RETRIES ? (
                             <img
-                                src={imgRetries > 0 ? `${effectivePhoto}${effectivePhoto.includes('?') ? '&' : '?'}` + 'retry=' + imgRetries : effectivePhoto}
-                                alt={effectiveName}
+                                src={imgRetries > 0 ? `${effectivePhoto}${effectivePhoto.includes('?') ? '&' : '?'}retry=${imgRetries}` : effectivePhoto}
+                                alt="User"
                                 referrerPolicy="no-referrer"
                                 crossOrigin="anonymous"
-                                onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
-                                className="w-8 h-8 rounded-full object-cover ring-1 ring-gray-200 dark:ring-white/10"
+                                className="w-full h-full object-cover"
+                                onError={() => setImgRetries(prev => prev + 1)}
                             />
                         ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-800 dark:bg-white/10 dark:text-white border border-gray-300/60 dark:border-white/10 font-bold text-xs flex items-center justify-center shadow-xs">
-                                {effectiveName.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                        )}
-                        {isPro && (
-                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-400 rounded-full flex items-center justify-center text-slate-950 shadow-2xs">
-                                <ShieldCheck size={9} className="shrink-0 text-slate-950" />
-                            </div>
+                            <User size={15} className="text-gray-500 dark:text-gray-400" />
                         )}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                            {effectiveName}
-                        </p>
-                        <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate">
+                        <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-bold text-gray-900 dark:text-white truncate group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+                                {effectiveName}
+                            </p>
+                            {isPro && (
+                                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30 shrink-0">
+                                    PRO
+                                </span>
+                            )}
+                        </div>
+                        <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate mt-0.5">
                             {isPro ? (t('pro_member') || 'Pro Member') : (user?.email || 'Spendlore')}
                         </p>
                     </div>
@@ -246,32 +261,31 @@ const DesktopSidebar = ({
                         onClick={toggleTheme}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                         className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
-                        title={theme === 'dark' ? t('switch_to_light') || 'Light mode' : t('switch_to_dark') || 'Dark mode'}
+                        title={theme === 'dark' ? t('switch_to_light') : t('switch_to_dark')}
                     >
                         {theme === 'dark' ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
-                        <span className="text-[11px] font-bold">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                        <span className="text-[11px] font-bold">{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
                     </button>
 
                     <button
                         onClick={togglePrivacyMode}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${
-                            privacyMode
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${privacyMode
                                 ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-gray-900 dark:border-white shadow-xs font-bold'
                                 : 'text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white shadow-2xs'
-                        }`}
-                        title={privacyMode ? t('show_amounts') || 'Show amounts' : t('hide_amounts') || 'Hide amounts'}
+                            }`}
+                        title={privacyMode ? t('show_amounts') : t('hide_amounts')}
                     >
                         {privacyMode ? <EyeOff size={13} /> : <Eye size={13} />}
-                        <span className="text-[11px] font-bold">{privacyMode ? 'Private' : 'Visible'}</span>
+                        <span className="text-[11px] font-bold">{privacyMode ? t('privacy_private') : t('privacy_visible')}</span>
                     </button>
 
                     <button
                         onClick={onSignOut}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                         className="p-2 rounded-xl text-rose-500 hover:text-rose-600 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 outline-none focus:outline-none active:scale-95 transition-all shrink-0 shadow-2xs"
-                        title={t('sign_out') || 'Sign out'}
-                        aria-label="Sign out"
+                        title={t('sign_out') || t('logout')}
+                        aria-label={t('sign_out') || t('logout')}
                     >
                         <LogOut size={14} />
                     </button>

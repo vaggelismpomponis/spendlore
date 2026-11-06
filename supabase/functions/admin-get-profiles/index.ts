@@ -127,7 +127,49 @@ Deno.serve(async (req) => {
       return acc;
     }, {});
 
-    // Merge auth users with profile data
+    // Aggregate user activity statistics
+    const txCounts: Record<string, number> = {};
+    const budgetCounts: Record<string, number> = {};
+    const goalCounts: Record<string, number> = {};
+    let totalTransactions = 0;
+
+    try {
+      const { data: txData, error: txError } = await adminClient
+        .from('transactions')
+        .select('user_id');
+      if (!txError && txData) {
+        totalTransactions = txData.length;
+        txData.forEach((t: any) => {
+          if (t.user_id) txCounts[t.user_id] = (txCounts[t.user_id] || 0) + 1;
+        });
+      }
+    } catch (e) {
+      console.warn("Transactions query failed in admin-get-profiles:", e);
+    }
+
+    try {
+      const { data: budgetData } = await adminClient
+        .from('budgets')
+        .select('user_id');
+      (budgetData ?? []).forEach((b: any) => {
+        if (b.user_id) budgetCounts[b.user_id] = (budgetCounts[b.user_id] || 0) + 1;
+      });
+    } catch (e) {
+      console.warn("Budgets query failed in admin-get-profiles:", e);
+    }
+
+    try {
+      const { data: goalData } = await adminClient
+        .from('goals')
+        .select('user_id');
+      (goalData ?? []).forEach((g: any) => {
+        if (g.user_id) goalCounts[g.user_id] = (goalCounts[g.user_id] || 0) + 1;
+      });
+    } catch (e) {
+      console.warn("Goals query failed in admin-get-profiles:", e);
+    }
+
+    // Merge auth users with profile data and statistics
     const mergedProfiles = users.map((authUser: any) => {
       const profile = profiles.find((p: any) => p.id === authUser.id);
       const latestSession = latestSessionsMap[authUser.id];
@@ -141,13 +183,27 @@ Deno.serve(async (req) => {
         admin_notes: profile?.admin_notes ?? null,
         created_at: authUser.created_at,
         last_sign_in_at: authUser.last_sign_in_at,
-        latest_session: latestSession ?? null
+        latest_session: latestSession ?? null,
+        stats: {
+          transactions: txCounts[authUser.id] || 0,
+          budgets: budgetCounts[authUser.id] || 0,
+          goals: goalCounts[authUser.id] || 0
+        }
       };
     });
 
-    console.log(`Returning ${mergedProfiles.length} users, ${sessions.length} sessions`);
+    console.log(`Returning ${mergedProfiles.length} users, ${sessions.length} sessions, ${totalTransactions} total transactions`);
 
-    return new Response(JSON.stringify({ profiles: mergedProfiles, sessions }), {
+    return new Response(JSON.stringify({
+      profiles: mergedProfiles,
+      sessions,
+      totalTransactions,
+      userStats: {
+        transactions: txCounts,
+        budgets: budgetCounts,
+        goals: goalCounts
+      }
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

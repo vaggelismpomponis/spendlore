@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
+import { supabase } from '../supabase';
 import logger from '../utils/logger';
 
 export function useDeepLinks({ setPendingShortcutAction, setShowPaymentSuccess, setShowPaymentCanceled }) {
@@ -9,7 +10,7 @@ export function useDeepLinks({ setPendingShortcutAction, setShowPaymentSuccess, 
     useEffect(() => {
         if (!Capacitor.isNativePlatform()) return;
 
-        const handleDeepLink = (data) => {
+        const handleDeepLink = async (data) => {
             if (!data || !data.url) return;
             try {
                 const rawUrl = data.url;
@@ -29,8 +30,20 @@ export function useDeepLinks({ setPendingShortcutAction, setShowPaymentSuccess, 
 
                 // Check for payment success
                 if (searchParams.get('upgraded') === 'true' || rawUrl.includes('payment-success')) {
-                    setShowPaymentSuccess(true);
                     Browser.close().catch(() => { }); // Close the in-app browser if it's still open
+
+                    // Verify that the user is actually Pro before showing success modal
+                    (async () => {
+                        const { data } = await supabase.auth.getUser();
+                        const currentUserId = data?.user?.id;
+                        if (currentUserId) {
+                            const isPro = await verifySubscriptionActive(currentUserId);
+                            if (isPro) {
+                                setShowPaymentSuccess(true);
+                            }
+                        }
+                    })().catch(() => { });
+                    return;
                 }
 
                 // Check for payment cancellation
@@ -52,11 +65,48 @@ export function useDeepLinks({ setPendingShortcutAction, setShowPaymentSuccess, 
             }
         });
 
-        // Also check if returning from Stripe checkout in in-app browser
-        const checkPendingCheckout = () => {
+        // Helper to query Stripe and Supabase to verify if subscription was actually purchased
+        const verifySubscriptionActive = async (targetUserId) => {
+            try {
+                if (!targetUserId) return false;
+                const { data: syncData, error: syncError } = await supabase.functions.invoke('sync-subscription', {
+                    body: { userId: targetUserId },
+                });
+                if (!syncError && syncData?.isPro) {
+                    return true;
+                }
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('subscription_status, subscription_expiry')
+                    .eq('id', targetUserId)
+                    .single();
+                return profile?.subscription_status === 'pro' &&
+                    (!profile?.subscription_expiry || new Date(profile.subscription_expiry) > new Date());
+            } catch (e) {
+                logger.error('Subscription verification error', e, 'App');
+                return false;
+            }
+        };
+
+        // Check if returning from Stripe checkout in in-app browser
+        // CRITICAL FIX: Do NOT blindly set showPaymentSuccess=true without verifying Stripe!
+        const checkPendingCheckout = async () => {
             if (sessionStorage.getItem('pending_stripe_checkout') === 'true') {
                 sessionStorage.removeItem('pending_stripe_checkout');
-                setShowPaymentSuccess(true);
+
+                const { data } = await supabase.auth.getUser();
+                const currentUserId = data?.user?.id;
+                if (!currentUserId) return;
+
+                let isPro = await verifySubscriptionActive(currentUserId);
+                if (!isPro) {
+                    await new Promise(r => setTimeout(r, 1500));
+                    isPro = await verifySubscriptionActive(currentUserId);
+                }
+
+                if (isPro) {
+                    setShowPaymentSuccess(true);
+                }
             }
         };
 

@@ -1,61 +1,135 @@
 import React from 'react';
-import { Send, Radio, RefreshCw } from 'lucide-react';
+import { Send, Radio, AlertTriangle } from 'lucide-react';
 
-const AdminBroadcast = ({ broadcastTitle, setBroadcastTitle, broadcastMessage, setBroadcastMessage, onSend, translate }) => {
+const AdminBroadcast = ({
+    broadcastTitle,
+    setBroadcastTitle,
+    broadcastMessage,
+    setBroadcastMessage,
+    onSend,
+    translate = (k) => k
+}) => {
     return (
-        <div className="animate-fade-in max-w-2xl mx-auto">
-            <div className="bg-white dark:bg-surface-dark2 p-6 rounded-3xl border border-gray-100 dark:border-transparent shadow-sm space-y-6">
-                {/* Header */}
-                <div className="flex items-center gap-4 pb-5 border-b border-gray-100 dark:border-white/5">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center shadow-sm">
-                        <Send size={22} className="text-violet-600 dark:text-violet-400" />
+        <div className="space-y-5 animate-fade-in max-w-4xl mx-auto">
+
+            {/* ─────── Executive Broadcast Hub Header ─────── */}
+            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
+                    <div className="flex items-center gap-3">
+                        <Radio size={22} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.2} />
+                        <div>
+                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
+                                {translate('admin_broadcast_title') || 'Global System Broadcast'}
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                {translate('admin_broadcast_subtitle') || 'Broadcast real-time announcements to all active users on launch'}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 className="text-[17px] font-black text-gray-900 dark:text-white">{translate('admin_broadcast_title')}</h3>
-                        <p className="text-[12px] text-gray-400 mt-0.5">{translate('admin_broadcast_subtitle')}</p>
+
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/60 dark:border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400 shrink-0">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Live Pipeline Ready</span>
                     </div>
                 </div>
 
-                {/* Warning notice */}
-                <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 rounded-2xl border border-amber-100 dark:border-amber-500/20">
-                    <Radio size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                {/* Status Chips Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                            Target Audience
+                        </span>
+                        <span className="block text-sm font-extrabold text-gray-900 dark:text-white mt-1">
+                            All User Accounts
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                            Delivery Channel
+                        </span>
+                        <span className="block text-sm font-extrabold text-violet-600 dark:text-violet-400 mt-1">
+                            In-App Modal Alert
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest">
+                            Priority Level
+                        </span>
+                        <span className="block text-sm font-extrabold text-amber-600 dark:text-amber-400 mt-1">
+                            Immediate (P1)
+                        </span>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                        <span className="block text-[11px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-widest">
+                            Push Ingestion
+                        </span>
+                        <span className="block text-sm font-extrabold text-blue-600 dark:text-blue-400 mt-1">
+                            Supabase DB Sync
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* ─────── Broadcast Composer Card ─────── */}
+            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-5">
+                {/* Notice Banner */}
+                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200/60 dark:border-amber-500/20">
+                    <AlertTriangle size={17} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                        <p className="text-[12px] font-bold text-amber-700 dark:text-amber-400">Broadcast to all users</p>
-                        <p className="text-[11px] text-amber-600/70 dark:text-amber-400/60 mt-0.5">This message will be visible to all users the next time they open the app.</p>
+                        <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
+                            Broadcast to all accounts
+                        </p>
+                        <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-0.5 leading-relaxed font-medium">
+                            This message will be displayed to every user upon their next launch or active session in Spendlore.
+                        </p>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">
-                            {translate('admin_broadcast_title_label')}
+                        <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                            {translate('admin_broadcast_title_label') || 'Broadcast Title'}
                         </label>
                         <input
                             type="text"
                             value={broadcastTitle}
                             onChange={e => setBroadcastTitle(e.target.value)}
-                            className="w-full p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-transparent text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all"
-                            placeholder={translate('admin_broadcast_title_placeholder')}
+                            className="w-full py-2.5 px-3.5 bg-gray-50 dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all"
+                            placeholder={translate('admin_broadcast_title_placeholder') || 'e.g. Scheduled System Maintenance Notice'}
                         />
                     </div>
+
                     <div>
-                        <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">
-                            {translate('admin_broadcast_message_label')}
-                        </label>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 uppercase tracking-widest">
+                                {translate('admin_broadcast_message_label') || 'Broadcast Message Body'}
+                            </label>
+                            <span className="text-[10px] font-bold text-gray-400">
+                                {broadcastMessage.length} characters
+                            </span>
+                        </div>
                         <textarea
                             value={broadcastMessage}
                             onChange={e => setBroadcastMessage(e.target.value)}
-                            className="w-full p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-transparent text-[13px] min-h-[140px] focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all resize-none leading-relaxed"
-                            placeholder={translate('admin_broadcast_message_placeholder')}
+                            className="w-full p-3.5 bg-gray-50 dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all min-h-[140px] resize-none leading-relaxed"
+                            placeholder={translate('admin_broadcast_message_placeholder') || 'Type the full broadcast message here...'}
                         />
-                        <p className="text-[10px] text-gray-400 mt-1.5 text-right">{broadcastMessage.length} chars</p>
                     </div>
-                    <button
-                        onClick={onSend}
-                        className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-2xl active:scale-[0.98] transition-all shadow-xl shadow-violet-500/20 flex items-center justify-center gap-2.5 text-[14px]"
-                    >
-                        <Radio size={17} /> {translate('admin_broadcast_btn')}
-                    </button>
+
+                    <div className="pt-2 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={onSend}
+                            disabled={!broadcastTitle.trim() || !broadcastMessage.trim()}
+                            className="w-full sm:w-auto px-6 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            <Send size={15} />
+                            <span>{translate('admin_broadcast_btn') || 'Transmit Broadcast'}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

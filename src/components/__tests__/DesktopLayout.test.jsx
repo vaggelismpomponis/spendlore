@@ -98,4 +98,15 @@ describe('DesktopLayout', () => {
     expect(mockOnAdd).toHaveBeenCalledTimes(1);
     expect(mockOnAdd).toHaveBeenCalledWith();
   });
+
+  it('hides the right panel and renders title for categories tab', () => {
+    const { container } = render(
+      <DesktopLayout {...defaultProps} activeTab="categories">
+        <div>Categories Content</div>
+      </DesktopLayout>
+    );
+
+    expect(container.querySelector('#tour-quick-access')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'custom_categories' })).toBeInTheDocument();
+  });
 });

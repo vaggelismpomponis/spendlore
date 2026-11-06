@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
+import { Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import Navbar from './Navbar';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
@@ -72,20 +72,21 @@ export default function MobileLayout({
                         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
 
                         <div className="flex items-center justify-between min-h-[40px]">
-                            {/* LEFT — Profile Avatar */}
+                            {/* LEFT — User Profile Avatar */}
                             <div className="relative flex-shrink-0">
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => setActiveTab('profile')}
-                                    className="w-9 h-9 rounded-full flex-shrink-0
-                                                bg-gray-100 dark:bg-white/[0.08]
-                                                ring-2 ring-gray-200/80 dark:ring-white/10 shadow-sm
-                                                flex items-center justify-center
-                                                text-gray-400 dark:text-gray-500
-                                                transition-all duration-200 overflow-hidden outline-none focus:outline-none focus-visible:outline-none select-none border-none"
+                                    className="w-9 h-9 rounded-full flex items-center justify-center
+                                               bg-gray-100 dark:bg-surface-dark2
+                                               text-gray-600 dark:text-gray-300
+                                               hover:bg-gray-200 dark:hover:bg-white/[0.08]
+                                               active:scale-95 transition-all
+                                               overflow-hidden shadow-xs shrink-0"
                                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                                    title={translate('nav_profile')}
+                                    title={translate('settings')}
+                                    aria-label={translate('settings')}
                                 >
                                     {photoURL && imgRetries < MAX_IMG_RETRIES ? (
                                         <img
@@ -94,10 +95,10 @@ export default function MobileLayout({
                                             referrerPolicy="no-referrer"
                                             crossOrigin="anonymous"
                                             className="w-full h-full object-cover"
-                                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
+                                            onError={() => setImgRetries(prev => prev + 1)}
                                         />
                                     ) : (
-                                        <User size={20} strokeWidth={2} />
+                                        <User size={18} strokeWidth={2.2} />
                                     )}
                                 </motion.button>
                             </div>

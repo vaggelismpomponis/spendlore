@@ -13,8 +13,7 @@ import {
     Info,
     UserCheck,
     Layers,
-    Check,
-    Lock
+    Check
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
@@ -23,6 +22,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { getAppVersionString } from '../utils/version';
 
 /* ── Restore Mode Selector ── */
 const RestoreModeButton = ({ active, onClick, icon: Icon, label, sublabel, color = 'violet' }) => {
@@ -576,56 +576,10 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                         </div>
                     )}
 
-                    {/* ─────── Bottom Bento: Trust & Safety ─────── */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-2xl bg-violet-500/10 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                                <Lock size={20} strokeWidth={2.3} />
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                    {isEL ? 'Κυριαρχία Δεδομένων & Ειδοποίηση Ασφαλείας' : 'Data Sovereignty & Security Notice'}
-                                </h4>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                    {isEL ? 'Έχετε την απόλυτη και πλήρη κυριότητα των δεδομένων σας' : 'You own your financial data completely'}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Τα αντίγραφα είναι τυποποιημένα αρχεία JSON που μπορείτε να επιθεωρήσετε ή να εισαγάγετε ανά πάσα στιγμή.' : 'Backups are standard JSON files that you can inspect or import anytime.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <ShieldCheck size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Φυλάξτε τα εξαγόμενα αντίγραφα σε ασφαλές σημείο (π.χ. διαχειριστή κωδικών ή κρυπτογραφημένο δίσκο).' : 'Keep your exported backups in a safe location (e.g. password manager or encrypted drive).'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {isEL ? 'Μεταφέρετε απρόσκοπτα τα δεδομένα σας μεταξύ διαφορετικών συσκευών ή λογαριασμών.' : 'Seamlessly migrate your data between different phones, devices, or accounts.'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8">
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; {isEL ? 'Θυρίδα Οικονομικών Δεδομένων' : 'Financial Data Vault'} &bull; {isEL ? 'Έκδοση 2.0' : 'Version 2.0'}
+                            Spendlore &bull; {isEL ? 'Θυρίδα Οικονομικών Δεδομένων' : 'Financial Data Vault'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 

@@ -15,9 +15,10 @@ import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { getAppVersionString } from '../utils/version';
 
 const FeedbackView = ({ user, onBack, hideHeader = false }) => {
-    const { t: translate } = useSettings();
+    const { t: translate, language } = useSettings();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
     const [type, setType] = useState('idea'); // 'idea', 'bug', 'other'
@@ -340,7 +341,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                     <div className="text-center pt-2 pb-8 flex flex-col items-center gap-1.5 opacity-60">
                         <Heart size={14} className="text-rose-500" fill="currentColor" />
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; Made with care for the community &bull; Version 2.0
+                            Spendlore &bull; {language === 'el' ? 'Φτιαγμένο με φροντίδα για την κοινότητα' : 'Made with care for the community'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 
