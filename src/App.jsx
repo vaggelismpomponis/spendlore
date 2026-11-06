@@ -171,8 +171,23 @@ function MainContent() {
     const [showRegretModal, setShowRegretModal] = useState(false);
     const [activeRegretTxId, setActiveRegretTxId] = useState(null);
 
-    // Set Password Prompt (for Google users without a password)
-    const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(false);
+    // Set Password Prompt (for Google users without a password or password recovery)
+    const [showSetPasswordPrompt, setShowSetPasswordPrompt] = useState(() => {
+        try {
+            return sessionStorage.getItem('sw_is_password_recovery') === 'true' ||
+                (typeof window !== 'undefined' && (window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery')));
+        } catch (_) {
+            return false;
+        }
+    });
+    const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
+        try {
+            return sessionStorage.getItem('sw_is_password_recovery') === 'true' ||
+                (typeof window !== 'undefined' && (window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery')));
+        } catch (_) {
+            return false;
+        }
+    });
 
     useEffect(() => {
         if (!user || loading || isLocked) return;
@@ -190,19 +205,23 @@ function MainContent() {
         const isDismissedInSession = typeof window !== 'undefined' &&
             sessionStorage.getItem(`sw_pwd_prompt_dismissed_${user.id}`) === 'true';
 
-        if (isGoogleUser && !hasPassword && !isDismissedInSession) {
+        if (isGoogleUser && !hasPassword && !isDismissedInSession && !isPasswordRecovery) {
             const timer = setTimeout(() => {
                 setShowSetPasswordPrompt(true);
             }, 600);
             return () => clearTimeout(timer);
         }
-    }, [user, loading, isLocked]);
+    }, [user, loading, isLocked, isPasswordRecovery]);
 
     const handleCloseSetPasswordPrompt = () => {
         if (user?.id) {
             sessionStorage.setItem(`sw_pwd_prompt_dismissed_${user.id}`, 'true');
         }
+        try {
+            sessionStorage.removeItem('sw_is_password_recovery');
+        } catch (_) {}
         setShowSetPasswordPrompt(false);
+        setIsPasswordRecovery(false);
     };
 
     const handlePasswordPromptSuccess = (updatedUser) => {
@@ -210,11 +229,15 @@ function MainContent() {
             localStorage.setItem(`sw_pwd_set_${user.id}`, 'true');
             sessionStorage.setItem(`sw_pwd_prompt_dismissed_${user.id}`, 'true');
         }
+        try {
+            sessionStorage.removeItem('sw_is_password_recovery');
+        } catch (_) {}
         if (updatedUser) {
             setUser(updatedUser);
         }
         setShowSetPasswordPrompt(false);
-        showToast(translate('set_password_success') || 'Ο κωδικός πρόσβασης ορίστηκε με επιτυχία!', 'success');
+        setIsPasswordRecovery(false);
+        showToast(isPasswordRecovery ? (translate('password_changed_success') || 'Ο κωδικός άλλαξε επιτυχώς!') : (translate('set_password_success') || 'Ο κωδικός πρόσβασης ορίστηκε με επιτυχία!'), 'success');
     };
 
     // ── Onboarding Tour
@@ -603,13 +626,20 @@ function MainContent() {
                 clearTimeout(authTimeout);
                 sessionTracked.current = true;
                 trackSession(currentUser);
-                if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
+                const isRecoveryHash = typeof window !== 'undefined' && (window.location.hash.includes('type=recovery') || window.location.search.includes('type=recovery'));
+                if (isRecoveryHash || sessionStorage.getItem('sw_is_password_recovery') === 'true') {
+                    setIsPasswordRecovery(true);
                     setShowSetPasswordPrompt(true);
                 }
             } else if (event === 'PASSWORD_RECOVERY') {
                 setLoading(false);
                 clearTimeout(authTimeout);
+                setIsPasswordRecovery(true);
                 setShowSetPasswordPrompt(true);
+                try {
+                    sessionStorage.setItem('sw_is_password_recovery', 'true');
+                    sessionStorage.setItem('sw_in_app', '1');
+                } catch (_) {}
             } else if (event === 'SIGNED_OUT') {
                 setLoading(false);
                 clearTimeout(authTimeout);
@@ -1731,6 +1761,7 @@ function MainContent() {
                                 showSetPasswordPrompt={showSetPasswordPrompt}
                                 onCloseSetPasswordPrompt={handleCloseSetPasswordPrompt}
                                 onSetPasswordSuccess={handlePasswordPromptSuccess}
+                                isPasswordRecovery={isPasswordRecovery}
                             />
 
                             {/* Onboarding Tour — renders globally on top of desktop and mobile via portal */}

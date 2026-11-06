@@ -259,8 +259,14 @@ const LoginView = ({
         if (!trimmedEmail) return;
         setResetStatus({ loading: true, success: false, error: '' });
         try {
+            const appOrigin = window.location.hostname.startsWith('app.')
+                ? window.location.origin
+                : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                    ? window.location.origin
+                    : 'https://app.spendlore.gr';
+
             const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-                redirectTo: `${window.location.origin}/`
+                redirectTo: `${appOrigin}/?app=1`
             });
             if (error) throw error;
             setResetStatus({ loading: false, success: true, error: '' });

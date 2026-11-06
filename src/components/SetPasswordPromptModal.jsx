@@ -4,7 +4,7 @@ import PasswordInput from './PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
 
-export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, user }) {
+export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, user, isRecovery = false }) {
     const { t: translate } = useSettings();
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -77,10 +77,14 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
                     <div className="flex justify-between items-center mb-6">
                         <div>
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                {translate('set_password_title') || 'Create Account Password'}
+                                {isRecovery
+                                    ? (translate('reset_password') || 'Επαναφορά Κωδικού')
+                                    : (translate('set_password_title') || 'Create Account Password')}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                {translate('set_password_desc') || 'Set a password to enable email login'}
+                                {isRecovery
+                                    ? (translate('reset_password_modal_desc') || 'Ορίστε έναν νέο ισχυρό κωδικό πρόσβασης')
+                                    : (translate('set_password_desc') || 'Set a password to enable email login')}
                             </p>
                         </div>
                         <button
@@ -97,7 +101,9 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="p-3.5 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 text-left">
                             <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
-                                {translate('set_password_subtitle') || 'You signed in with Google. Set a password so you can always log in with your email if Google login is unavailable.'}
+                                {isRecovery
+                                    ? (translate('reset_password_subtitle') || 'Ορίστε τον νέο κωδικό πρόσβασης για τον λογαριασμό σας.')
+                                    : (translate('set_password_subtitle') || 'You signed in with Google. Set a password so you can always log in with your email if Google login is unavailable.')}
                             </p>
                             <p className="text-xs font-bold text-gray-900 dark:text-white mt-1.5 truncate">
                                 {user.email}
@@ -164,7 +170,11 @@ export default function SetPasswordPromptModal({ isOpen, onClose, onSuccess, use
                                 ) : (
                                     <>
                                         <Check size={16} className="shrink-0" />
-                                        <span>{translate('set_password_btn') || 'Save'}</span>
+                                        <span>
+                                            {isRecovery
+                                                ? (translate('save_new_password') || 'Αποθήκευση Νέου Κωδικού')
+                                                : (translate('set_password_btn') || 'Save')}
+                                        </span>
                                     </>
                                 )}
                             </button>

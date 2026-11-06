@@ -21,6 +21,27 @@ export const isLandingDomain = (explicitPath) => {
     // Dedicated app subdomains are always the app
     if (window.location.hostname.startsWith('app.')) return false;
 
+    // Authentication callbacks (hash containing access_token, recovery, etc. or query parameters)
+    // MUST ALWAYS route into the application so Supabase Auth can process the session and password recovery
+    const hash = (window.location.hash || '').toLowerCase();
+    const search = (window.location.search || '').toLowerCase();
+    if (
+        hash.includes('access_token=') ||
+        hash.includes('type=recovery') ||
+        hash.includes('error=') ||
+        hash.includes('refresh_token=') ||
+        search.includes('type=recovery') ||
+        search.includes('code=')
+    ) {
+        try {
+            sessionStorage.setItem('sw_in_app', '1');
+            if (hash.includes('type=recovery') || search.includes('type=recovery')) {
+                sessionStorage.setItem('sw_is_password_recovery', 'true');
+            }
+        } catch (_) {}
+        return false;
+    }
+
     const path = (explicitPath || window.location.pathname || '').toLowerCase();
 
     // 1. Explicit in-app routes are ALWAYS the app (never the landing page)

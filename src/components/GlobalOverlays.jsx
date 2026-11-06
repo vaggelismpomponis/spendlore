@@ -47,7 +47,8 @@ export default function GlobalOverlays({
     // Set Password Prompt props
     showSetPasswordPrompt,
     onCloseSetPasswordPrompt,
-    onSetPasswordSuccess
+    onSetPasswordSuccess,
+    isPasswordRecovery = false
 }) {
     return (
         <>
@@ -121,12 +122,13 @@ export default function GlobalOverlays({
                 onClose={() => setShowNotificationPanel(false)} 
             />
 
-            {/* Set Password Prompt for Google Users */}
+            {/* Set Password Prompt */}
             <SetPasswordPromptModal
                 isOpen={showSetPasswordPrompt}
                 onClose={onCloseSetPasswordPrompt}
                 onSuccess={onSetPasswordSuccess}
                 user={user}
+                isRecovery={isPasswordRecovery}
             />
         </>
     );
