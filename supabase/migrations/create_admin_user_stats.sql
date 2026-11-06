@@ -29,12 +29,7 @@ BEGIN
     RETURN false;
   END IF;
 
-  -- 2. Master Admin UUID check
-  IF caller_id = '86177767-e1f2-4356-b98b-e43503cab0da'::uuid THEN
-    RETURN true;
-  END IF;
-
-  -- 3. Check directly in auth.users table (most authoritative)
+  -- 2. Check directly in auth.users table (most authoritative)
   SELECT 
     LOWER(COALESCE(email, '')),
     COALESCE(raw_app_meta_data->>'role', raw_user_meta_data->>'role', '')

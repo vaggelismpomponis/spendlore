@@ -31,14 +31,13 @@ CREATE POLICY "Allow public insert to sentry_errors"
     WITH CHECK (true);
 
 -- 2. Allow authorized admins to read all error logs
--- Admin identification matches the project standard (Admin ID and Admin Emails)
 DROP POLICY IF EXISTS "Allow admin read access to sentry_errors" ON public.sentry_errors;
 CREATE POLICY "Allow admin read access to sentry_errors"
     ON public.sentry_errors
     FOR SELECT
     TO authenticated
     USING (
-        auth.uid() = '86177767-e1f2-4356-b98b-e43503cab0da'
+        public.is_admin()
         OR (auth.jwt() ->> 'email') IN (
             'vaggelisbobonhs@gmail.com',
             'vaggelismpomponis@gmail.com',
@@ -62,7 +61,7 @@ CREATE POLICY "Allow admin delete access to sentry_errors"
     FOR DELETE
     TO authenticated
     USING (
-        auth.uid() = '86177767-e1f2-4356-b98b-e43503cab0da'
+        public.is_admin()
         OR (auth.jwt() ->> 'email') IN (
             'vaggelisbobonhs@gmail.com',
             'vaggelismpomponis@gmail.com',

@@ -15,17 +15,24 @@ BEGIN
     caller_email := auth.jwt() ->> 'email';
 
     -- 1. Security Check: Only Master Admin can execute this function
-    IF caller_id != '86177767-e1f2-4356-b98b-e43503cab0da' 
-       AND (caller_email IS NULL OR caller_email NOT IN (
-           'vaggelisbobonhs@gmail.com', 
-           'vaggelismpomponis@gmail.com', 
-           'ebomponis@gmail.com'
-       )) THEN
+    IF NOT public.is_admin() THEN
         RAISE EXCEPTION 'Unauthorized: Master Admin privilege required';
     END IF;
 
-    -- 2. Guard: Prevent self-deletion of Master Admin
-    IF target_user_id = caller_id OR target_user_id = '86177767-e1f2-4356-b98b-e43503cab0da' THEN
+    -- 2. Guard: Prevent self-deletion of Admin accounts
+    IF target_user_id = caller_id THEN
+        RAISE EXCEPTION 'Cannot delete your own admin account';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM auth.users 
+        WHERE id = target_user_id 
+        AND LOWER(COALESCE(email, '')) IN (
+            'vaggelisbobonhs@gmail.com', 
+            'vaggelismpomponis@gmail.com', 
+            'ebomponis@gmail.com'
+        )
+    ) THEN
         RAISE EXCEPTION 'Cannot delete master admin account';
     END IF;
 
