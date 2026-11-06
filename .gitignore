@@ -62,6 +62,7 @@ SUBSCRIPTION_PLAN.md
 # Android Keystore files
 *.jks
 *.keystore
+keystore.properties
 
 # Dev/scratch build artifacts
 dev-dist/
