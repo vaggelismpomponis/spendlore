@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     User, LogOut, ChevronRight,
-    ShieldAlert as Shield, ArrowLeft, Moon,
+    ShieldAlert as Shield, ArrowLeft, Moon, Sun, Monitor,
     Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen,
     Settings, Info, Trash2, UserX, Tag,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PlayStoreModal from '../components/PlayStoreModal';
+import ThemeSelectionModal from '../components/ThemeSelectionModal';
 import PasswordInput from '../components/PasswordInput';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -91,12 +92,13 @@ const SectionLabel = ({ children, className = '' }) => (
    MAIN COMPONENT
  ═══════════════════════════════════════════════════════════ */
 const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onCategories, hideHeader }) => {
-    const { theme, toggleTheme, language, updateLanguage, t: translate, customCategories } = useSettings();
+    const { theme, themePreference = 'system', toggleTheme, language, updateLanguage, t: translate, customCategories } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
+    const [showThemeModal, setShowThemeModal] = useState(false);
     const isNativeApp = isNative();
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
@@ -106,8 +108,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name
         || user?.displayName || user?.email?.split('@')[0]
         || translate('anonymous_user');
-    const isGoogle = user?.app_metadata?.provider === 'google' || user?.app_metadata?.providers?.includes('google') || user?.identities?.some(i => i.provider === 'google');
+        const isGoogle = user?.app_metadata?.provider === 'google' || user?.app_metadata?.providers?.includes('google') || user?.identities?.some(i => i.provider === 'google');
     const provider = isGoogle ? 'Google' : 'Email / Password';
+    const isAdmin = user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' ||
+        user?.role === 'admin' ||
+        user?.app_metadata?.role === 'admin' ||
+        user?.user_metadata?.role === 'admin' ||
+        ['vaggelisbobonhs@gmail.com', 'vagelismpomponis@gmail.com', 'sbompomis@gmail.com'].includes(user?.email);
     const createdAt = user?.created_at
         ? new Date(user.created_at).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })
         : '—';
@@ -316,25 +323,10 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         </Card>
                     </div>
 
-                    {/* ════ Settings List ════ */}
+                    {/* ════ App Preferences ════ */}
                     <div className="mt-2">
-                        <SectionLabel>{translate('other_settings') || 'Settings'}</SectionLabel>
+                        <SectionLabel>{translate('app_preferences') || 'Προτιμήσεις Εφαρμογής'}</SectionLabel>
                         <Card>
-                            <SettingRow icon={Shield} label={translate('security') || 'Security'} onClick={onSecurity} />
-                            <SettingRow icon={Settings} label={translate('general') || 'General'} onClick={onGeneral} />
-                            <SettingRow
-                                icon={Tag}
-                                label={translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}
-                                onClick={onCategories}
-                                right={
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-200/60 dark:border-violet-500/20">
-                                            {(customCategories?.expense?.length || 0) + (customCategories?.income?.length || 0)}
-                                        </span>
-                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
-                                    </div>
-                                }
-                            />
                             <SettingRow
                                 icon={Languages}
                                 label={translate('language') || 'Language'}
@@ -355,27 +347,103 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                     </div>
                                 }
                             />
-                            <SettingRow icon={Moon} label={translate('dark_mode') || 'Dark mode'} onClick={toggleTheme} right={<Toggle enabled={isDark} onChange={toggleTheme} />} last />
-                            <SettingRow icon={HardDriveDownload} label={translate('backup_restore') || 'Backup & Restore'} onClick={onBackup} />
-                            {!isNativeApp && (
-                                <SettingRow
-                                    icon={Smartphone}
-                                    label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
-                                    onClick={() => setShowPlayStoreModal(true)}
-                                    right={
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
-                                                Google Play
-                                            </span>
-                                            <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
-                                        </div>
-                                    }
-                                />
-                            )}
-                            {user?.id === '86177767-e1f2-4356-b98b-e43503cab0da' && (
-                                <SettingRow icon={LayoutDashboard} label={translate('control_panel') || 'Control Panel'} onClick={onAdmin} />
-                            )}
-                            <SettingRow icon={LogOut} label={translate('logout') || 'Sign out'} danger onClick={() => setShowLogoutModal(true)} last />
+                            <SettingRow
+                                icon={themePreference === 'system' ? Monitor : (themePreference === 'light' ? Sun : Moon)}
+                                label={translate('appearance_theme') || 'Θέμα εμφάνισης'}
+                                onClick={() => setShowThemeModal(true)}
+                                right={
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10">
+                                            {themePreference === 'system'
+                                                ? (translate('theme_system') || 'Προεπιλογή συστήματος')
+                                                : (themePreference === 'light'
+                                                    ? (translate('theme_light') || 'Φωτεινό')
+                                                    : (translate('theme_dark') || 'Σκοτεινό'))}
+                                        </span>
+                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                    </div>
+                                }
+                            />
+                            <SettingRow
+                                icon={Settings}
+                                label={translate('general') || 'General'}
+                                onClick={onGeneral}
+                            />
+                            <SettingRow
+                                icon={Tag}
+                                label={translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}
+                                onClick={onCategories}
+                                right={
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-2.5 py-0.5 rounded-full border border-violet-200/60 dark:border-violet-500/20">
+                                            {(customCategories?.expense?.length || 0) + (customCategories?.income?.length || 0)}
+                                        </span>
+                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                    </div>
+                                }
+                            />
+                        </Card>
+                    </div>
+
+                    {/* ════ Security & Data ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('security_and_data') || 'Ασφάλεια & Δεδομένα'}</SectionLabel>
+                        <Card>
+                            <SettingRow
+                                icon={Shield}
+                                label={translate('security') || 'Security'}
+                                onClick={onSecurity}
+                            />
+                            <SettingRow
+                                icon={HardDriveDownload}
+                                label={translate('backup_restore') || 'Backup & Restore'}
+                                onClick={onBackup}
+                            />
+                        </Card>
+                    </div>
+
+                    {/* ════ System & App ════ */}
+                    {(!isNativeApp || isAdmin) && (
+                        <div className="mt-2">
+                            <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
+                            <Card>
+                                {!isNativeApp && (
+                                    <SettingRow
+                                        icon={Smartphone}
+                                        label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
+                                        onClick={() => setShowPlayStoreModal(true)}
+                                        right={
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
+                                                    Google Play
+                                                </span>
+                                                <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                            </div>
+                                        }
+                                    />
+                                )}
+                                {isAdmin && (
+                                    <SettingRow
+                                        icon={LayoutDashboard}
+                                        label={translate('control_panel') || 'Control Panel'}
+                                        onClick={onAdmin}
+                                    />
+                                )}
+                            </Card>
+                        </div>
+                    )}
+
+                    {/* ════ Session / Account ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('session') || 'Συνεδρία'}</SectionLabel>
+                        <Card>
+                            <SettingRow
+                                icon={LogOut}
+                                label={translate('logout') || 'Sign out'}
+                                danger
+                                onClick={() => setShowLogoutModal(true)}
+                                last
+                            />
                         </Card>
                     </div>
 
@@ -428,6 +496,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             </div>
 
             {/* ─── Modals ─── */}
+            <ThemeSelectionModal
+                isOpen={showThemeModal}
+                onClose={() => setShowThemeModal(false)}
+            />
+
             <PlayStoreModal
                 isOpen={showPlayStoreModal}
                 onClose={() => setShowPlayStoreModal(false)}

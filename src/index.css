@@ -53,6 +53,32 @@ html:not(.dark) body {
   color: #F9FAFB;
 }
 
+/* ── Browser Autofill & Icon Contrast ── */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active,
+.dark-autofill input:-webkit-autofill,
+.dark-autofill input:-webkit-autofill:hover,
+.dark-autofill input:-webkit-autofill:focus,
+.dark-autofill input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1e1b2e inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure input icon styling with browser autofill */
+.group:has(input:-webkit-autofill) svg,
+.group:has(input:autofill) svg {
+  color: #9ca3af !important;
+}
+
+.group:has(input:-webkit-autofill):focus-within svg,
+.group:has(input:autofill):focus-within svg {
+  color: #a78bfa !important;
+}
+
 /* ── Accessible Text Selection Default ── */
 ::selection {
   background-color: #7c3aed;

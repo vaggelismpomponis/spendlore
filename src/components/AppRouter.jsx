@@ -97,7 +97,7 @@ export default function AppRouter(props) {
                                 onNavigate={(tab) => { if (tab === 'add') openAddModal(); else setActiveTab(tab); }}
                             />
                         )}
-                        {activeTab === 'recurring' && <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab)} hideHeader={true} />}
+                        {activeTab === 'recurring' && <ProtectedRecurringView user={user} onBack={() => setActiveTab(previousTab || 'home')} />}
                         {activeTab === 'account' && <AccountSettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'general' && <GeneralSettingsView user={user} onBack={() => setActiveTab('profile')} onPrivacy={() => setActiveTab('privacy')} onTerms={() => setActiveTab('terms')} onCategories={() => { setPreviousTab('general'); setActiveTab('categories'); }} hideHeader={true} />}
                         {activeTab === 'categories' && <CategoriesSettingsView user={user} transactions={transactions} onBack={() => setActiveTab(previousTab || 'profile')} hideHeader={true} />}

@@ -27,14 +27,21 @@ describe('DesktopSidebar Component', () => {
                 recurring: 'Επαναλαμβανόμενα',
                 advisor_title: 'Spendlore AI Σύμβουλος',
                 settings: 'Ρυθμίσεις',
-                admin_panel: 'Πίνακας Διαχείρισης'
+                admin_panel: 'Πίνακας Διαχείρισης',
+                sign_out: 'Αποσύνδεση',
+                theme_light: 'Φωτεινό',
+                theme_dark: 'Σκοτεινό',
+                privacy_private: 'Κρυφό',
+                privacy_visible: 'Ορατό'
             };
             return dict[k] || k;
         },
         theme: 'light',
         toggleTheme: vi.fn(),
         privacyMode: false,
-        togglePrivacyMode: vi.fn()
+        togglePrivacyMode: vi.fn(),
+        language: 'el',
+        updateLanguage: vi.fn()
     };
 
     const defaultSubscription = {
@@ -111,6 +118,36 @@ describe('DesktopSidebar Component', () => {
         );
 
         expect(screen.getByText('Πίνακας Διαχείρισης')).toBeInTheDocument();
+    });
+
+    it('renders utility action grid with language switcher and triggers updateLanguage', () => {
+        const updateLanguage = vi.fn();
+        useSettings.mockReturnValue({
+            ...defaultSettings,
+            language: 'el',
+            updateLanguage
+        });
+
+        render(
+            <DesktopSidebar
+                activeTab="home"
+                setActiveTab={vi.fn()}
+                user={{ id: 'user-1', email: 'test@spendlore.gr' }}
+                displayName="Test User"
+                photoURL={null}
+                balance={500}
+                totalIncome={1000}
+                totalExpense={500}
+                onSignOut={vi.fn()}
+            />
+        );
+
+        const langBtn = screen.getByRole('button', { name: /switch to english/i });
+        expect(langBtn).toBeInTheDocument();
+        expect(screen.getByText('Ελληνικά')).toBeInTheDocument();
+
+        fireEvent.click(langBtn);
+        expect(updateLanguage).toHaveBeenCalledWith('en');
     });
 });
 

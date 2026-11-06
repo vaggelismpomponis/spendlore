@@ -422,6 +422,7 @@ const LandingPage = () => {
             const next = typeof valOrFn === 'function' ? valOrFn(prev) : valOrFn;
             try {
                 localStorage.setItem('landing_lang', next);
+                localStorage.setItem('language', next);
             } catch {
                 // Ignore storage errors
             }

@@ -1,12 +1,12 @@
 {
   "name": "my-finances-app",
   "private": true,
-  "version": "1.1.32",
+  "version": "1.1.33",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "prepare-mobile": "npm run build && npx cap sync",
+    "prepare-mobile": "npm run build && npx cap sync && node scripts/patch-capacitor.cjs",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",

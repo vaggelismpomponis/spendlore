@@ -82,7 +82,7 @@ const SelectField = ({ label, value, onChange, children }) => {
    Main Component
 ─────────────────────────────────────────────────────────────── */
 const RecurringView = ({ user, onBack, hideHeader }) => {
-    const { t: translate, currency, privacyMode } = useSettings();
+    const { t: translate, currency, privacyMode, language } = useSettings();
     const { showToast } = useToast();
     const [rules, setRules] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -214,33 +214,30 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
             <div className={`shrink-0 transition-colors duration-300 sticky top-0 z-40
                             ${hideHeader 
                                 ? 'bg-transparent border-none px-4 pt-4 pb-2' 
-                                : 'bg-gray-50/95 dark:bg-surface-dark/95 border-b border-gray-100 dark:border-white/5 px-4 pb-4 backdrop-blur-xl min-h-[70px]'}`}
+                                : 'bg-white/95 dark:bg-surface-dark/95 backdrop-blur-md px-5 pt-4 pb-4 shadow-sm border-b border-gray-100 dark:border-white/5'}`}
                 style={!hideHeader ? { paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' } : {}}
             >
-                <div className="flex items-center gap-4 relative">
-                    <button
-                        onClick={onBack}
-                        className="absolute left-0 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/[0.08]
-                                   flex items-center justify-center
-                                   text-gray-500 dark:text-white/50
-                                   hover:bg-gray-200 dark:hover:bg-white/[0.14]
-                                   active:scale-90 transition-all duration-150"
-                    >
-                        <ArrowLeft size={15} strokeWidth={2.5} />
-                    </button>
-
-                    {/* Title — takes all available space, truncates if needed */}
-                    <div className={`flex-1 min-w-0 pl-10`}>
-                        {!hideHeader && (
-                            <>
-                                <h2 className="text-sm font-bold text-gray-900 dark:text-white leading-tight truncate">
-                                    {translate('recurring_title')}
-                                </h2>
-                                <p className="text-[11px] text-gray-400 mt-1 truncate">
-                                    {rules.length} {translate('active_rules') || 'active rules'}
-                                </p>
-                            </>
-                        )}
+                <div className="flex items-center justify-between min-h-[40px] gap-4 relative">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <button
+                            onClick={onBack}
+                            className="absolute left-0 w-8 h-8 rounded-xl bg-gray-100 dark:bg-white/[0.08]
+                                       flex items-center justify-center
+                                       text-gray-500 dark:text-white/50
+                                       border border-gray-200/60 dark:border-white/10
+                                       hover:bg-gray-200 dark:hover:bg-white/[0.14]
+                                       active:scale-90 transition-all duration-150"
+                        >
+                            <ArrowLeft size={15} strokeWidth={2.5} />
+                        </button>
+                        <div className="pl-10 min-w-0">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">
+                                {translate('recurring') || (language === 'el' ? 'Επαναλαμβανόμενα' : 'Recurring')}
+                            </h2>
+                            <p className="text-xs text-gray-400 mt-1 truncate">
+                                {rules.length} {(translate('active') || (language === 'el' ? 'ενεργές' : 'active')).toLowerCase()} · {new Date().toLocaleString(language === 'el' ? 'el-GR' : 'en-US', { month: 'long', year: 'numeric' })}
+                            </p>
+                        </div>
                     </div>
 
                     {/* Add button — fixed size, never shrinks */}
@@ -248,7 +245,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                         onClick={openAdd}
                         className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30 transition-all active:scale-95"
                     >
-                        <Plus size={16} /> {translate('add_recurring') || 'New'}
+                        <Plus size={16} /> {translate('add_recurring') || (language === 'el' ? 'Προσθήκη' : 'Add')}
                     </button>
                 </div>
             </div>
@@ -313,29 +310,27 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                 {/* ── Empty State ── */}
                 {isLoading ? (
                     <div className="flex justify-center py-20">
-                        <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin"></div>
+                        <div className="w-8 h-8 border-4 border-gray-200 dark:border-white/20 border-t-gray-900 dark:border-t-white rounded-full animate-spin"></div>
                     </div>
                 ) : rules.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-24 text-center px-8">
-                        <div className="w-24 h-24 bg-violet-50 dark:bg-violet-900/20 rounded-3xl
-                                        flex items-center justify-center mb-5 shadow-inner">
-                            <Repeat size={44} className="text-violet-400" />
+                    <div className="px-5 py-4">
+                        <div className="flex flex-col items-center justify-center py-20 text-center px-4 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200/80 dark:border-white/10 shadow-xs mt-2">
+                            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10 flex items-center justify-center mb-5 text-gray-900 dark:text-white shadow-xs">
+                                <Repeat size={30} strokeWidth={1.75} />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight">
+                                {translate('auto_transactions') || 'Automatic Transactions'}
+                            </h3>
+                            <p className="text-[13px] font-medium text-gray-500 dark:text-gray-400 max-w-[260px] mb-6 leading-relaxed">
+                                {translate('auto_trans_desc') || 'Add fixed expenses (rent, subscriptions) and the app will add them automatically each month.'}
+                            </p>
+                            <button
+                                onClick={openAdd}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 font-bold text-sm rounded-xl shadow-xs transition-all active:scale-95 group"
+                            >
+                                <Plus size={16} className="transition-transform group-hover:rotate-90" /> {translate('add_recurring') || 'Add'}
+                            </button>
                         </div>
-                        <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
-                            {translate('auto_transactions') || 'No recurring rules yet'}
-                        </h3>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 max-w-[220px] mb-6 leading-relaxed">
-                            {translate('auto_trans_desc') || 'Add your subscriptions, salary, and recurring bills to track them automatically.'}
-                        </p>
-                        <button
-                            onClick={openAdd}
-                            className="flex items-center gap-2 px-5 py-2.5
-                                       bg-violet-600 hover:bg-violet-700 text-white
-                                       font-bold rounded-xl shadow-sm
-                                       transition-all active:scale-95"
-                        >
-                            <Plus size={18} /> {translate('add_recurring') || 'Add Rule'}
-                        </button>
                     </div>
                 )}
 

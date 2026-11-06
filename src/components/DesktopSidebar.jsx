@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     Home, BarChart3, History, Settings, Target,
-    RefreshCw, Lightbulb, LogOut, Moon, Sun, Eye, EyeOff,
-    PiggyBank, User, ShieldCheck, ArrowRight, LayoutDashboard
+    RefreshCw, Lightbulb, LogOut, Moon, Sun, Monitor, Eye, EyeOff,
+    PiggyBank, User, ShieldCheck, ArrowRight, LayoutDashboard,
+    Languages
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import ThemeSelectionModal from './ThemeSelectionModal';
 
 const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) => (
     <button
@@ -60,8 +62,9 @@ const DesktopSidebar = ({
     onSignOut,
     setPreviousTab,
 }) => {
-    const { t, theme, toggleTheme, privacyMode, togglePrivacyMode } = useSettings();
+    const { t, theme, themePreference = 'system', toggleTheme, privacyMode, togglePrivacyMode, language = 'el', updateLanguage } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
+    const [showThemeModal, setShowThemeModal] = useState(false);
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
 
@@ -255,42 +258,75 @@ const DesktopSidebar = ({
                     </div>
                 </div>
 
-                {/* Compact Utility Action Row (Theme, Privacy, Logout) */}
-                <div className="flex items-center justify-between gap-1.5 pt-0.5">
+                {/* Compact Utility Action Grid (Theme, Privacy, Language, Logout) */}
+                <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+                    {/* Theme Preference Modal Trigger */}
                     <button
-                        onClick={toggleTheme}
+                        onClick={() => setShowThemeModal(true)}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
-                        title={theme === 'dark' ? t('switch_to_light') : t('switch_to_dark')}
+                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
+                        title={t('select_theme') || 'Επιλογή Θέματος'}
                     >
-                        {theme === 'dark' ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
-                        <span className="text-[11px] font-bold">{theme === 'dark' ? t('theme_light') : t('theme_dark')}</span>
+                        {themePreference === 'system' ? (
+                            <Monitor size={13} className="shrink-0" />
+                        ) : themePreference === 'light' ? (
+                            <Sun size={13} className="text-amber-400 shrink-0" />
+                        ) : (
+                            <Moon size={13} className="text-indigo-400 shrink-0" />
+                        )}
+                        <span className="text-[11px] font-bold truncate">
+                            {themePreference === 'system'
+                                ? (t('theme_system') || 'Σύστημα')
+                                : themePreference === 'light'
+                                ? (t('theme_light') || 'Φωτεινό')
+                                : (t('theme_dark') || 'Σκοτεινό')}
+                        </span>
                     </button>
 
+                    {/* Privacy Toggle */}
                     <button
                         onClick={togglePrivacyMode}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${privacyMode
+                        className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold outline-none focus:outline-none active:scale-95 transition-all border ${privacyMode
                                 ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-gray-900 dark:border-white shadow-xs font-bold'
                                 : 'text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white shadow-2xs'
                             }`}
-                        title={privacyMode ? t('show_amounts') : t('hide_amounts')}
+                        title={privacyMode ? (t('show_amounts') || 'Show amounts') : (t('hide_amounts') || 'Hide amounts')}
                     >
-                        {privacyMode ? <EyeOff size={13} /> : <Eye size={13} />}
-                        <span className="text-[11px] font-bold">{privacyMode ? t('privacy_private') : t('privacy_visible')}</span>
+                        {privacyMode ? <EyeOff size={13} className="shrink-0" /> : <Eye size={13} className="shrink-0" />}
+                        <span className="text-[11px] font-bold truncate">{privacyMode ? (t('privacy_private') || 'Private') : (t('privacy_visible') || 'Visible')}</span>
                     </button>
 
+                    {/* Language Switcher */}
+                    <button
+                        onClick={() => updateLanguage && updateLanguage(language === 'el' ? 'en' : 'el')}
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-gray-200/70 dark:hover:bg-white/[0.08] hover:text-gray-950 dark:hover:text-white outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
+                        title={language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
+                        aria-label={language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
+                    >
+                        <Languages size={13} className="text-gray-500 dark:text-gray-400 shrink-0" />
+                        <span className="text-[11px] font-bold truncate">{language === 'el' ? 'Ελληνικά' : 'English'}</span>
+                    </button>
+
+                    {/* Sign Out */}
                     <button
                         onClick={onSignOut}
                         style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                        className="p-2 rounded-xl text-rose-500 hover:text-rose-600 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 outline-none focus:outline-none active:scale-95 transition-all shrink-0 shadow-2xs"
-                        title={t('sign_out') || t('logout')}
-                        aria-label={t('sign_out') || t('logout')}
+                        className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl text-xs font-semibold text-rose-500 dark:text-rose-400 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:border-rose-200 dark:hover:border-rose-900/40 hover:text-rose-600 dark:hover:text-rose-300 outline-none focus:outline-none active:scale-95 transition-all shadow-2xs"
+                        title={t('sign_out') || t('logout') || 'Sign out'}
+                        aria-label={t('sign_out') || t('logout') || 'Sign out'}
                     >
-                        <LogOut size={14} />
+                        <LogOut size={13} className="shrink-0" />
+                        <span className="text-[11px] font-bold truncate">{t('sign_out') || t('logout') || 'Sign out'}</span>
                     </button>
                 </div>
             </div>
+
+            <ThemeSelectionModal
+                isOpen={showThemeModal}
+                onClose={() => setShowThemeModal(false)}
+            />
         </aside>
     );
 };

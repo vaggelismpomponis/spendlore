@@ -43,6 +43,7 @@ export function calculateStb({ income = 0, fixed = 0, savings = 0, pastDailySpen
     return {
         stb: Math.round(currentStb),
         todayStartingBudget: Math.round(todayStartingBudget),
+        todaySpend: Math.round(todaySpend),
         isGlideActive: activeGlides.length > 0,
         streak
     };

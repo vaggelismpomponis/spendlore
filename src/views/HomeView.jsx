@@ -339,20 +339,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
         },
     ];
 
-    // ── Hero Card (shared between mobile & desktop) ──
-    const { stb, todayStartingBudget, isGlideActive, streak } = useAppStore.getState().getSafeToBurn();
 
-    const heroCard = (
-        <SafeToBurnCard
-            stb={stb}
-            todayStartingBudget={todayStartingBudget}
-            isGlideActive={isGlideActive}
-            streak={streak}
-            privacyMode={privacyMode}
-            t={t}
-            stats={stats}
-        />
-    );
 
     // ── AI Advisor CTA (shared) ──
     const advisorLiveInsight = useMemo(() => {
@@ -435,11 +422,14 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
     const stbData = useMemo(() => {
         try {
-            return useAppStore.getState().getSafeToBurn();
+            return useAppStore.getState().getSafeToBurn({
+                transactions,
+                balance
+            });
         } catch {
-            return { stb: 0, todayStartingBudget: 0, isGlideActive: false, streak: 0 };
+            return { stb: 0, todayStartingBudget: 0, todaySpend: 0, isGlideActive: false, streak: 0 };
         }
-    }, [transactions]);
+    }, [transactions, balance]);
 
     const storeGoals = useAppStore(state => state.goals || []);
     const activeGoals = useMemo(() => (storeGoals || []).slice(0, 3), [storeGoals]);
@@ -1007,7 +997,11 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                             </p>
                                         </div>
                                     </div>
-                                    {stbData.stb <= 0 ? (
+                                    {stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0 ? (
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gray-200/80 dark:bg-white/10 text-gray-600 dark:text-gray-300">
+                                            <span>{t('no_income_set') || 'Χωρίς Έσοδα'}</span>
+                                        </span>
+                                    ) : stbData.stb <= 0 ? (
                                         <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
                                             <AlertTriangle size={11} className="stroke-[2.5]" />
                                             <span>{t('over_daily_limit') || 'Υπέρβαση Ορίου'}</span>
@@ -1021,7 +1015,11 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </div>
 
                                 <div className="flex items-baseline justify-between pt-1">
-                                    <div className={`text-2xl font-black tabular-nums font-display ${stbData.stb <= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                    <div className={`text-2xl font-black tabular-nums font-display ${stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0
+                                            ? 'text-gray-500 dark:text-gray-400'
+                                            : stbData.stb <= 0
+                                                ? 'text-rose-600 dark:text-rose-400'
+                                                : 'text-gray-900 dark:text-white'
                                         }`}>
                                         {stbData.stb <= 0 ? '0,00 €' : <Amount value={stbData.stb} />}
                                     </div>
@@ -1031,9 +1029,11 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 </div>
 
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
-                                    {stbData.stb <= 0
-                                        ? (t('stb_exceeded_desc') || 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.')
-                                        : (t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.')}
+                                    {stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0
+                                        ? (t('stb_no_income_desc') || 'Καταχώρισε τα έσοδα του μήνα για να υπολογιστεί το ασφαλές ημερήσιο όριο.')
+                                        : stbData.stb <= 0
+                                            ? (t('stb_exceeded_desc') || 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.')
+                                            : (t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.')}
                                 </p>
                             </div>
                         )}
@@ -1174,13 +1174,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
                     {/* Trend Indicator */}
                     <div className="mt-2.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${
-                            stats.trend === 'below'
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${stats.trend === 'below'
                                 ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-500/10 border-emerald-300/70 dark:border-emerald-500/20'
                                 : stats.trend === 'above'
                                     ? 'text-rose-700 dark:text-rose-400 bg-rose-100/70 dark:bg-rose-500/10 border-rose-300/70 dark:border-rose-500/20'
                                     : 'text-gray-700 dark:text-gray-400 bg-gray-200/60 dark:bg-white/5 border-gray-300/60 dark:border-white/10'
-                        }`}>
+                            }`}>
                             {stats.trend === 'below' && <TrendingDown size={13} className="shrink-0" />}
                             {stats.trend === 'above' && <TrendingUp size={13} className="shrink-0" />}
                             {stats.trend === 'neutral' && <Minus size={13} className="shrink-0" />}

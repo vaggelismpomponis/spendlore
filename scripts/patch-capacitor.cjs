@@ -61,3 +61,16 @@ if (fs.existsSync(capPrivacyScreenPath)) {
   console.warn('Could not find @capacitor/privacy-screen build.gradle. Skipping patch.');
 }
 
+// 3. Ensure capacitor-cordova-android-plugins has a dummy source file to prevent NoSuchFileException for classes.jar in AGP release builds
+const cordovaPluginsJavaDir = path.join(__dirname, '..', 'android', 'capacitor-cordova-android-plugins', 'src', 'main', 'java', 'capacitor', 'cordova', 'android', 'plugins');
+const cordovaPluginsSrcDir = path.join(__dirname, '..', 'android', 'capacitor-cordova-android-plugins', 'src');
+if (fs.existsSync(cordovaPluginsSrcDir)) {
+  fs.mkdirSync(cordovaPluginsJavaDir, { recursive: true });
+  const dummyFilePath = path.join(cordovaPluginsJavaDir, 'CordovaPluginsDummy.java');
+  if (!fs.existsSync(dummyFilePath)) {
+    fs.writeFileSync(dummyFilePath, 'package capacitor.cordova.android.plugins;\n\npublic class CordovaPluginsDummy {\n    // Ensures classes.jar is reliably produced during AGP release builds\n}\n', 'utf8');
+    console.log('Successfully created CordovaPluginsDummy.java for reliable classes.jar generation.');
+  }
+}
+
+

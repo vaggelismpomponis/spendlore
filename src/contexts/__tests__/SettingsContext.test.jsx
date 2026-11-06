@@ -160,4 +160,38 @@ describe('SettingsContext - Custom Categories Sync', () => {
         });
         expect(result.current.customCategories.expense).not.toContain('OldCategory');
     });
+
+    it('manages themePreference across system, light, and dark modes', async () => {
+        const { result } = renderHook(() => useSettings(), {
+            wrapper: SettingsProvider
+        });
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        expect(result.current.themePreference).toBe('system');
+
+        await act(async () => {
+            result.current.updateThemePreference('dark');
+        });
+        expect(result.current.themePreference).toBe('dark');
+        expect(result.current.theme).toBe('dark');
+        expect(localStorage.getItem('themePreference')).toBe('dark');
+        expect(localStorage.getItem('theme')).toBe('dark');
+
+        await act(async () => {
+            result.current.updateThemePreference('light');
+        });
+        expect(result.current.themePreference).toBe('light');
+        expect(result.current.theme).toBe('light');
+        expect(localStorage.getItem('themePreference')).toBe('light');
+        expect(localStorage.getItem('theme')).toBe('light');
+
+        await act(async () => {
+            result.current.updateThemePreference('system');
+        });
+        expect(result.current.themePreference).toBe('system');
+        expect(localStorage.getItem('themePreference')).toBe('system');
+    });
 });

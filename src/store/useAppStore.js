@@ -50,7 +50,7 @@ export const useAppStore = create(
             setUserSettings: (settings) => set((state) => ({
                 userSettings: { ...state.userSettings, ...settings }
             })),
-            
+
             // Optimistic UI updates
             addTransaction: (tx) => {
                 scheduleRegretCheckin(tx);
@@ -66,45 +66,81 @@ export const useAppStore = create(
             })),
 
             // Derived Safe-to-Burn calculation
-            getSafeToBurn: () => {
+            getSafeToBurn: (options = {}) => {
                 const state = getStore();
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = now.getMonth();
                 const currentDay = now.getDate();
-                
+
+                const txList = options.transactions || (state.transactions?.length > 0 ? state.transactions : []);
+
+                // Calculate current month's actual logged income
+                const currentMonthIncome = txList
+                    .filter(tx => {
+                        if (tx.type !== 'income') return false;
+                        const d = new Date(tx.date);
+                        return d.getFullYear() === year && d.getMonth() === month;
+                    })
+                    .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
+
+                // Calculate overall positive balance fallback
+                const overallBalance = txList.reduce((acc, t) => t.type === 'income' ? acc + (Number(t.amount) || 0) : acc - (Number(t.amount) || 0), 0);
+
+                // Determine effective monthly income:
+                // 1. Explicit options.income (e.g. testing)
+                // 2. options.monthIncome (passed from views)
+                // 3. currentMonthIncome (sum of income transactions in current month)
+                // 4. state.userSettings?.income (user's monthly salary setting if configured)
+                // 5. fallback to current balance if positive and no income logged yet
+                const income = options.income ?? (
+                    (options.monthIncome > 0 ? options.monthIncome : null) ??
+                    (currentMonthIncome > 0 ? currentMonthIncome : null) ??
+                    (state.userSettings?.income > 0 ? state.userSettings.income : null) ??
+                    (options.balance > 0 ? options.balance : null) ??
+                    (overallBalance > 0 ? overallBalance : 0)
+                );
+                const fixed = options.fixed ?? (state.userSettings?.fixedObligations || 0);
+                const savings = options.savings ?? (state.userSettings?.targetSavings || 0);
+
+                const currentMonthExpenses = txList.filter(tx => {
+                    if (tx.type !== 'expense') return false;
+                    const d = new Date(tx.date);
+                    return d.getFullYear() === year && d.getMonth() === month;
+                });
+
                 const pastDailySpends = [];
-                let todaySpend = 0;
-                
                 for (let day = 1; day < currentDay; day++) {
-                    const startOfDay = new Date(year, month, day, 0, 0, 0);
-                    const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
-                    
-                    const dailyTotal = state.transactions
-                        .filter(tx => tx.type === 'expense')
-                        .filter(tx => {
-                            const d = new Date(tx.date);
-                            return d >= startOfDay && d <= endOfDay;
-                        })
-                        .reduce((sum, tx) => sum + (tx.amount || 0), 0);
-                        
+                    const dailyTotal = currentMonthExpenses
+                        .filter(tx => new Date(tx.date).getDate() === day)
+                        .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
                     pastDailySpends.push(dailyTotal);
                 }
-                
-                const startOfToday = new Date(year, month, currentDay, 0, 0, 0);
-                todaySpend = state.transactions
-                    .filter(tx => tx.type === 'expense')
-                    .filter(tx => new Date(tx.date) >= startOfToday)
-                    .reduce((sum, tx) => sum + (tx.amount || 0), 0);
-                    
-                return calculateStb({
-                    income: state.userSettings.income || 0,
-                    fixed: state.userSettings.fixedObligations || 0,
-                    savings: state.userSettings.targetSavings || 0,
+
+                const todaySpend = currentMonthExpenses
+                    .filter(tx => new Date(tx.date).getDate() === currentDay)
+                    .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
+
+                const stbResult = calculateStb({
+                    income,
+                    fixed,
+                    savings,
                     pastDailySpends,
                     todaySpend,
                     daysInMonth: getDaysInMonth(now)
                 });
+
+                // Safety guard: Safe-to-Burn can never exceed actual available liquid balance
+                const effectiveBalance = options.balance !== undefined ? options.balance : overallBalance;
+                if (effectiveBalance !== undefined && effectiveBalance !== null) {
+                    if (effectiveBalance <= 0) {
+                        stbResult.stb = 0;
+                    } else if (stbResult.stb > effectiveBalance) {
+                        stbResult.stb = Math.max(0, Math.round(effectiveBalance));
+                    }
+                }
+
+                return stbResult;
             }
         }),
         {

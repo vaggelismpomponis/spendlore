@@ -603,6 +603,13 @@ function MainContent() {
                 clearTimeout(authTimeout);
                 sessionTracked.current = true;
                 trackSession(currentUser);
+                if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
+                    setShowSetPasswordPrompt(true);
+                }
+            } else if (event === 'PASSWORD_RECOVERY') {
+                setLoading(false);
+                clearTimeout(authTimeout);
+                setShowSetPasswordPrompt(true);
             } else if (event === 'SIGNED_OUT') {
                 setLoading(false);
                 clearTimeout(authTimeout);

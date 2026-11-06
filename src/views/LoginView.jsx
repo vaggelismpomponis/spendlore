@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
     Mail,
     Lock,
+    Languages,
     ArrowRight,
     ArrowLeft,
     Eye,
@@ -28,7 +29,7 @@ const LoginView = ({
     isVerifying,
     onCancelVerification
 }) => {
-    const { t } = useSettings();
+    const { t, language, updateLanguage } = useSettings();
     const [pendingPlan] = useState(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
@@ -254,11 +255,12 @@ const LoginView = ({
 
     const handleForgotPassword = async (e) => {
         e.preventDefault();
-        if (!resetEmail) return;
+        const trimmedEmail = resetEmail.trim().toLowerCase();
+        if (!trimmedEmail) return;
         setResetStatus({ loading: true, success: false, error: '' });
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-                redirectTo: window.location.origin
+            const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+                redirectTo: `${window.location.origin}/`
             });
             if (error) throw error;
             setResetStatus({ loading: false, success: true, error: '' });
@@ -268,18 +270,24 @@ const LoginView = ({
                 setResetEmail('');
             }, 3000);
         } catch (error) {
+            console.error('Password reset error:', error);
             let msg = t('email_send_error') || 'Σφάλμα αποστολής email.';
-            if (error.message?.includes('not found') || error.message?.includes('User not found')) {
+            const errMsg = (error.message || '').toLowerCase();
+            if (errMsg.includes('not found') || errMsg.includes('user not found')) {
                 msg = t('user_not_found') || 'Δεν υπάρχει χρήστης με αυτό το email.';
-            } else if (error.status === 500 || error.message?.includes('recovery email') || error.code === 'unexpected_failure') {
-                msg = t('recovery_email_service_error') || 'Αδυναμία αποστολής email. Εάν συνδεθήκατε αρχικά μέσω Google, χρησιμοποιήστε το κουμπί «Συνέχεια με Google».';
+            } else if (errMsg.includes('rate limit') || error.status === 429 || errMsg.includes('too many') || errMsg.includes('frequency')) {
+                msg = t('rate_limit_error') || 'Πάρα πολλές προσπάθειες. Παρακαλώ περιμένετε λίγα λεπτά πριν ξαναδοκιμάσετε.';
+            } else if (error.status === 500 || errMsg.includes('recovery email') || error.code === 'unexpected_failure') {
+                msg = t('recovery_email_service_error') || 'Αδυναμία αποστολής email επαναφοράς. Ελέγξτε ότι το email είναι σωστό ή δοκιμάστε ξανά σε λίγο.';
+            } else if (error.message) {
+                msg = error.message;
             }
             setResetStatus({ loading: false, success: false, error: msg });
         }
     };
 
     return (
-        <div className="min-h-[100dvh] w-full flex flex-col items-center justify-between relative overflow-y-auto overflow-x-hidden bg-[#08070D] px-4 py-8 sm:py-12 selection:bg-violet-500/30">
+        <div className="min-h-[100dvh] w-full flex flex-col items-center justify-between relative overflow-y-auto overflow-x-hidden bg-[#08070D] px-4 py-8 sm:py-12 selection:bg-violet-500/30 dark-autofill">
 
             {/* Micro Dot Matrix Grid */}
             <div
@@ -292,6 +300,18 @@ const LoginView = ({
 
             {/* Center Content Container */}
             <div className="w-full max-w-[420px] my-auto py-2 z-10 relative flex flex-col items-center">
+            {/* Discrete Language Switcher */}
+            <div className="absolute top-2 right-2 sm:-top-2 sm:-right-4 z-20">
+                <button
+                    type="button"
+                    onClick={() => updateLanguage(language === 'el' ? 'en' : 'el')}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-bold text-gray-300 hover:text-white transition-all backdrop-blur-md cursor-pointer"
+                    title={language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}
+                >
+                    <Languages size={13} className="text-gray-400" />
+                    <span>{language === 'el' ? 'EN' : 'ΕΛ'}</span>
+                </button>
+            </div>
 
                 {/* ── Brand Header ── */}
                 <motion.div
@@ -319,8 +339,8 @@ const LoginView = ({
                         {showVerification
                             ? (t('verification_title') || 'Επαλήθευση ασφαλείας')
                             : (isLogin
-                                ? 'Καλωσήρθες πίσω'
-                                : 'Δημιούργησε λογαριασμό σε 30 δευτερόλεπτα')}
+                                ? (t('login_welcome_back') || 'Καλωσήρθες πίσω')
+                                : (t('register_subtitle') || 'Δημιούργησε λογαριασμό σε 30 δευτερόλεπτα'))}
                     </p>
                 </motion.div>
 
@@ -517,8 +537,8 @@ const LoginView = ({
                                             )}
                                             <span>
                                                 {isGoogleSubmitting
-                                                    ? 'Σύνδεση...'
-                                                    : (isLogin ? 'Σύνδεση με Google' : 'Εγγραφή με Google')}
+                                                    ? (t('signing_in') || 'Σύνδεση...')
+                                                    : (isLogin ? (t('continue_google_login') || 'Σύνδεση με Google') : (t('continue_google_register') || 'Εγγραφή με Google'))}
                                             </span>
                                         </motion.button>
                                     ) : (
@@ -550,7 +570,7 @@ const LoginView = ({
                                                          shadow-sm transition-all"
                                     >
                                         <Mail size={18} className="text-violet-400" />
-                                        <span>{isLogin ? 'Σύνδεση με Email' : 'Εγγραφή με Email'}</span>
+                                        <span>{isLogin ? (t('continue_email_login') || 'Σύνδεση με Email') : (t('continue_email_register') || 'Εγγραφή με Email')}</span>
                                     </motion.button>
                                 </div>
                                 {/* ── View B: Email & Password Form ── */}
@@ -571,7 +591,7 @@ const LoginView = ({
                                             <span>{t('back') || 'Πίσω'}</span>
                                         </button>
                                         <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                                            {isLogin ? 'Είσοδος' : 'Νέος Λογαριασμός'}
+                                            {isLogin ? (t('sign_in_header') || 'Είσοδος') : (t('new_account_header') || 'Νέος Λογαριασμός')}
                                         </span>
                                     </div>
 
@@ -610,7 +630,7 @@ const LoginView = ({
                                                 </label>
                                                 {!isLogin && (
                                                     <span className="text-[10px] text-gray-400 font-medium">
-                                                        Ελάχ. 8 χαρακτήρες
+                                                        {t('min_8_chars') || 'Ελάχ. 8 χαρακτήρες'}
                                                     </span>
                                                 )}
                                             </div>
@@ -667,7 +687,7 @@ const LoginView = ({
                                                     onClick={() => setShowForgotModal(true)}
                                                     className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition-colors"
                                                 >
-                                                    {t('forgot_password') || 'Ξέχασα τον κωδικό;'}
+                                                    {t('forgot_password') || 'Ξέχασες τον κωδικό;'}
                                                 </button>
                                             </div>
                                         )}
@@ -702,7 +722,7 @@ const LoginView = ({
                                 {/* Footer Toggle (Δεν έχεις λογαριασμό; / Έχεις ήδη;) */}
                                 <div className="mt-6 pt-5 border-t border-white/[0.08] text-center">
                                     <p className="text-xs sm:text-sm text-gray-400 font-medium">
-                                        {isLogin ? "Δεν έχεις λογαριασμό;" : "Έχεις ήδη λογαριασμό;"}
+                                        {isLogin ? (t('dont_have_account') || "Δεν έχεις λογαριασμό;") : (t('already_have_account') || "Έχεις ήδη λογαριασμό;")}
                                         <button
                                             type="button"
                                             onClick={() => {
@@ -711,7 +731,7 @@ const LoginView = ({
                                             }}
                                             className="ml-2 font-bold text-violet-400 hover:text-violet-300 hover:underline transition-colors"
                                         >
-                                            {isLogin ? "Εγγραφή" : "Σύνδεση"}
+                                            {isLogin ? (t('register_tab') || "Εγγραφή") : (t('login_tab') || "Σύνδεση")}
                                         </button>
                                     </p>
                                 </div>
@@ -791,7 +811,7 @@ const LoginView = ({
                                             Email
                                         </label>
                                         <div className="relative group">
-                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors pointer-events-none" size={17} />
+                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-violet-400 transition-colors pointer-events-none" size={17} />
                                             <input
                                                 type="email"
                                                 value={resetEmail}
@@ -800,7 +820,7 @@ const LoginView = ({
                                                 required
                                                 className="w-full pl-11 pr-4 py-3 rounded-xl text-sm font-medium
                                                          bg-white/[0.05] hover:bg-white/[0.07] focus:bg-white/[0.08]
-                                                         border border-white/10 focus:border-white focus:ring-1 focus:ring-white
+                                                         border border-white/10 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/15
                                                          text-white placeholder:text-gray-500
                                                          outline-none transition-all"
                                             />
