@@ -59,7 +59,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
             // Send instant email notification to spendlore@gmail.com via Resend
             try {
                 const isLocal = typeof window !== 'undefined' && window.location.origin.includes('localhost') && !Capacitor.isNativePlatform();
-                const apiBase = isLocal ? '' : 'https://spendlore.gr';
+                const apiBase = isLocal ? '' : 'https://www.spendlore.gr';
 
                 fetch(`${apiBase}/api/send-ticket-notification`, {
                     method: 'POST',
