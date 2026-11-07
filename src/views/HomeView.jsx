@@ -712,9 +712,8 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 </div>
 
                 {/* ── 3. AI Advisor Sleek Horizontal Ribbon ── */}
-                <motion.button
-                    whileHover={{ scale: 1.005, y: -1 }}
-                    whileTap={{ scale: 0.99 }}
+                <button
+                    type="button"
                     onClick={() => {
                         if (!isPro) { openUpgradeModal('advisor'); }
                         else { setActiveTab('advisor'); }
@@ -722,7 +721,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     className="w-full relative overflow-hidden rounded-2xl p-4
                                bg-gray-100/90 dark:bg-surface-dark2
                                border border-gray-200 dark:border-white/10
-                               flex items-center justify-between gap-4 group transition-all duration-200"
+                               hover:border-gray-300 dark:hover:border-white/20
+                               hover:bg-gray-200/50 dark:hover:bg-white/[0.04]
+                               flex items-center justify-between gap-4 group transition-colors cursor-pointer text-left"
                 >
                     <div className="flex items-center gap-3.5 min-w-0">
                         <Bot size={22} className="text-gray-900 dark:text-white shrink-0" />
@@ -732,8 +733,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     {t('advisor_title') || 'Spendlore AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
-                                    <span className="w-4 h-4 rounded-full bg-amber-400/20 text-amber-500 flex items-center justify-center">
-                                        <ShieldCheck size={11} className="text-amber-500" />
+                                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
+                                        <ShieldCheck size={10} className="shrink-0" />
+                                        <span>PRO</span>
                                     </span>
                                 )}
                             </div>
@@ -748,7 +750,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         </span>
                         <ArrowRight size={18} className="text-gray-500 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                     </div>
-                </motion.button>
+                </button>
 
                 {/* ── 4. Main 2-Column Grid (Category Breakdown + Transactions vs Safe-to-Burn, Budgets, Goals) ── */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1238,8 +1240,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             Spendlore AI
                         </span>
                         {!isPro && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                                <ShieldCheck size={9} /> PRO
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
+                                <ShieldCheck size={10} className="shrink-0" />
+                                <span>PRO</span>
                             </span>
                         )}
                     </div>

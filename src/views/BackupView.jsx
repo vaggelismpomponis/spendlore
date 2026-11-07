@@ -302,9 +302,12 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                                             <span className="text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/60">
                                                 {isEL ? 'Εξαγωγή' : 'Export'}
                                             </span>
-                                            <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight mt-0.5">
-                                                {translate('backup_export_title') || (isEL ? 'Δημιουργία Αντιγράφου' : 'Create Full Backup')}
-                                            </h3>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <h3 className="text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                                    {translate('backup_export_title') || (isEL ? 'Δημιουργία Αντιγράφου' : 'Create Full Backup')}
+                                                </h3>
+                                                {!isPro && <ProBadge onClick={() => openUpgradeModal('export')} />}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -344,7 +347,6 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                                             <>
                                                 <Download size={15} strokeWidth={2.3} />
                                                 <span>{translate('backup_export_label') || 'Export Full Backup'}</span>
-                                                {!isPro && <ProBadge />}
                                             </>
                                         )}
                                     </button>

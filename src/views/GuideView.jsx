@@ -15,9 +15,7 @@ import {
     X,
     CheckCircle2,
     Lightbulb,
-    SearchX,
-    MessageSquare,
-    RotateCcw
+    SearchX
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import ViewHeader from '../components/ViewHeader';
@@ -445,88 +443,6 @@ const GuideView = ({ onBack, hideHeader = false, onStartTour, onNavigate }) => {
                             </button>
                         </div>
                     )}
-
-                    {/* ─────── Bottom Bento: Productivity Tips & Help ─────── */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-                        {/* Productivity Shortcuts Card */}
-                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <div className="flex items-center gap-3 mb-3">
-                                    <Lightbulb size={24} strokeWidth={2.3} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                                    <div>
-                                        <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                            {translate('guide_shortcuts_title') || 'Quick Productivity Tips'}
-                                        </h4>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                            Speed up your daily finance tracking
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="space-y-2.5 pt-1">
-                                    <div className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" />
-                                        <p className="text-xs text-gray-600 dark:text-gray-300">
-                                            {translate('guide_shortcuts_1') || 'Long-press the add button for instant income/expense logging shortcuts.'}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" />
-                                        <p className="text-xs text-gray-600 dark:text-gray-300">
-                                            {translate('guide_shortcuts_2') || 'Swipe left on any transaction in history to delete or edit quickly.'}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-start gap-2.5">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 mt-2" />
-                                        <p className="text-xs text-gray-600 dark:text-gray-300">
-                                            {translate('guide_shortcuts_3') || 'Export all your data anytime in encrypted JSON from Settings.'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Feedback & Assistance Card */}
-                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <div className="flex items-center gap-3 mb-3">
-                                    <MessageSquare size={24} strokeWidth={2.3} className="text-violet-600 dark:text-violet-400 shrink-0" />
-                                    <div>
-                                        <h4 className="text-sm font-extrabold text-gray-900 dark:text-white">
-                                            {translate('guide_feedback_box_title') || 'Need help or have suggestions?'}
-                                        </h4>
-                                        <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                                            We build Spendlore together with your input
-                                        </p>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                                    {translate('guide_feedback_box_desc') || 'Send us your ideas, feature requests, or issue reports to improve Spendlore.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-center gap-2 pt-2">
-                                {onNavigate && (
-                                    <button
-                                        onClick={() => onNavigate('feedback')}
-                                        className="flex-1 px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm shadow-violet-500/20"
-                                    >
-                                        <MessageSquare size={14} />
-                                        <span>{translate('guide_feedback_box_action') || 'Send Feedback'}</span>
-                                    </button>
-                                )}
-                                {onStartTour && (
-                                    <button
-                                        onClick={onStartTour}
-                                        className="px-4 py-2.5 rounded-xl bg-gray-200/70 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-200 text-xs font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"
-                                        title={translate('guide_restart_tour') || 'Restart Tour'}
-                                    >
-                                        <RotateCcw size={14} />
-                                        <span>{translate('guide_restart_tour') || 'Restart Tour'}</span>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Footer Signature */}
                     <div className="text-center pt-4 pb-8">

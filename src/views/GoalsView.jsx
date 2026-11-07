@@ -273,7 +273,15 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                             <div className="pl-10 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-none truncate">{t('goals')}</h2>
                                 <p className="text-xs text-gray-400 mt-1 truncate">
-                                    {!isPro ? <span>{goals.length}/2 {t('active').toLowerCase()} <ShieldCheck size={12} className="inline-block text-amber-500 relative -top-[1px] ml-1" /></span> : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
+                                    {!isPro ? (
+                                        <span>
+                                            {goals.length}/2 {t('active').toLowerCase()}
+                                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-0.5 shrink-0 align-middle ml-1">
+                                                <ShieldCheck size={10} className="shrink-0" />
+                                                <span>PRO</span>
+                                            </span>
+                                        </span>
+                                    ) : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                                 </p>
                             </div>
                         )}

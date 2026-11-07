@@ -21,7 +21,8 @@ export function useLegacyNavigation() {
         if (path.startsWith('/settings/privacy')) return 'privacy';
         if (path.startsWith('/settings/terms')) return 'terms';
         if (path.startsWith('/settings/backup')) return 'backup';
-        if (path.startsWith('/settings/feedback')) return 'feedback';
+        if (path.startsWith('/settings/support')) return 'support';
+        if (path.startsWith('/settings/feedback')) return 'support';
         if (path.startsWith('/settings/guide')) return 'guide';
         if (path.startsWith('/settings')) return 'profile'; // Profile is settings root
         if (path.startsWith('/admin')) return 'admin';
@@ -48,7 +49,8 @@ export function useLegacyNavigation() {
             'privacy': '/settings/privacy',
             'terms': '/settings/terms',
             'backup': '/settings/backup',
-            'feedback': '/settings/feedback',
+            'support': '/settings/support',
+            'feedback': '/settings/support',
             'guide': '/settings/guide',
             'admin': '/admin',
             'recurring': '/recurring',

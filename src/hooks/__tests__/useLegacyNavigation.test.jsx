@@ -40,4 +40,28 @@ describe('useLegacyNavigation', () => {
 
         expect(result.current.activeTab).toBe('categories');
     });
+
+    it('resolves activeTab as support when pathname is /settings/support', () => {
+        const wrapper = ({ children }) => (
+            <MemoryRouter initialEntries={['/settings/support']}>
+                {children}
+            </MemoryRouter>
+        );
+
+        const { result } = renderHook(() => useLegacyNavigation(), { wrapper });
+
+        expect(result.current.activeTab).toBe('support');
+    });
+
+    it('resolves activeTab as support when pathname is /settings/feedback for backward compatibility', () => {
+        const wrapper = ({ children }) => (
+            <MemoryRouter initialEntries={['/settings/feedback']}>
+                {children}
+            </MemoryRouter>
+        );
+
+        const { result } = renderHook(() => useLegacyNavigation(), { wrapper });
+
+        expect(result.current.activeTab).toBe('support');
+    });
 });

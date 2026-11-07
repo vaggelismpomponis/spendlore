@@ -149,5 +149,72 @@ describe('DesktopSidebar Component', () => {
         fireEvent.click(langBtn);
         expect(updateLanguage).toHaveBeenCalledWith('en');
     });
+
+    it('renders PRO badges on pro navigation items (stats, recurring, advisor) when user is not pro', () => {
+        const mockOpenUpgrade = vi.fn();
+        useSubscription.mockReturnValue({
+            isPro: false,
+            openUpgradeModal: mockOpenUpgrade,
+        });
+
+        render(
+            <DesktopSidebar
+                activeTab="home"
+                setActiveTab={vi.fn()}
+                user={{ id: 'user-1', email: 'free@spendlore.gr' }}
+                displayName="Free User"
+                photoURL={null}
+                balance={500}
+                totalIncome={1000}
+                totalExpense={500}
+                onSignOut={vi.fn()}
+            />
+        );
+
+        // Check that stats, recurring, and advisor nav items have the PRO badge
+        const statsNav = screen.getByText('Ανάλυση').closest('button');
+        const recurringNav = screen.getByText('Επαναλαμβανόμενα').closest('button');
+        const advisorNav = screen.getByText('Spendlore AI Σύμβουλος').closest('button');
+
+        expect(statsNav).toHaveTextContent('PRO');
+        expect(recurringNav).toHaveTextContent('PRO');
+        expect(advisorNav).toHaveTextContent('PRO');
+
+        // Clicking recurring or advisor should trigger openUpgradeModal
+        fireEvent.click(recurringNav);
+        expect(mockOpenUpgrade).toHaveBeenCalledWith('recurring');
+
+        fireEvent.click(advisorNav);
+        expect(mockOpenUpgrade).toHaveBeenCalledWith('advisor');
+    });
+
+    it('does not render PRO badges on nav items when user is pro', () => {
+        useSubscription.mockReturnValue({
+            isPro: true,
+            openUpgradeModal: vi.fn(),
+        });
+
+        render(
+            <DesktopSidebar
+                activeTab="home"
+                setActiveTab={vi.fn()}
+                user={{ id: 'user-1', email: 'pro@spendlore.gr' }}
+                displayName="Pro User"
+                photoURL={null}
+                balance={500}
+                totalIncome={1000}
+                totalExpense={500}
+                onSignOut={vi.fn()}
+            />
+        );
+
+        const statsNav = screen.getByText('Ανάλυση').closest('button');
+        const recurringNav = screen.getByText('Επαναλαμβανόμενα').closest('button');
+        const advisorNav = screen.getByText('Spendlore AI Σύμβουλος').closest('button');
+
+        expect(statsNav).not.toHaveTextContent('PRO');
+        expect(recurringNav).not.toHaveTextContent('PRO');
+        expect(advisorNav).not.toHaveTextContent('PRO');
+    });
 });
 

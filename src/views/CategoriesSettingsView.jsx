@@ -192,7 +192,12 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
             {/* Header */}
             <ViewHeader
                 onBack={onBack}
-                title={translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}
+                title={
+                    <div className="inline-flex items-center justify-center gap-2">
+                        <span>{translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}</span>
+                        {!isPro && <ProBadge onClick={() => openUpgradeModal('categories')} />}
+                    </div>
+                }
                 subtitle={translate('custom_categories_desc') || 'Διαχείριση κατηγοριών'}
                 hideHeader={hideHeader}
             />
@@ -215,9 +220,12 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
                                 <Tag size={13} strokeWidth={2.3} />
                                 <span>{isEL ? 'Διαχείριση Κατηγοριών' : 'Categories Management'}</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
-                                {translate('custom_categories') || (isEL ? 'Προσαρμοσμένες Κατηγορίες' : 'Custom Categories')}
-                            </h2>
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+                                    {translate('custom_categories') || (isEL ? 'Προσαρμοσμένες Κατηγορίες' : 'Custom Categories')}
+                                </h2>
+                                {!isPro && <ProBadge onClick={() => openUpgradeModal('categories')} />}
+                            </div>
                             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                 {translate('custom_categories_desc') || (isEL ? 'Επεξεργαστείτε, μετονομάστε ή διαγράψτε τις δικές σας κατηγορίες. Οι αλλαγές συγχρονίζονται άμεσα σε όλες τις συσκευές σας.' : 'Edit, rename, or delete your custom categories. Changes synchronize across all your devices instantly.')}
                             </p>
@@ -278,21 +286,23 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
 
                             {/* Add Category Button or Expand */}
                             {!isAdding ? (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        if (!isPro) {
-                                            openUpgradeModal('categories');
-                                            return;
-                                        }
-                                        setIsAdding(true);
-                                    }}
-                                    className="px-4 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm shadow-violet-500/20 border border-violet-400/30 active:scale-95 transition-all cursor-pointer"
-                                >
-                                    <Plus size={16} strokeWidth={2.5} />
-                                    <span>{translate('add_category') || 'Προσθήκη Κατηγορίας'}</span>
-                                    {!isPro && <ProBadge />}
-                                </button>
+                                <div className="flex items-center gap-2.5 self-end sm:self-auto">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!isPro) {
+                                                openUpgradeModal('categories');
+                                                return;
+                                            }
+                                            setIsAdding(true);
+                                        }}
+                                        className="px-4 py-2.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm shadow-violet-500/20 border border-violet-400/30 active:scale-95 transition-all cursor-pointer"
+                                    >
+                                        <Plus size={16} strokeWidth={2.5} />
+                                        <span>{translate('add_category') || 'Προσθήκη Κατηγορίας'}</span>
+                                    </button>
+                                    {!isPro && <ProBadge onClick={() => openUpgradeModal('categories')} />}
+                                </div>
                             ) : null}
                         </div>
 

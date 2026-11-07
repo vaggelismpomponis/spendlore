@@ -929,7 +929,6 @@ function MainContent() {
                 type: 'signup'
             });
             if (error) throw error;
-            setIsVerifying(false);
             showToast(translate('account_created_successfully') || "Ο λογαριασμός δημιουργήθηκε!", 'success');
             return data;
         } catch (error) {
@@ -1693,6 +1692,7 @@ function MainContent() {
                             onResendOtp={handleResendOtp}
                             isVerifying={isVerifying}
                             onCancelVerification={() => setIsVerifying(false)}
+                            onCompleteVerification={() => setIsVerifying(false)}
                         />
                     ) : (
                         <SubscriptionProvider key={user?.id} user={user}>

@@ -3,9 +3,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import DesktopLayout from '../DesktopLayout';
 import { useSettings } from '../../contexts/SettingsContext';
+import { useSubscription } from '../../contexts/SubscriptionContext';
 
 vi.mock('../../contexts/SettingsContext', () => ({
   useSettings: vi.fn(),
+}));
+
+vi.mock('../../contexts/SubscriptionContext', () => ({
+  useSubscription: vi.fn(),
 }));
 
 vi.mock('../DesktopSidebar', () => ({
@@ -34,10 +39,16 @@ describe('DesktopLayout', () => {
     unreadCount: 3,
   };
 
+  const mockOpenUpgradeModal = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
     useSettings.mockReturnValue({
       t: (key) => key,
+    });
+    useSubscription.mockReturnValue({
+      isPro: false,
+      openUpgradeModal: mockOpenUpgradeModal,
     });
   });
 
@@ -108,5 +119,72 @@ describe('DesktopLayout', () => {
 
     expect(container.querySelector('#tour-quick-access')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'custom_categories' })).toBeInTheDocument();
+  });
+
+  it('renders Become Pro button on desktop when user is not pro and triggers upgrade flow on click', () => {
+    const mockSetActiveTab = vi.fn();
+    const mockSetPreviousTab = vi.fn();
+
+    render(
+      <DesktopLayout
+        {...defaultProps}
+        activeTab="profile"
+        setActiveTab={mockSetActiveTab}
+        setPreviousTab={mockSetPreviousTab}
+      >
+        <div>Settings Content</div>
+      </DesktopLayout>
+    );
+
+    const becomeProBtn = screen.getByRole('button', { name: /become_pro/i });
+    expect(becomeProBtn).toBeInTheDocument();
+
+    // Verify neither Bell nor Add button is rendered on settings pages
+    expect(screen.queryByRole('button', { name: /notifications/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /add_transaction/i })).not.toBeInTheDocument();
+
+    fireEvent.click(becomeProBtn);
+
+    expect(mockOpenUpgradeModal).toHaveBeenCalledWith('desktop_header');
+    expect(mockSetActiveTab).not.toHaveBeenCalled();
+  });
+
+  it('renders Bell and Add button on non-settings tabs like home and hides become pro', () => {
+    render(
+      <DesktopLayout {...defaultProps} activeTab="home">
+        <div>Home Content</div>
+      </DesktopLayout>
+    );
+
+    expect(screen.getByRole('button', { name: /notifications/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add_transaction/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /become_pro/i })).not.toBeInTheDocument();
+  });
+
+  it('does not render Become Pro button on desktop when isPro is true', () => {
+    useSubscription.mockReturnValue({
+      isPro: true,
+      openUpgradeModal: mockOpenUpgradeModal,
+    });
+
+    render(
+      <DesktopLayout {...defaultProps} activeTab="profile">
+        <div>Settings Content</div>
+      </DesktopLayout>
+    );
+
+    expect(screen.queryByRole('button', { name: /become_pro/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /notifications/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /add_transaction/i })).not.toBeInTheDocument();
+  });
+
+  it('does not render Become Pro button on desktop when activeTab is upgrade', () => {
+    render(
+      <DesktopLayout {...defaultProps} activeTab="upgrade">
+        <div>Upgrade Content</div>
+      </DesktopLayout>
+    );
+
+    expect(screen.queryByRole('button', { name: /become_pro/i })).not.toBeInTheDocument();
   });
 });

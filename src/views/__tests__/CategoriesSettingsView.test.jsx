@@ -33,10 +33,13 @@ vi.mock('../../contexts/ToastContext', () => ({
     })
 }));
 
+let mockIsPro = true;
+const mockOpenUpgradeModal = vi.fn();
+
 vi.mock('../../contexts/SubscriptionContext', () => ({
     useSubscription: () => ({
-        isPro: true,
-        openUpgradeModal: vi.fn()
+        isPro: mockIsPro,
+        openUpgradeModal: mockOpenUpgradeModal
     })
 }));
 
@@ -111,5 +114,23 @@ describe('CategoriesSettingsView', () => {
             expect(mockDeleteCustomCategory).toHaveBeenCalledWith('expense', 'Pills', 'Άλλο');
             expect(mockShowToast).toHaveBeenCalledWith('category_deleted_success', 'success');
         });
+    });
+
+    it('renders PRO badge and opens upgrade modal when non-pro user tries to add category', () => {
+        mockIsPro = false;
+        render(<CategoriesSettingsView transactions={[]} onBack={vi.fn()} />);
+
+        // Expect PRO badges to be present
+        const proBadges = screen.getAllByText('PRO');
+        expect(proBadges.length).toBeGreaterThan(0);
+
+        // Click Add Category button
+        const addBtn = screen.getByRole('button', { name: /add_category/i });
+        fireEvent.click(addBtn);
+
+        expect(mockOpenUpgradeModal).toHaveBeenCalledWith('categories');
+
+        // Reset mockIsPro
+        mockIsPro = true;
     });
 });

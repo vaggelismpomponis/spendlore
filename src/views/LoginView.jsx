@@ -27,7 +27,8 @@ const LoginView = ({
     onVerifyOtp,
     onResendOtp,
     isVerifying,
-    onCancelVerification
+    onCancelVerification,
+    onCompleteVerification
 }) => {
     const { t, language, updateLanguage } = useSettings();
     const [pendingPlan] = useState(() => {
@@ -57,7 +58,17 @@ const LoginView = ({
     const [verificationEmail, setVerificationEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
     const [resendTimer, setResendTimer] = useState(0);
+    const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
+    const [isCodeError, setIsCodeError] = useState(false);
     const codeRefs = useRef([]);
+    const completionTimerRef = useRef(null);
+
+    useEffect(() => {
+        return () => {
+            if (completionTimerRef.current) clearTimeout(completionTimerRef.current);
+        };
+    }, []);
 
     // Sync with App-level verification state
     useEffect(() => {
@@ -69,8 +80,47 @@ const LoginView = ({
         }
     }, [isVerifying, email]);
 
+    const verifyCode = async (codeToVerify) => {
+        if (isVerifyingCode || isVerified) return;
+        if (!codeToVerify || codeToVerify.length !== 6) return;
+
+        setIsVerifyingCode(true);
+        setIsCodeError(false);
+
+        try {
+            await onVerifyOtp(verificationEmail, codeToVerify);
+            setIsVerified(true);
+            setIsVerifyingCode(false);
+
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                try {
+                    navigator.vibrate([20, 30, 20]);
+                } catch {
+                    // Ignore haptic error if unsupported
+                }
+            }
+
+            completionTimerRef.current = setTimeout(() => {
+                if (onCompleteVerification) {
+                    onCompleteVerification();
+                } else if (onCancelVerification) {
+                    onCancelVerification();
+                }
+            }, 1250);
+        } catch (err) {
+            setIsVerifyingCode(false);
+            setIsCodeError(true);
+            setVerificationCode(['', '', '', '', '', '']);
+            setTimeout(() => {
+                codeRefs.current[0]?.focus();
+            }, 60);
+        }
+    };
+
     const handleCodeChange = (idx, val) => {
+        if (isVerifyingCode || isVerified) return;
         if (!/^\d*$/.test(val)) return;
+        if (isCodeError) setIsCodeError(false);
 
         const newCode = [...verificationCode];
         newCode[idx] = val.slice(-1);
@@ -84,25 +134,25 @@ const LoginView = ({
         // Auto-submit if all 6 filled
         if (newCode.every(v => v !== '') && val) {
             const finalCode = newCode.join('');
-            onVerifyOtp(verificationEmail, finalCode).catch(() => {
-                setVerificationCode(['', '', '', '', '', '']);
-                codeRefs.current[0]?.focus();
-            });
+            verifyCode(finalCode);
         }
     };
 
     const handleKeyDown = (idx, e) => {
+        if (isVerifyingCode || isVerified) return;
         if (e.key === 'Backspace' && !verificationCode[idx] && idx > 0) {
             codeRefs.current[idx - 1]?.focus();
         }
     };
 
     const handlePaste = (e) => {
+        if (isVerifyingCode || isVerified) return;
         e.preventDefault();
         const pastedData = e.clipboardData.getData('text').trim();
         const digits = pastedData.replace(/\D/g, '').slice(0, 6);
 
         if (digits.length > 0) {
+            if (isCodeError) setIsCodeError(false);
             const newCode = [...verificationCode];
             digits.split('').forEach((digit, i) => {
                 if (i < 6) newCode[i] = digit;
@@ -113,10 +163,7 @@ const LoginView = ({
             codeRefs.current[nextIdx]?.focus();
 
             if (digits.length === 6) {
-                onVerifyOtp(verificationEmail, digits).catch(() => {
-                    setVerificationCode(['', '', '', '', '', '']);
-                    codeRefs.current[0]?.focus();
-                });
+                verifyCode(digits);
             }
         }
     };
@@ -220,6 +267,9 @@ const LoginView = ({
             } else {
                 await onRegister(email, password);
                 setVerificationEmail(email);
+                setIsVerified(false);
+                setIsVerifyingCode(false);
+                setIsCodeError(false);
                 setShowVerification(true);
             }
             setIsLoading(false);
@@ -237,20 +287,10 @@ const LoginView = ({
         }
     };
 
-    const handleVerify = async (e) => {
+    const handleVerify = (e) => {
         if (e) e.preventDefault();
         const code = verificationCode.join('');
-        if (code.length !== 6) return;
-
-        setIsLoading(true);
-        try {
-            await onVerifyOtp(verificationEmail, code);
-            setIsLoading(false);
-        } catch (err) {
-            setIsLoading(false);
-            setVerificationCode(['', '', '', '', '', '']);
-            codeRefs.current[0]?.focus();
-        }
+        verifyCode(code);
     };
 
     const handleForgotPassword = async (e) => {
@@ -343,7 +383,9 @@ const LoginView = ({
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-400 font-medium mt-1 text-center max-w-[280px]">
                         {showVerification
-                            ? (t('verification_title') || 'Επαλήθευση ασφαλείας')
+                            ? (isVerified
+                                ? (t('verification_successful') || 'Επιτυχής Επαλήθευση!')
+                                : (t('verification_title') || 'Επαλήθευση ασφαλείας'))
                             : (isLogin
                                 ? (t('login_welcome_back') || 'Καλωσήρθες πίσω')
                                 : (t('register_subtitle') || 'Δημιούργησε λογαριασμό σε 30 δευτερόλεπτα'))}
@@ -364,79 +406,268 @@ const LoginView = ({
                             <motion.div
                                 key="verification-view"
                                 initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                animate={
+                                    isVerified
+                                        ? { opacity: [1, 1, 0.2], scale: [1, 1, 0.98] }
+                                        : { opacity: 1, x: 0 }
+                                }
                                 exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.25 }}
+                                transition={
+                                    isVerified
+                                        ? { duration: 1.25, times: [0, 0.82, 1] }
+                                        : { duration: 0.25 }
+                                }
                                 className="space-y-6"
                             >
                                 <button
                                     type="button"
+                                    disabled={isVerifyingCode || isVerified}
                                     onClick={() => {
                                         setShowVerification(false);
+                                        setIsVerified(false);
+                                        setIsVerifyingCode(false);
+                                        setIsCodeError(false);
+                                        setVerificationCode(['', '', '', '', '', '']);
                                         if (onCancelVerification) onCancelVerification();
                                     }}
-                                    className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-white transition-colors"
+                                    className={`flex items-center gap-2 text-xs font-bold transition-opacity duration-200 ${
+                                        isVerifyingCode || isVerified
+                                            ? 'opacity-0 pointer-events-none'
+                                            : 'text-gray-400 hover:text-white'
+                                    }`}
                                 >
                                     <ArrowLeft size={16} /> {t('back') || 'Πίσω'}
                                 </button>
 
                                 <div className="text-center space-y-2">
-                                    <ShieldCheck size={30} className="mx-auto text-white/80 mb-1" />
-                                    <h2 className="text-lg font-bold text-white tracking-tight">
-                                        {t('verification_code') || 'Κωδικός Επιβεβαίωσης'}
-                                    </h2>
-                                    <p className="text-xs text-gray-400 leading-relaxed px-2">
-                                        {(t('check_email_for_code') || 'Σου στείλαμε έναν 6-ψήφιο κωδικό στο {email}.').replace('{email}', verificationEmail)}
-                                    </p>
+                                    <div className="relative flex items-center justify-center w-14 h-14 mx-auto mb-1">
+                                        <AnimatePresence mode="wait">
+                                            {isVerified ? (
+                                                <motion.div
+                                                    key="verified-icon"
+                                                    initial={{ scale: 0.7, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    transition={{ type: "spring", stiffness: 350, damping: 22 }}
+                                                    className="relative flex items-center justify-center"
+                                                >
+                                                    {/* Expanding subtle ripple ring */}
+                                                    <motion.div
+                                                        initial={{ scale: 0.8, opacity: 0.8 }}
+                                                        animate={{ scale: 1.55, opacity: 0 }}
+                                                        transition={{ duration: 0.65, ease: "easeOut" }}
+                                                        className="absolute w-12 h-12 rounded-full border border-emerald-500/50 pointer-events-none"
+                                                    />
+
+                                                    {/* Pure SVG Vector Drawn Circle + Checkmark */}
+                                                    <svg viewBox="0 0 52 52" className="w-12 h-12 text-emerald-400" fill="none">
+                                                        <motion.circle
+                                                            cx="26"
+                                                            cy="26"
+                                                            r="23"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2.5"
+                                                            initial={{ pathLength: 0, opacity: 0 }}
+                                                            animate={{ pathLength: 1, opacity: 1 }}
+                                                            transition={{ duration: 0.4, ease: "easeOut" }}
+                                                        />
+                                                        <motion.path
+                                                            stroke="currentColor"
+                                                            strokeWidth="3.2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M15 27l7.5 7.5L37 18"
+                                                            initial={{ pathLength: 0 }}
+                                                            animate={{ pathLength: 1 }}
+                                                            transition={{ duration: 0.35, delay: 0.15, ease: "easeOut" }}
+                                                        />
+                                                    </svg>
+                                                </motion.div>
+                                            ) : (
+                                                <motion.div
+                                                    key="idle-icon"
+                                                    initial={{ scale: 0.9, opacity: 0 }}
+                                                    animate={
+                                                        isVerifyingCode
+                                                            ? { scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }
+                                                            : { scale: 1, opacity: 1 }
+                                                    }
+                                                    transition={
+                                                        isVerifyingCode
+                                                            ? { repeat: Infinity, duration: 1.1, ease: "easeInOut" }
+                                                            : { duration: 0.2 }
+                                                    }
+                                                    className="flex items-center justify-center"
+                                                >
+                                                    <ShieldCheck size={32} className="text-white/80" />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    <AnimatePresence mode="wait">
+                                        {isVerified ? (
+                                            <motion.div
+                                                key="verified-copy"
+                                                initial={{ opacity: 0, y: 6 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.25 }}
+                                                className="space-y-1.5"
+                                            >
+                                                <h2 className="text-lg font-bold text-white tracking-tight">
+                                                    {t('verification_successful') || 'Επιτυχής Επαλήθευση!'}
+                                                </h2>
+                                                <p className="text-xs text-emerald-400/90 font-medium leading-relaxed px-2">
+                                                    {t('verification_redirecting') || 'Ο λογαριασμός σας επιβεβαιώθηκε. Είσοδος...'}
+                                                </p>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="idle-copy"
+                                                initial={{ opacity: 0, y: -6 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -6 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="space-y-1.5"
+                                            >
+                                                <h2 className="text-lg font-bold text-white tracking-tight">
+                                                    {t('verification_code') || 'Κωδικός Επιβεβαίωσης'}
+                                                </h2>
+                                                <p className="text-xs text-gray-400 leading-relaxed px-2">
+                                                    {(t('check_email_for_code') || 'Σου στείλαμε έναν 6-ψήφιο κωδικό στο {email}.').replace('{email}', verificationEmail)}
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
-                                <div className="flex justify-center gap-2 sm:gap-2.5 py-3">
+                                <motion.div
+                                    animate={
+                                        isCodeError
+                                            ? { x: [-8, 8, -6, 6, -3, 3, 0] }
+                                            : {}
+                                    }
+                                    transition={{ duration: 0.4 }}
+                                    className="flex justify-center gap-2 sm:gap-2.5 py-3"
+                                >
                                     {verificationCode.map((digit, idx) => (
-                                        <input
+                                        <motion.div
                                             key={idx}
-                                            ref={el => codeRefs.current[idx] = el}
-                                            type="text"
-                                            inputMode="numeric"
-                                            maxLength={1}
-                                            value={digit}
-                                            onChange={e => handleCodeChange(idx, e.target.value)}
-                                            onKeyDown={e => handleKeyDown(idx, e)}
-                                            onPaste={handlePaste}
-                                            aria-label={`Digit ${idx + 1}`}
-                                            className="w-11 h-14 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold rounded-xl
-                                                     bg-white/[0.05] border border-white/10
-                                                     focus:border-white focus:bg-white/10 focus:ring-1 focus:ring-white
-                                                     text-white outline-none transition-all shadow-xs"
-                                        />
+                                            initial={false}
+                                            animate={
+                                                isVerified
+                                                    ? {
+                                                        scale: [1, 1.1, 1],
+                                                        transition: {
+                                                            delay: idx * 0.04,
+                                                            duration: 0.3,
+                                                            ease: "easeOut"
+                                                        }
+                                                    }
+                                                    : isVerifyingCode
+                                                        ? {
+                                                            opacity: [1, 0.7, 1],
+                                                            transition: {
+                                                                repeat: Infinity,
+                                                                duration: 1.1,
+                                                                delay: idx * 0.07
+                                                            }
+                                                        }
+                                                        : { scale: 1, opacity: 1 }
+                                            }
+                                            className="relative"
+                                        >
+                                            <input
+                                                ref={el => codeRefs.current[idx] = el}
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={1}
+                                                value={digit}
+                                                disabled={isVerifyingCode || isVerified}
+                                                onChange={e => handleCodeChange(idx, e.target.value)}
+                                                onKeyDown={e => handleKeyDown(idx, e)}
+                                                onPaste={handlePaste}
+                                                aria-label={`Digit ${idx + 1}`}
+                                                className={`w-11 h-14 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold rounded-xl outline-none transition-all duration-200 ${
+                                                    isVerified
+                                                        ? 'bg-emerald-500/10 border border-emerald-500/70 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                                                        : isCodeError
+                                                            ? 'bg-rose-500/10 border border-rose-500/70 text-rose-300'
+                                                            : 'bg-white/[0.05] border border-white/10 text-white focus:border-white focus:bg-white/10 focus:ring-1 focus:ring-white shadow-xs'
+                                                }`}
+                                            />
+                                        </motion.div>
                                     ))}
-                                </div>
+                                </motion.div>
+
+                                <AnimatePresence>
+                                    {isCodeError && (
+                                        <motion.p
+                                            initial={{ opacity: 0, y: -4 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -4 }}
+                                            className="text-xs font-semibold text-rose-400 text-center -mt-2"
+                                        >
+                                            {t('invalid_code') || 'Μη έγκυρος κωδικός. Δοκιμάστε ξανά.'}
+                                        </motion.p>
+                                    )}
+                                </AnimatePresence>
 
                                 <motion.button
-                                    whileHover={{ scale: 1.01 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    whileHover={!(isVerifyingCode || isVerified || verificationCode.some(d => !d)) ? { scale: 1.01 } : {}}
+                                    whileTap={!(isVerifyingCode || isVerified || verificationCode.some(d => !d)) ? { scale: 0.98 } : {}}
                                     onClick={handleVerify}
-                                    disabled={isLoading || verificationCode.some(d => !d)}
-                                    className="w-full py-3 rounded-xl font-bold text-sm text-gray-950
-                                             bg-white hover:bg-gray-100
-                                             shadow-xs
-                                             flex items-center justify-center gap-2
-                                             transition-all duration-150
-                                             disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={isVerifyingCode || isVerified || verificationCode.some(d => !d)}
+                                    className={`w-full py-3 rounded-xl font-bold text-sm relative overflow-hidden flex items-center justify-center gap-2 transition-all duration-300 ${
+                                        isVerified
+                                            ? 'bg-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                                            : isVerifyingCode
+                                                ? 'bg-white/90 text-gray-950 cursor-wait'
+                                                : 'bg-white hover:bg-gray-100 text-gray-950 shadow-xs disabled:opacity-50 disabled:cursor-not-allowed'
+                                    }`}
                                 >
-                                    {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    {isVerified ? (
+                                        <motion.div
+                                            key="btn-verified"
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="flex items-center justify-center gap-2"
+                                        >
+                                            <motion.div
+                                                initial={{ scale: 0, rotate: -45 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                                            >
+                                                <Check size={18} className="stroke-[2.5]" />
+                                            </motion.div>
+                                            <span>{t('verified_btn') || 'Επιβεβαιώθηκε'}</span>
+                                        </motion.div>
+                                    ) : isVerifyingCode ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-gray-950/30 border-t-gray-950 rounded-full animate-spin" />
+                                            <span>{t('sending') || 'Επαλήθευση...'}</span>
+                                        </div>
                                     ) : (
                                         <>
                                             <span>{t('verify_btn') || 'Επιβεβαίωση'}</span>
                                             <ArrowRight size={16} />
                                         </>
                                     )}
+
+                                    {/* Micro progress line filling on success */}
+                                    {isVerified && (
+                                        <motion.div
+                                            initial={{ width: "0%" }}
+                                            animate={{ width: "100%" }}
+                                            transition={{ duration: 1.2, ease: "linear" }}
+                                            className="absolute bottom-0 left-0 h-[2px] bg-white/50"
+                                        />
+                                    )}
                                 </motion.button>
 
                                 <div className="text-center pt-2">
                                     <button
                                         type="button"
-                                        disabled={resendTimer > 0}
+                                        disabled={resendTimer > 0 || isVerifyingCode || isVerified}
                                         className="text-xs font-bold text-violet-400 hover:text-violet-300 disabled:opacity-50 disabled:no-underline transition-colors"
                                         onClick={handleResend}
                                     >

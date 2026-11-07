@@ -102,7 +102,7 @@ const PricingCard = ({ label, price, sub, badge, selected, onSelect }) => (
         onClick={onSelect}
         whileTap={{ scale: 0.985 }}
         className={`w-full text-left rounded-2xl p-4 transition-all duration-200 cursor-pointer border ${
-            selected ? 'bg-gray-100/90 dark:bg-surface-dark2 border-gray-950 dark:border-white shadow-xs' : 'bg-gray-100/40 dark:bg-surface-dark2/40 border-gray-200 dark:border-white/10'
+            selected ? 'bg-gray-100/90 dark:bg-surface-dark2 border-gray-950 dark:border-white shadow-xs' : 'bg-gray-100/40 dark:bg-white/[0.04] border-gray-200 dark:border-white/10'
         }`}
     >
         <div className="flex items-center justify-between gap-3">

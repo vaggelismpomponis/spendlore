@@ -4,7 +4,7 @@ import {
     User, LogOut, ChevronRight,
     ShieldAlert as Shield, ArrowLeft, Moon, Sun, Monitor,
     Smartphone, HardDriveDownload,
-    Languages, LayoutDashboard, MessageSquare, BookOpen,
+    Languages, LayoutDashboard, MessageSquare, BookOpen, LifeBuoy,
     Settings, Info, Trash2, UserX, Tag,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
     ShieldCheck
@@ -95,6 +95,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const { theme, themePreference = 'system', toggleTheme, language, updateLanguage, t: translate, customCategories } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
+    const isEL = language === 'el';
     const { showToast } = useToast();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
@@ -275,44 +276,6 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         </motion.button>
                     </div>
 
-                    {/* ════ Top Action Cards ════ */}
-                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                        {/* Card 1: Subscription */}
-                        <div
-                            onClick={() => isPro ? openBillingPortal() : openUpgradeModal('profile')}
-                            className="min-w-0 h-[75px] rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform text-center gap-1 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10"
-                        >
-                            {!isPro ? (
-                                <div className="flex items-center justify-center gap-1">
-                                    <ShieldCheck size={14} strokeWidth={2.2} className="text-gray-900 dark:text-white shrink-0" />
-                                    <p className="text-[11px] sm:text-[12px] font-extrabold text-gray-900 dark:text-white leading-tight">{translate('become_pro') || translate('go_pro') || 'Become Pro'}</p>
-                                </div>
-                            ) : (
-                                <p className="text-[12px] sm:text-[13px] font-extrabold text-gray-900 dark:text-white leading-tight">{translate('manage') || 'Manage Pro'}</p>
-                            )}
-                        </div>
-
-                        {/* Card 2: Guide */}
-                        <div
-                            onClick={onGuide}
-                            className="min-w-0 h-[75px] rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform text-center"
-                        >
-                            <p className="text-[12px] sm:text-[14px] font-extrabold text-gray-900 dark:text-white leading-tight">
-                                {translate('user_guide') || 'Οδηγός'}
-                            </p>
-                        </div>
-
-                        {/* Card 3: Feedback */}
-                        <div
-                            onClick={onFeedback}
-                            className="min-w-0 h-[75px] rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-2 sm:p-3 flex items-center justify-center cursor-pointer active:scale-95 transition-transform text-center"
-                        >
-                            <p className="text-[12px] sm:text-[14px] font-extrabold text-gray-900 dark:text-white leading-tight">
-                                {translate('feedback') || 'Support'}
-                            </p>
-                        </div>
-                    </div>
-
                     {/* ════ Account Info ════ */}
                     <div className="mt-4">
                         <SectionLabel>{translate('account_info') || 'Account info'}</SectionLabel>
@@ -398,6 +361,23 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 icon={HardDriveDownload}
                                 label={translate('backup_restore') || 'Backup & Restore'}
                                 onClick={onBackup}
+                            />
+                        </Card>
+                    </div>
+
+                    {/* ════ Help & Support ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('help_and_support') || (isEL ? 'Βοήθεια & Υποστήριξη' : 'Help & Support')}</SectionLabel>
+                        <Card>
+                            <SettingRow
+                                icon={BookOpen}
+                                label={translate('user_guide') || (isEL ? 'Οδηγός Χρήσης' : 'User Guide')}
+                                onClick={onGuide}
+                            />
+                            <SettingRow
+                                icon={LifeBuoy}
+                                label={translate('technical_support') || translate('support') || (isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support')}
+                                onClick={onFeedback}
                             />
                         </Card>
                     </div>

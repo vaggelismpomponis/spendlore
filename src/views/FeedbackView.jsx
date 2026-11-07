@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import {
-    ArrowLeft,
     Send,
-    MessageSquare,
-    Lightbulb,
-    Bug,
-    CheckCircle2,
     ShieldCheck,
     Tag,
     Heart,
-    LifeBuoy,
     Mail
 } from 'lucide-react';
 import { supabase } from '../supabase';
@@ -18,15 +12,15 @@ import { useToast } from '../contexts/ToastContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import { getAppVersionString } from '../utils/version';
-import { Capacitor } from '@capacitor/core';
 
 const FeedbackView = ({ user, onBack, hideHeader = false }) => {
-    const { t: translate, language } = useSettings();
+    const { language } = useSettings();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
-    const [type, setType] = useState('support'); // 'support', 'bug', 'idea', 'other'
     const [selectedTag, setSelectedTag] = useState('');
     const [isSending, setIsSending] = useState(false);
+
+    const isEL = language === 'el';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,8 +28,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
 
         setIsSending(true);
         try {
-            let tags = [];
-            if (type === 'support') tags.push('[Support]');
+            let tags = ['[Support]'];
             if (selectedTag) tags.push(`[${selectedTag}]`);
 
             let finalMessage = message.trim();
@@ -45,9 +38,9 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                 }
             }
 
-            const priority = type === 'support' || type === 'bug' ? 'high' : 'normal';
+            const priority = 'high';
             // Map 'support' to 'other' to satisfy Postgres feedback_type_check constraint ('bug', 'idea', 'other')
-            const dbType = type === 'support' ? 'other' : type;
+            const dbType = 'other';
 
             const { error } = await supabase
                 .from('feedback')
@@ -67,14 +60,12 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
 
             // Always dispatch instant email notification to spendlore@gmail.com via Resend
             try {
-                const isLocal = typeof window !== 'undefined' && window.location.origin.includes('localhost') && !Capacitor.isNativePlatform();
-                const apiBase = isLocal ? '' : 'https://www.spendlore.gr';
-
-                fetch(`${apiBase}/api/send-ticket-notification`, {
+                fetch('https://www.spendlore.gr/api/send-ticket-notification', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    keepalive: true,
                     body: JSON.stringify({
-                        type,
+                        type: 'support',
                         message: finalMessage,
                         userEmail: user?.email,
                         priority,
@@ -85,56 +76,27 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                 console.warn('Failed to dispatch ticket notification:', notifyErr);
             }
 
-            showToast(translate('feedback_success') || 'Thank you! Your ticket has been submitted to Spendlore Support.', 'success');
+            showToast(
+                isEL
+                    ? 'Το αίτημα υποστήριξης υποβλήθηκε επιτυχώς! Θα λάβετε απάντηση σύντομα.'
+                    : 'Your support ticket has been submitted. We will reply shortly.',
+                'success'
+            );
             setMessage('');
             setSelectedTag('');
             setTimeout(onBack, 1500);
         } catch (error) {
-            console.error('Feedback error:', error);
-            showToast(translate('feedback_error') || 'Failed to send feedback.', 'error');
+            console.error('Support ticket error:', error);
+            showToast(
+                isEL
+                    ? 'Αποτυχία αποστολής αιτήματος. Παρακαλούμε δοκιμάστε ξανά.'
+                    : 'Failed to send support ticket. Please try again.',
+                'error'
+            );
         } finally {
             setIsSending(false);
         }
     };
-
-    const types = [
-        {
-            id: 'support',
-            icon: LifeBuoy,
-            title: language === 'el' ? 'Τεχνική Υποστήριξη' : 'Support & Help',
-            subtitle: language === 'el' ? 'Βοήθεια με λογαριασμό ή συνδρομές' : 'Account, billing or app questions',
-            color: 'text-blue-500',
-            bg: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200/60 dark:border-blue-500/20',
-            activeBorder: 'border-blue-400 dark:border-blue-500/50 ring-1 ring-blue-400/30'
-        },
-        {
-            id: 'bug',
-            icon: Bug,
-            title: translate('bug_title') || (language === 'el' ? 'Αναφορά Σφάλματος' : 'Bug Report'),
-            subtitle: translate('bug_subtitle') || (language === 'el' ? 'Αναφέρετε κάποιο πρόβλημα' : 'Report a glitch or error'),
-            color: 'text-rose-500',
-            bg: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-500/20',
-            activeBorder: 'border-rose-400 dark:border-rose-500/50 ring-1 ring-rose-400/30'
-        },
-        {
-            id: 'idea',
-            icon: Lightbulb,
-            title: translate('idea_title') || (language === 'el' ? 'Πρόταση Λειτουργίας' : 'Feature Idea'),
-            subtitle: translate('idea_subtitle') || (language === 'el' ? 'Προτείνετε μια νέα δυνατότητα' : 'Suggest a new tool or improvement'),
-            color: 'text-amber-500',
-            bg: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/20',
-            activeBorder: 'border-amber-400 dark:border-amber-500/50 ring-1 ring-amber-400/30'
-        },
-        {
-            id: 'other',
-            icon: MessageSquare,
-            title: translate('other_title') || (language === 'el' ? 'Γενικό Σχόλιο' : 'General Feedback'),
-            subtitle: translate('other_subtitle') || (language === 'el' ? 'Ερωτήσεις ή σκέψεις' : 'Questions or thoughts'),
-            color: 'text-gray-500 dark:text-gray-400',
-            bg: 'bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10',
-            activeBorder: 'border-gray-400 dark:border-white/40 ring-1 ring-gray-400/30'
-        },
-    ];
 
     const quickTags = [
         'Account & Login',
@@ -146,21 +108,6 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
         'Recurring Payments',
         'Performance & Sync'
     ];
-
-    const getPlaceholder = () => {
-        if (type === 'support') {
-            return language === 'el'
-                ? 'Πώς μπορούμε να σας βοηθήσουμε; Περιγράψτε το αίτημά σας σχετικά με τον λογαριασμό, τη συνδρομή ή την εφαρμογή...'
-                : 'How can we help? Describe your question or issue regarding your account, subscription, or app features...';
-        }
-        if (type === 'idea') {
-            return translate('feedback_placeholder_idea') || 'Describe your idea... How would it help you manage your finances better?';
-        }
-        if (type === 'bug') {
-            return translate('feedback_placeholder_bug') || 'What happened? Please describe the steps to reproduce or any error message...';
-        }
-        return translate('feedback_placeholder_other') || 'Share your questions, impressions, or thoughts with our team...';
-    };
 
     const handleTagClick = (tag) => {
         if (selectedTag === tag) {
@@ -175,8 +122,8 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
             {/* ─────── Mobile Sticky Header ─────── */}
             <ViewHeader
                 onBack={onBack}
-                title={translate('feedback') || 'Feedback & Ideas'}
-                subtitle={translate('feedback_desc') || 'Tell us how to improve'}
+                title={isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support'}
+                subtitle={isEL ? 'Βοήθεια με τον λογαριασμό ή τη συνδρομή' : 'Help with account, billing or features'}
                 hideHeader={hideHeader}
             />
 
@@ -187,38 +134,9 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                     {/* Desktop Navigation Breadcrumb Bar */}
                     <DesktopBreadcrumb
                         onBack={onBack}
-                        backLabel={translate('guide_back_to_settings') || 'Back to Settings'}
+                        backLabel={isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings'}
                         hideHeader={hideHeader}
                     />
-
-                    {/* ─────── Hero Hub ─────── */}
-                    <div className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 p-6 sm:p-8">
-                        <div className="relative z-10 max-w-2xl space-y-3">
-                            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-xs font-semibold text-gray-700 dark:text-gray-300 tracking-wide uppercase">
-                                <MessageSquare size={13} />
-                                <span>We Are Listening</span>
-                            </div>
-                            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
-                                {translate('feedback_title') || 'Your Opinion Matters'}
-                            </h2>
-                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                {translate('feedback_subtitle') || 'Send us your ideas or report a bug to help us build the best finance app.'}
-                            </p>
-
-                            {/* Attribute Chips */}
-                            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
-                                    Direct Dev Review
-                                </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
-                                    Feature Roadmaps
-                                </span>
-                                <span className="px-2.5 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1]">
-                                    100% Privacy Protected
-                                </span>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* ─────── Direct Support Channels Banner ─────── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 shadow-xs">
@@ -226,7 +144,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                             <Mail size={18} className="text-gray-700 dark:text-gray-300 shrink-0" />
                             <div>
                                 <span className="text-xs font-extrabold text-gray-900 dark:text-white">
-                                    {language === 'el' ? 'Επίσημο Email Υποστήριξης:' : 'Official Customer Support:'}
+                                    {isEL ? 'Επίσημο Email Υποστήριξης:' : 'Official Customer Support:'}
                                 </span>
                                 <span className="ml-2 text-xs font-bold text-gray-600 dark:text-gray-400">
                                     info@spendlore.gr
@@ -234,63 +152,19 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                             </div>
                         </div>
                         <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
-                            {language === 'el' ? 'Απάντηση εντός 24 ωρών' : 'Guaranteed 24h response'}
+                            {isEL ? 'Απάντηση εντός 24 ωρών' : 'Guaranteed 24h response'}
                         </span>
                     </div>
 
-                    {/* ─────── Feedback & Ticket Form Card ─────── */}
+                    {/* ─────── Technical Support Ticket Form Card ─────── */}
                     <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
-
-                            {/* Type Selection */}
-                            <div className="space-y-2.5">
-                                <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {translate('type') || 'Request Type'}
-                                </label>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                    {types.map((t) => {
-                                        const Icon = t.icon;
-                                        const isSelected = type === t.id;
-                                        return (
-                                            <button
-                                                key={t.id}
-                                                type="button"
-                                                onClick={() => setType(t.id)}
-                                                className={`flex items-center sm:flex-col sm:items-start text-left p-4 rounded-2xl border transition-all duration-200 relative group ${isSelected
-                                                        ? `bg-gray-50/80 dark:bg-white/[0.05] ${t.activeBorder} shadow-sm`
-                                                        : 'bg-white dark:bg-surface-dark2 border-gray-200/70 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.03]'
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3 sm:w-full">
-                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${t.bg}`}>
-                                                        <Icon size={20} strokeWidth={2.2} />
-                                                    </div>
-                                                    <div className="min-w-0 flex-1">
-                                                        <p className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">
-                                                            {t.title}
-                                                        </p>
-                                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
-                                                            {t.subtitle}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                {isSelected && (
-                                                    <div className="absolute top-3 right-3 text-violet-600 dark:text-violet-400">
-                                                        <CheckCircle2 size={16} strokeWidth={2.5} />
-                                                    </div>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
 
                             {/* Quick Topic Tags (Optional) */}
                             <div className="space-y-2">
                                 <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
                                     <Tag size={13} />
-                                    <span>{translate('feedback_quick_tags') || 'Quick Tag (Optional)'}</span>
+                                    <span>{isEL ? 'Γρήγορη Ετικέτα (Προαιρετικό)' : 'Quick Tag (Optional)'}</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {quickTags.map((tag) => {
@@ -300,9 +174,9 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                                                 key={tag}
                                                 type="button"
                                                 onClick={() => handleTagClick(tag)}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${isTagActive
-                                                        ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/25'
-                                                        : 'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.1]'
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isTagActive
+                                                        ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 border-gray-950 dark:border-white shadow-xs'
+                                                        : 'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.1] border-gray-200/70 dark:border-white/[0.08]'
                                                     }`}
                                             >
                                                 {tag}
@@ -316,7 +190,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                        {translate('feedback_label') || 'Your Message'}
+                                        {isEL ? 'Το Μήνυμά σας' : 'Your Message'}
                                     </label>
                                     <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
                                         {message.length} chars
@@ -325,7 +199,11 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                                 <textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
-                                    placeholder={getPlaceholder()}
+                                    placeholder={
+                                        isEL
+                                            ? 'Πώς μπορούμε να σας βοηθήσουμε; Περιγράψτε το αίτημά σας σχετικά με τον λογαριασμό, τη συνδρομή ή την εφαρμογή...'
+                                            : 'How can we help? Describe your question or issue regarding your account, subscription, or app features...'
+                                    }
                                     rows={5}
                                     className="w-full p-3.5 rounded-xl bg-gray-50/70 dark:bg-surface-dark border border-gray-200/80 dark:border-white/[0.08] text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all resize-y min-h-[140px]"
                                     required
@@ -338,7 +216,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                                     <div className="flex items-center gap-2 min-w-0">
                                         <ShieldCheck size={16} className="text-gray-900 dark:text-white shrink-0" />
                                         <span className="truncate">
-                                            {translate('feedback_submitting_as') || 'Submitting as'}: <strong className="text-gray-900 dark:text-white">{user.email}</strong>
+                                            {isEL ? 'Υποβολή ως' : 'Submitting as'}: <strong className="text-gray-900 dark:text-white">{user.email}</strong>
                                         </span>
                                     </div>
                                     <span className="text-[10px] uppercase font-bold text-gray-700 dark:text-gray-300 bg-gray-200/60 dark:bg-white/10 px-2 py-0.5 rounded-md shrink-0 ml-2">
@@ -358,9 +236,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                                 ) : (
                                     <>
                                         <span>
-                                            {type === 'support'
-                                                ? (language === 'el' ? 'Υποβολή Αιτήματος Υποστήριξης' : 'Submit Support Ticket')
-                                                : (translate('send_feedback') || 'Send Feedback')}
+                                            {isEL ? 'Υποβολή Αιτήματος Υποστήριξης' : 'Submit Support Ticket'}
                                         </span>
                                         <Send size={16} />
                                     </>
@@ -369,55 +245,11 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                         </form>
                     </div>
 
-                    {/* ─────── Bottom Bento: Trust & Process Card ─────── */}
-                    <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 shadow-xs">
-                        <div className="flex items-start gap-3 mb-4">
-                            <ShieldCheck size={22} strokeWidth={2} className="text-gray-900 dark:text-white shrink-0 mt-0.5" />
-                            <div>
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-white">
-                                    {translate('feedback_promise_title') || 'How We Handle Your Feedback'}
-                                </h4>
-                                <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                    Transparent, continuous development
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {translate('feedback_promise_1') || 'Every submission is directly reviewed by the development team.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <ShieldCheck size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {translate('feedback_promise_2') || 'Your personal financial balances and transactions are never shared.'}
-                                </p>
-                            </div>
-
-                            <div className="flex items-start gap-2.5">
-                                <div className="w-5 h-5 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5 text-violet-600 dark:text-violet-400">
-                                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 leading-snug">
-                                    {translate('feedback_promise_3') || 'Reported bugs and suggestions are prioritized in regular releases.'}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
                     {/* Footer Signature */}
                     <div className="text-center pt-2 pb-8 flex flex-col items-center gap-1.5 opacity-60">
                         <Heart size={14} className="text-rose-500" fill="currentColor" />
                         <p className="text-[11px] font-medium text-gray-400 dark:text-white/40">
-                            Spendlore &bull; {language === 'el' ? 'Φτιαγμένο με φροντίδα για την κοινότητα' : 'Made with care for the community'} &bull; {getAppVersionString(language)}
+                            Spendlore &bull; {isEL ? 'Φτιαγμένο με φροντίδα για την κοινότητα' : 'Made with care for the community'} &bull; {getAppVersionString(language)}
                         </p>
                     </div>
 

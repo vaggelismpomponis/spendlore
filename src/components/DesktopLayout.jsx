@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, ArrowUpRight, ArrowDownRight, Bell, User } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownRight, Bell, User, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import DesktopSidebar from './DesktopSidebar';
 import TransactionItem from './TransactionItem';
 import Amount from './Amount';
@@ -189,11 +190,17 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 /* ─────────────────────────────────────────────
    Desktop Top Header
 ───────────────────────────────────────────── */
-const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab, unreadCount, onToggleNotifications }) => {
+const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab, setPreviousTab, unreadCount, onToggleNotifications }) => {
 
+    const { isPro, openUpgradeModal } = useSubscription();
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
     const isHome = activeTab === 'home';
+    const isSettingsTab = ['profile', 'account', 'general', 'security', 'backup', 'support', 'feedback', 'guide', 'profile-details', 'categories', 'privacy', 'terms'].includes(activeTab);
+
+    const handleUpgrade = () => {
+        openUpgradeModal?.('desktop_header');
+    };
 
     const tabTitles = {
         home: t('nav_home'),
@@ -207,7 +214,8 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         general: t('general_settings'),
         security: t('security'),
         backup: t('backup'),
-        feedback: t('feedback'),
+        support: t('technical_support') || t('support') || 'Support',
+        feedback: t('technical_support') || t('support') || 'Support',
         advisor: t('advisor_title'),
         guide: t('guide'),
         'profile-details': t('nav_profile'),
@@ -269,43 +277,64 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                 </h2>
             )}
 
-            {/* ── Right: Bell + Add Button ── */}
+            {/* ── Right: Header Actions (Settings shows only Become Pro; other views show Bell + Add) ── */}
             <div className="flex items-center gap-2 flex-shrink-0">
-                {/* Notification Bell */}
-                <button
-                    onClick={onToggleNotifications}
-                    className="relative w-10 h-10 rounded-xl flex-shrink-0
-                               bg-gray-100 dark:bg-white/[0.08]
-                               flex items-center justify-center
-                               text-gray-700 dark:text-gray-300
-                               hover:bg-gray-200/70 dark:hover:bg-white/10
-                               hover:scale-105 active:scale-95
-                               transition-all duration-200"
-                    aria-label="Notifications"
-                >
-                    <Bell size={18} />
-                    {unreadCount > 0 && (
-                        <span className="absolute -top-0.5 -right-0.5
-                                         w-4 h-4 rounded-full
-                                         bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                    )}
-                </button>
+                {isSettingsTab ? (
+                    /* For all settings pages: keep ONLY the Become Pro badge (when not pro) */
+                    !isPro && (
+                        <button
+                            onClick={handleUpgrade}
+                            className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl
+                                       bg-gray-950 text-white dark:bg-white dark:text-gray-950
+                                       hover:bg-gray-800 dark:hover:bg-gray-100
+                                       text-xs font-extrabold tracking-wide shadow-xs
+                                       active:scale-95 transition-all duration-200 select-none shrink-0"
+                            title={t('upgrade_to_pro') || 'Spendlore Pro'}
+                        >
+                            <ShieldCheck size={14} strokeWidth={2.5} className="shrink-0" />
+                            <span>{t('become_pro') || t('go_pro') || 'Become Pro'}</span>
+                        </button>
+                    )
+                ) : (
+                    /* For non-settings pages: Notification Bell + Add Button */
+                    <>
+                        {/* Notification Bell */}
+                        <button
+                            onClick={onToggleNotifications}
+                            className="relative w-10 h-10 rounded-xl flex-shrink-0
+                                       bg-gray-100 dark:bg-white/[0.08]
+                                       flex items-center justify-center
+                                       text-gray-700 dark:text-gray-300
+                                       hover:bg-gray-200/70 dark:hover:bg-white/10
+                                       hover:scale-105 active:scale-95
+                                       transition-all duration-200"
+                            aria-label="Notifications"
+                        >
+                            <Bell size={18} />
+                            {unreadCount > 0 && (
+                                <span className="absolute -top-0.5 -right-0.5
+                                                 w-4 h-4 rounded-full
+                                                 bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
+                                    {unreadCount > 9 ? '9+' : unreadCount}
+                                </span>
+                            )}
+                        </button>
 
-                {/* Add Button (Personal finance entry - hidden on admin management view) */}
-                {activeTab !== 'admin' && (
-                    <button
-                        id="tour-add-button"
-                        onClick={() => onAdd?.()}
-                        className="flex items-center gap-2 px-4 py-2.5
-                                   bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
-                                   rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
-                                   active:scale-95 transition-all duration-200"
-                    >
-                        <Plus size={16} strokeWidth={2.5} />
-                        {t('add_transaction') || 'Add'}
-                    </button>
+                        {/* Add Button (Personal finance entry - hidden on admin management view) */}
+                        {activeTab !== 'admin' && (
+                            <button
+                                id="tour-add-button"
+                                onClick={() => onAdd?.()}
+                                className="flex items-center gap-2 px-4 py-2.5
+                                           bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
+                                           rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
+                                           active:scale-95 transition-all duration-200"
+                            >
+                                <Plus size={16} strokeWidth={2.5} />
+                                {t('add_transaction') || t('add') || 'Προσθήκη'}
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
         </div>
@@ -331,7 +360,7 @@ const DesktopLayout = ({
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
     const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'categories', 'security', 'backup',
-        'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade'].includes(activeTab);
+        'support', 'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade'].includes(activeTab);
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">
@@ -359,6 +388,7 @@ const DesktopLayout = ({
                     displayName={displayName}
                     photoURL={photoURL}
                     setActiveTab={setActiveTab}
+                    setPreviousTab={setPreviousTab}
                     unreadCount={unreadCount}
                     onToggleNotifications={handleToggleNotifications}
                 />

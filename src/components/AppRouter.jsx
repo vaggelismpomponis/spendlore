@@ -87,7 +87,7 @@ export default function AppRouter(props) {
                                 onSecurity={() => setActiveTab('security')}
                                 onBackup={() => setActiveTab('backup')}
                                 onAdmin={() => setActiveTab('admin')}
-                                onFeedback={() => setActiveTab('feedback')}
+                                onFeedback={() => setActiveTab('support')}
                                 onGuide={() => setActiveTab('guide')}
                             />
                         )}
@@ -103,7 +103,7 @@ export default function AppRouter(props) {
                         {activeTab === 'categories' && <CategoriesSettingsView user={user} transactions={transactions} onBack={() => setActiveTab(previousTab || 'profile')} hideHeader={true} />}
                         {activeTab === 'privacy' && <PrivacyPolicyView onBack={() => setActiveTab('general')} hideHeader={true} />}
                         {activeTab === 'terms' && <TermsOfServiceView onBack={() => setActiveTab('general')} hideHeader={true} />}
-                        {activeTab === 'feedback' && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
+                        {(activeTab === 'support' || activeTab === 'feedback') && <FeedbackView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'security' && <SecuritySettingsView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'backup' && <BackupView user={user} onBack={() => setActiveTab('profile')} hideHeader={true} />}
                         {activeTab === 'admin' && isAdmin && <AdminView onBack={() => setActiveTab(previousTab || 'home')} hideHeader={true} />}
@@ -135,7 +135,7 @@ export default function AppRouter(props) {
                                     onSecurity={() => setActiveTab('security')}
                                     onBackup={() => setActiveTab('backup')}
                                     onAdmin={() => setActiveTab('admin')}
-                                    onFeedback={() => setActiveTab('feedback')}
+                                    onFeedback={() => setActiveTab('support')}
                                     onGuide={() => setActiveTab('guide')}
                                 />
                             </div>
@@ -178,7 +178,7 @@ export default function AppRouter(props) {
                                 <TermsOfServiceView onBack={() => setActiveTab('general')} />
                             </div>
                         )}
-                        {activeTab === 'feedback' && (
+                        {(activeTab === 'support' || activeTab === 'feedback') && (
                             <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark">
                                 <FeedbackView user={user} onBack={() => setActiveTab('profile')} />
                             </div>

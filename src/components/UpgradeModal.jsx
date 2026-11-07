@@ -120,7 +120,7 @@ const UpgradeModal = () => {
                         className="w-full max-w-xl max-h-[92dvh] sm:max-h-[88dvh] bg-gray-100/95 dark:bg-surface-dark2 rounded-t-2xl sm:rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden text-gray-900 dark:text-white"
                     >
                         {/* ── Modal Header ── */}
-                        <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between shrink-0 bg-white/60 dark:bg-surface-dark2/60">
+                        <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between shrink-0 bg-white dark:bg-surface-dark2">
                             <div>
                                 <div className="flex items-center gap-2">
                                     <ShieldCheck size={18} strokeWidth={2.4} className="text-amber-500 shrink-0" />
@@ -131,7 +131,7 @@ const UpgradeModal = () => {
                                         PRO
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium">
+                                <p className="text-xs text-gray-500 dark:text-gray-300 mt-0.5 font-medium">
                                     {t('upgrade_sheet_sub') || 'Πλήρης οικονομικός έλεγχος χωρίς περιορισμούς'}
                                 </p>
                             </div>
@@ -140,7 +140,7 @@ const UpgradeModal = () => {
                                 type="button"
                                 onClick={closeUpgradeModal}
                                 aria-label="Close"
-                                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors shrink-0"
+                                className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors shrink-0"
                             >
                                 <X size={18} />
                             </button>
@@ -157,7 +157,7 @@ const UpgradeModal = () => {
                                     className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                                         billing === 'monthly'
                                             ? 'bg-white dark:bg-surface-dark3 text-gray-950 dark:text-white shadow-xs'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                                 >
                                     {t('monthly', 'Μηνιαία')} (€{MONTHLY_PRICE})
@@ -168,7 +168,7 @@ const UpgradeModal = () => {
                                     className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                                         billing === 'yearly'
                                             ? 'bg-white dark:bg-surface-dark3 text-gray-950 dark:text-white shadow-xs'
-                                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                                 >
                                     <span>{t('yearly', 'Ετήσια')} (€{YEARLY_PRICE})</span>
@@ -185,11 +185,11 @@ const UpgradeModal = () => {
                                         <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                                             {billing === 'yearly' ? `€${YEARLY_PRICE}` : `€${MONTHLY_PRICE}`}
                                         </span>
-                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-300">
                                             {billing === 'yearly' ? `/ ${t('yearly', 'έτος')}` : `/ ${t('monthly', 'μήνα')}`}
                                         </span>
                                     </div>
-                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                                    <p className="text-[11px] text-gray-500 dark:text-gray-300 font-medium mt-0.5">
                                         {billing === 'yearly'
                                             ? `≈ €${YEARLY_PER_MO}/μήνα · Κέρδος ${YEARLY_SAVINGS_PERCENT}%`
                                             : t('cancel_anytime') || 'Ακυρώνεις όποτε θες'}
@@ -206,7 +206,7 @@ const UpgradeModal = () => {
 
                             {/* Pro Features Included */}
                             <div className="space-y-1">
-                                <p className="text-[11px] font-bold text-gray-500 dark:text-white/60 uppercase tracking-widest px-1 mb-1.5">
+                                <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1 mb-1.5">
                                     {t('what_included') || 'Τι περιλαμβάνει το Pro'}
                                 </p>
                                 <div className="bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 divide-y divide-gray-100 dark:divide-white/[0.06] overflow-hidden shadow-xs">
@@ -214,12 +214,12 @@ const UpgradeModal = () => {
                                         const Icon = feat.icon;
                                         return (
                                             <div key={feat.title} className="flex items-start gap-3 p-3 transition-colors">
-                                                <Icon size={16} strokeWidth={2.2} className="text-gray-700 dark:text-gray-300 shrink-0 mt-0.5" />
+                                                <Icon size={16} strokeWidth={2.2} className="text-gray-700 dark:text-gray-200 shrink-0 mt-0.5" />
                                                 <div className="min-w-0 flex-1">
                                                     <p className="text-xs font-bold text-gray-900 dark:text-white leading-snug">
                                                         {feat.title}
                                                     </p>
-                                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed mt-0.5">
+                                                    <p className="text-[11px] text-gray-600 dark:text-gray-300 font-medium leading-relaxed mt-0.5">
                                                         {feat.desc}
                                                     </p>
                                                 </div>
@@ -249,7 +249,7 @@ const UpgradeModal = () => {
                                 )}
                             </button>
 
-                            <p className="text-[11px] text-center text-gray-500 dark:text-gray-400 font-medium">
+                            <p className="text-[11px] text-center text-gray-600 dark:text-gray-300 font-medium">
                                 {t('cancel_anytime') || 'Ακυρώνεις όποτε θες · Τιμή με ΦΠΑ'} · Stripe
                             </p>
                         </div>

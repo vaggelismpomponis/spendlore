@@ -144,8 +144,8 @@ const DesktopSidebar = ({
 
                 <NavItem icon={Target} label={t('goals')} active={activeTab === 'goals'} onClick={() => navTo('goals')} />
                 <NavItem icon={PiggyBank} label={t('budgets')} active={activeTab === 'budgets'} onClick={() => navTo('budgets')} />
-                <NavItem icon={RefreshCw} label={t('recurring')} active={activeTab === 'recurring'} onClick={() => { setPreviousTab('home'); navTo('recurring'); }} />
-                <NavItem icon={Lightbulb} label={t('advisor_title')} active={activeTab === 'advisor'} onClick={() => navTo('advisor')} />
+                <NavItem id="nav-recurring" icon={RefreshCw} label={t('recurring')} active={activeTab === 'recurring'} onClick={() => { setPreviousTab?.('home'); navTo('recurring'); }} showCrown={!isPro} />
+                <NavItem id="nav-advisor" icon={Lightbulb} label={t('advisor_title')} active={activeTab === 'advisor'} onClick={() => navTo('advisor')} showCrown={!isPro} />
 
                 <SectionLabel label={t('settings') || 'Settings'} />
 
@@ -153,7 +153,7 @@ const DesktopSidebar = ({
                     id="nav-profile"
                     icon={Settings}
                     label={t('settings') || 'Ρυθμίσεις'}
-                    active={['profile', 'account', 'general', 'security', 'backup', 'feedback', 'guide', 'profile-details', 'categories'].includes(activeTab)}
+                    active={['profile', 'account', 'general', 'security', 'backup', 'support', 'feedback', 'guide', 'profile-details', 'categories'].includes(activeTab)}
                     onClick={() => navTo('profile')}
                 />
 
