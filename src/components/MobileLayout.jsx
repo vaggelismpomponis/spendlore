@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
+import { User, Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import Navbar from './Navbar';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
@@ -116,7 +116,7 @@ export default function MobileLayout({
                                     {activeTab === 'stats' && translate('nav_stats')}
                                     {activeTab === 'goals' && translate('goals')}
                                     {activeTab === 'budgets' && translate('budgets')}
-                                    {(activeTab === 'support' || activeTab === 'feedback') && (language === 'el' ? 'Τεχνική Υποστήριξη' : 'Support')}
+                                    {(activeTab === 'support' || activeTab === 'feedback') && (translate('technical_support') || translate('support') || 'Support')}
                                     {activeTab === 'admin' && 'Admin Panel'}
                                 </h2>
                             )}

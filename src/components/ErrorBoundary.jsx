@@ -233,49 +233,51 @@ class ErrorBoundaryClass extends React.Component {
                             </button>
                         </div>
 
-                        {/* Collapsible Technical Details */}
-                        <div className="w-full text-left pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
-                            <div className="flex items-center justify-between">
-                                <button
-                                    type="button"
-                                    onClick={() => this.setState({ showDetails: !this.state.showDetails })}
-                                    className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors py-1 cursor-pointer"
-                                >
-                                    {this.state.showDetails ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                                    <span>{t('error_details')}</span>
-                                </button>
-                                {this.state.showDetails && (
+                        {/* Collapsible Technical Details — strictly rendered in development mode only */}
+                        {Boolean(import.meta.env.DEV) && (
+                            <div className="w-full text-left pt-4 mt-4 border-t border-gray-100 dark:border-white/5">
+                                <div className="flex items-center justify-between">
                                     <button
                                         type="button"
-                                        onClick={this.handleCopyError}
-                                        className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 font-semibold hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        onClick={() => this.setState({ showDetails: !this.state.showDetails })}
+                                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors py-1 cursor-pointer"
                                     >
-                                        {this.state.copied ? (
-                                            <>
-                                                <CheckCircle2 size={12} className="text-emerald-500" />
-                                                <span>{t('copied')}</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Copy size={12} />
-                                                <span>{t('copy_error')}</span>
-                                            </>
-                                        )}
+                                        {this.state.showDetails ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                        <span>{t('error_details')}</span>
                                     </button>
+                                    {this.state.showDetails && (
+                                        <button
+                                            type="button"
+                                            onClick={this.handleCopyError}
+                                            className="flex items-center gap-1 text-[11px] text-gray-600 dark:text-gray-300 font-semibold hover:text-gray-900 dark:hover:text-white transition-colors"
+                                        >
+                                            {this.state.copied ? (
+                                                <>
+                                                    <CheckCircle2 size={12} className="text-emerald-500" />
+                                                    <span>{t('copied')}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Copy size={12} />
+                                                    <span>{t('copy_error')}</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
+                                </div>
+
+                                {this.state.showDetails && (
+                                    <div className="mt-2.5 p-3.5 bg-gray-50 dark:bg-black/30 rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden text-left">
+                                        <p className="font-mono text-[11px] break-all text-rose-600 dark:text-rose-400 mb-2 font-semibold select-text">
+                                            {this.state.error && this.state.error.toString()}
+                                        </p>
+                                        <div className="font-mono text-[10px] text-gray-500 dark:text-gray-400 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed custom-scrollbar select-text">
+                                            {this.state.errorInfo && this.state.errorInfo.componentStack}
+                                        </div>
+                                    </div>
                                 )}
                             </div>
-
-                            {this.state.showDetails && (
-                                <div className="mt-2.5 p-3.5 bg-gray-50 dark:bg-black/30 rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden text-left">
-                                    <p className="font-mono text-[11px] break-all text-rose-600 dark:text-rose-400 mb-2 font-semibold select-text">
-                                        {this.state.error && this.state.error.toString()}
-                                    </p>
-                                    <div className="font-mono text-[10px] text-gray-500 dark:text-gray-400 whitespace-pre-wrap max-h-36 overflow-y-auto leading-relaxed custom-scrollbar select-text">
-                                        {this.state.errorInfo && this.state.errorInfo.componentStack}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
             );

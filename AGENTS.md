@@ -83,3 +83,9 @@ Whenever building or redesigning modals, dialogs, forms, or new interactive surf
   - Secondary Action (Cancel / Later): `flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm`.
   - Primary Action (Save / Submit): `flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm disabled:opacity-50` with `<Check size={16} />`. (For financial income/deposit actions, use semantic emerald `bg-emerald-600 hover:bg-emerald-700 text-white`).
   - Never use full-width electric purple/violet buttons (`bg-violet-600`) for standard modal forms.
+
+## Production Privacy & Error Shielding Guidelines
+
+- **Zero Technical Error Details in Production**: NEVER display technical error messages, exceptions, stack traces, component stacks, or collapsible "Error Details / Λεπτομέρειες Σφάλματος" UI to end users in production. Exposing technical stack traces in production is a severe security, privacy, and corporate standards violation.
+- **Strict Development-Only Diagnostics**: Any detailed diagnostics, raw error objects, stack traces, and "Copy Error" actions must be strictly guarded behind development mode (`import.meta.env.DEV`). In production builds, the error boundary must only present clean, reassuring, user-friendly language ("Κάτι πήγε στραβά / Something went wrong") alongside recovery actions ("Ανανέωση Εφαρμογής", "Εκκαθάριση & Επανεκκίνηση").
+- **Silent Telemetry Only**: All technical diagnostics, error objects, and component stacks in production must be reported silently to Sentry and background logging without polluting the user-facing UI.

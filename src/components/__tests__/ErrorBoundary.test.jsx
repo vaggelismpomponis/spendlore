@@ -89,6 +89,23 @@ describe('ErrorBoundary Component', () => {
         expect(screen.getByText('copy_error')).toBeInTheDocument();
     });
 
+    it('never renders error details or stack traces when in production mode', () => {
+        const originalDev = import.meta.env.DEV;
+        try {
+            import.meta.env.DEV = false;
+            render(
+                <ErrorBoundary disableAutoRetry={true}>
+                    <ThrowingComponent />
+                </ErrorBoundary>
+            );
+
+            expect(screen.queryByText('error_details')).not.toBeInTheDocument();
+            expect(screen.queryByText(/Test exploding error/)).not.toBeInTheDocument();
+        } finally {
+            import.meta.env.DEV = originalDev;
+        }
+    });
+
     it('supports custom inline fallback', () => {
         render(
             <ErrorBoundary
