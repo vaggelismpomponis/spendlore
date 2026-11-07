@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="fullPrimaryRibbon" x1="0.1" y1="0.05" x2="0.9" y2="0.95">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="30%" stop-color="#8B5CF6"/>
+      <stop offset="70%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+
+    <linearGradient id="fullFrontRibbon" x1="0.8" y1="0.1" x2="0.2" y2="0.9">
+      <stop offset="0%" stop-color="#C084FC"/>
+      <stop offset="35%" stop-color="#9333EA"/>
+      <stop offset="75%" stop-color="#6D28D9"/>
+      <stop offset="100%" stop-color="#4338CA"/>
+    </linearGradient>
+
+    <linearGradient id="fullEmeraldAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <filter id="fullShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="-2" dy="6" stdDeviation="7" flood-color="#1E1035" flood-opacity="0.35"/>
+    </filter>
+
+    <linearGradient id="fullCoreGlow" x1="0.3" y1="0.2" x2="0.7" y2="0.8">
+      <stop offset="0%" stop-color="#DDD6FE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#7C3AED" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ── EMBLEM (Left: x=60..360, y=50..350) ── -->
+  <g transform="translate(60, 50) scale(0.60)">
+    <!-- Back loop -->
+    <path
+      d="M 256 256
+         C 285 292, 335 348, 335 385
+         C 335 432, 298 462, 256 462
+         C 205 462, 168 424, 168 376
+         C 168 322, 218 268, 256 226
+         C 278 202, 310 162, 310 126
+         C 310 82, 280 50, 240 50
+         C 198 50, 172 82, 172 118"
+      fill="none"
+      stroke="url(#fullPrimaryRibbon)"
+      stroke-width="58"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Front S-Ribbon with shadow -->
+    <g filter="url(#fullShadow)">
+      <path
+        d="M 195 102
+           C 205 70, 230 50, 260 50
+           C 305 50, 344 86, 344 132
+           C 344 186, 292 242, 256 280
+           C 220 318, 168 368, 168 412
+           C 168 448, 192 462, 218 462
+           C 252 462, 285 435, 305 400"
+        fill="none"
+        stroke="url(#fullFrontRibbon)"
+        stroke-width="58"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+
+    <!-- Specular highlight -->
+    <path
+      d="M 242 66
+         C 275 66, 326 95, 326 132
+         C 326 176, 282 228, 256 256
+         C 230 284, 186 336, 186 380"
+      fill="none"
+      stroke="url(#fullCoreGlow)"
+      stroke-width="12"
+      stroke-linecap="round"
+      opacity="0.75"
+    />
+
+    <!-- Emerald Growth Dot -->
+    <circle cx="340" cy="115" r="13" fill="url(#fullEmeraldAccent)" />
+    <circle cx="340" cy="115" r="17" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6"/>
+  </g>
+
+  <!-- ── TYPOGRAPHY WORDMARK ── -->
+  <g transform="translate(400, 215)">
+    <!-- Brand Title: Spendlore -->
+    <text font-family="'Outfit', 'Inter', system-ui, -apple-system, sans-serif" font-size="112" font-weight="900" letter-spacing="-3" fill="#0F172A">
+      Spend<tspan fill="url(#fullPrimaryRibbon)">lore</tspan>
+    </text>
+
+    <!-- Optional Pro Badge -->
+    <g transform="translate(540, -78)">
+      <rect width="68" height="34" rx="10" fill="#EEF2FF" stroke="#C7D2FE" stroke-width="1.5"/>
+      <text x="34" y="22" font-family="'Inter', sans-serif" font-size="14" font-weight="900" letter-spacing="1.5" fill="#4F46E5" text-anchor="middle">PRO</text>
+    </g>
+
+    <!-- Subtitle: Single Source of Truth Personal Finance -->
+    <text y="58" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" letter-spacing="3.5" fill="#64748B" text-transform="uppercase">
+      MASTER YOUR MONEY WITH ABSOLUTE CLARITY
+    </text>
+  </g>
+</svg>
