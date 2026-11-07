@@ -40,7 +40,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
 
             const priority = type === 'support' || type === 'bug' ? 'high' : 'normal';
 
-            const { data, error } = await supabase
+            const { error } = await supabase
                 .from('feedback')
                 .insert({
                     user_id: user?.id,
@@ -50,9 +50,7 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                     status: 'open',
                     priority,
                     created_at: new Date().toISOString()
-                })
-                .select()
-                .single();
+                });
 
             if (error) throw error;
 
@@ -65,7 +63,6 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        ticketId: data?.id,
                         type,
                         message: finalMessage,
                         userEmail: user?.email,
