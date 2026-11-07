@@ -6,8 +6,11 @@ import { Wallet, History, Plus, Home, ShieldCheck } from 'lucide-react';
 // Inject spotlight styles via CSS to avoid react-joyride spreading them onto SVG elements
 const SPOTLIGHT_STYLE = `
   .react-joyride__spotlight {
-    border-radius: 1.25rem !important;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5), 0 0 0 6px rgba(139, 92, 246, 0.15) !important;
+    border-radius: 1rem !important;
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.35), 0 0 0 5px rgba(15, 23, 42, 0.08) !important;
+  }
+  .dark .react-joyride__spotlight {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6), 0 0 0 5px rgba(255, 255, 255, 0.15) !important;
   }
 `;
 if (typeof document !== 'undefined' && !document.getElementById('joyride-spotlight-fix')) {
@@ -32,11 +35,6 @@ export const getTourSteps = (isDesktop = false) => [
             titleKey: 'tour_step1_title',
             descKey:  'tour_step1_desc',
             Icon:     Wallet,
-            gradient: 'from-violet-600 via-indigo-600 to-purple-700',
-            orbColor: 'bg-violet-400',
-            iconBg:   'bg-white/20',
-            iconColor: 'text-white',
-            accent:   '#7c3aed',
         },
     },
     {
@@ -48,11 +46,6 @@ export const getTourSteps = (isDesktop = false) => [
             titleKey: 'tour_step2_title',
             descKey:  'tour_step2_desc',
             Icon:     Plus,
-            gradient: 'from-emerald-500 via-teal-500 to-cyan-600',
-            orbColor: 'bg-emerald-400',
-            iconBg:   'bg-white/20',
-            iconColor: 'text-white',
-            accent:   '#10b981',
         },
     },
     {
@@ -64,11 +57,6 @@ export const getTourSteps = (isDesktop = false) => [
             titleKey: 'tour_step3_title',
             descKey:  'tour_step3_desc',
             Icon:     Home,
-            gradient: 'from-blue-600 via-indigo-500 to-violet-600',
-            orbColor: 'bg-blue-400',
-            iconBg:   'bg-white/20',
-            iconColor: 'text-white',
-            accent:   '#4f46e5',
         },
     },
     {
@@ -80,11 +68,6 @@ export const getTourSteps = (isDesktop = false) => [
             titleKey: 'tour_step4_title',
             descKey:  'tour_step4_desc',
             Icon:     History,
-            gradient: 'from-amber-500 via-orange-500 to-rose-500',
-            orbColor: 'bg-amber-400',
-            iconBg:   'bg-white/20',
-            iconColor: 'text-white',
-            accent:   '#f59e0b',
         },
     },
     {
@@ -96,11 +79,6 @@ export const getTourSteps = (isDesktop = false) => [
             titleKey: 'tour_step5_title',
             descKey:  'tour_step5_desc',
             Icon:     ShieldCheck,
-            gradient: 'from-rose-500 via-pink-500 to-fuchsia-600',
-            orbColor: 'bg-rose-400',
-            iconBg:   'bg-white/20',
-            iconColor: 'text-white',
-            accent:   '#ec4899',
         },
     },
 ];
@@ -150,18 +128,18 @@ const OnboardingTour = ({ run, onFinish, isDesktop = false }) => {
                 options: {
                     arrowColor: 'transparent',
                     zIndex: 10000,
-                    overlayColor: 'rgba(0, 0, 0, 0.55)',
+                    overlayColor: 'rgba(0, 0, 0, 0.65)',
                 },
                 overlay: {
-                    backdropFilter: 'blur(2px)',
-                    WebkitBackdropFilter: 'blur(2px)',
+                    backdropFilter: 'blur(3px)',
+                    WebkitBackdropFilter: 'blur(3px)',
                 },
             }}
             locale={{
-                back: '←',
-                close: '✕',
-                last: "Ξεκινώ! 🚀",
-                next: 'Επόμενο →',
+                back: 'Πίσω',
+                close: 'Κλείσιμο',
+                last: 'Ολοκλήρωση',
+                next: 'Επόμενο',
                 open: 'Open',
                 skip: 'Παράλειψη',
             }}

@@ -1,32 +1,18 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowRight, ArrowLeft, X } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 
-const FloatingOrbs = ({ orbColor }) => (
-    <>
-        <div className={`absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-25 blur-2xl pointer-events-none ${orbColor}`} />
-        <div className={`absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-20 blur-xl pointer-events-none ${orbColor}`} />
-        <div className={`absolute top-1/2 left-1/4 w-16 h-16 rounded-full opacity-15 blur-lg pointer-events-none ${orbColor}`} />
-    </>
-);
-
-const StepDots = ({ total, current }) => (
-    <div className="flex items-center gap-2">
-        {Array.from({ length: total }).map((_, i) => (
-            <motion.div
-                key={i}
-                animate={{
-                    width: i === current ? 24 : 8,
-                    opacity: i === current ? 1 : 0.35,
-                }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                className="h-2 rounded-full bg-white"
-            />
-        ))}
-    </div>
-);
-
+/**
+ * Executive Guided Tour Bubble (Zero AI Visual Slop)
+ * 
+ * Complies with strict Spendlore executive design standards:
+ * - Pure unboxed uppercase typography for step counters and overlines
+ * - Crisp 1px structural borders and flat high-contrast cards (no gradients, no blobs)
+ * - Pure unboxed Lucide icons inline with typography (no boxed containers)
+ * - Balanced monochrome action buttons (rounded-xl, no rounded-full pill buttons)
+ * - Greek monotonic toneless capitalization (ΒΗΜΑ 4 ΑΠΟ 5)
+ */
 const TourBubble = ({
     index,
     step,
@@ -35,73 +21,112 @@ const TourBubble = ({
     primaryProps,
     tooltipProps,
     isLastStep,
-    size,
+    size = 5,
 }) => {
-    const { t } = useSettings();
+    const { t, language } = useSettings();
     const config = step.data || {};
+    const Icon = config.Icon || null;
 
-    const Icon = config.Icon || (() => null);
-    
+    const isEl = language === 'el';
+    const stepCounterText = isEl
+        ? `ΒΗΜΑ ${index + 1} ΑΠΟ ${size}`
+        : `STEP ${index + 1} OF ${size}`;
+
+    const title = t(config.titleKey) || step.title || '';
+    const desc = t(config.descKey) || step.content || '';
+
     return (
         <motion.div
             {...tooltipProps}
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            initial={{ opacity: 0, scale: 0.96, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -10 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`w-[320px] max-w-[90vw] rounded-[2rem] overflow-hidden relative shadow-2xl bg-gradient-to-br ${config.gradient || 'from-violet-600 via-indigo-600 to-purple-700'}`}
+            exit={{ opacity: 0, scale: 0.96, y: -6 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+            className="w-[310px] max-w-[calc(100vw-24px)] sm:w-[350px] bg-white dark:bg-surface-dark2 border border-gray-200/90 dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl relative z-[10002] select-none text-left"
         >
-            <FloatingOrbs orbColor={config.orbColor || 'bg-white'} />
+            {/* Top Progress Row: Segmented Bars + Step Counter + Close */}
+            <div className="flex items-center justify-between gap-3 mb-3.5">
+                {/* Discrete Segmented Progress Bars */}
+                <div className="flex items-center gap-1.5 flex-1" aria-hidden="true">
+                    {Array.from({ length: size }).map((_, i) => (
+                        <div
+                            key={i}
+                            className={`h-1 flex-1 rounded-full transition-colors duration-200 ${
+                                i <= index
+                                    ? 'bg-gray-900 dark:bg-white'
+                                    : 'bg-gray-200 dark:bg-white/15'
+                            }`}
+                        />
+                    ))}
+                </div>
 
-            {/* Header / Progress */}
-            <div className="relative z-10 grid items-center px-6 pt-6 pb-2" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
-                <StepDots total={size} current={index} />
-                <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap">
-                    {index + 1}/{size} {t('guide_getting_started') || 'Guide'}
+                {/* Pure Unboxed Step Counter */}
+                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest tabular-nums shrink-0">
+                    {stepCounterText}
                 </span>
-                <div className="flex justify-end">
-                    {step.hideCloseButton !== true && (
-                        <button
-                            {...closeProps}
-                            className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors"
-                        >
-                            <X size={14} />
-                        </button>
-                    )}
-                </div>
-            </div>
 
-            {/* Content */}
-            <div className="relative z-10 px-6 pb-6 pt-4 flex flex-col items-center text-center">
-                <div className={`w-12 h-12 rounded-2xl ${config.iconBg || 'bg-white/20'} flex items-center justify-center ${config.iconColor || 'text-white'} mb-5 shadow-inner`}>
-                    <Icon size={24} />
-                </div>
-                <h3 className="text-xl font-black text-white mb-2 leading-tight">
-                    {t(config.titleKey) || step.title}
-                </h3>
-                <p className="text-sm font-medium text-white/80 leading-relaxed">
-                    {t(config.descKey) || step.content}
-                </p>
-            </div>
-
-            {/* Actions */}
-            <div className="relative z-10 p-2 bg-white dark:bg-surface-dark flex items-center gap-2">
-                {index > 0 && (
+                {/* Unboxed Close Button */}
+                {step.hideCloseButton !== true && (
                     <button
-                        {...backProps}
-                        className="w-12 h-12 rounded-[1.25rem] bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 flex flex-shrink-0 items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        {...closeProps}
+                        type="button"
+                        aria-label={t('close') || 'Close'}
+                        className="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors shrink-0"
                     >
-                        <ArrowLeft size={18} />
+                        <X size={15} />
                     </button>
                 )}
-                
+            </div>
+
+            {/* Content Body: Inline Unboxed Icon + Typography */}
+            <div className="flex items-start gap-3 mt-1">
+                {Icon && (
+                    <div className="pt-0.5 shrink-0 text-gray-900 dark:text-white" aria-hidden="true">
+                        <Icon size={20} strokeWidth={2.2} />
+                    </div>
+                )}
+                <div className="flex-1 min-w-0">
+                    <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white leading-snug">
+                        {title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-1.5">
+                        {desc}
+                    </p>
+                </div>
+            </div>
+
+            {/* Action Buttons Row */}
+            <div className="flex items-center gap-2.5 pt-3.5 mt-4 border-t border-gray-100 dark:border-white/5">
+                {index > 0 ? (
+                    <button
+                        {...backProps}
+                        type="button"
+                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-gray-700 dark:text-gray-200 font-semibold rounded-xl text-xs transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                    >
+                        <ArrowLeft size={14} />
+                        <span>{t('onboarding_back') || 'Πίσω'}</span>
+                    </button>
+                ) : (
+                    <button
+                        {...closeProps}
+                        type="button"
+                        className="px-2.5 py-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xs font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors shrink-0"
+                    >
+                        {t('onboarding_skip') || 'Παράλειψη'}
+                    </button>
+                )}
+
                 <button
                     {...primaryProps}
-                    className="flex-1 h-12 rounded-[1.25rem] bg-violet-600 hover:bg-violet-700 text-white font-bold flex items-center justify-center gap-2 transition-colors"
-                    style={{ backgroundColor: config.accent, outline: 'none', border: 'none' }}
+                    type="button"
+                    className="flex-1 py-2 px-3.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 text-xs sm:text-sm"
                 >
-                    {isLastStep ? t('onboarding_finish') || "Let's Go!" : t('onboarding_next') || 'Next'}
-                    {!isLastStep && <ArrowRight size={16} />}
+                    <span>
+                        {isLastStep
+                            ? (t('onboarding_finish') || 'Ολοκλήρωση')
+                            : (t('onboarding_next') || 'Επόμενο')}
+                    </span>
+                    {!isLastStep && <ArrowRight size={14} />}
                 </button>
             </div>
         </motion.div>

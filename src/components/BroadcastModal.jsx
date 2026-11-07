@@ -35,7 +35,7 @@ const BroadcastModal = ({ isOpen, onClose, data }) => {
 
                 <div className="p-8 text-center space-y-4">
                     <div className="space-y-1">
-                        <span className="text-[10px] font-black text-violet-500 uppercase tracking-[0.2em]">Ανακοίνωση</span>
+                        <span className="text-[10px] font-black text-violet-500 tracking-[0.2em]">ΑΝΑΚΟΙΝΩΣΗ</span>
                         <h3 id="broadcast-modal-title" className="text-xl font-black text-gray-900 dark:text-white leading-tight">
                             {data.title}
                         </h3>

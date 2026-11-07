@@ -109,6 +109,48 @@ describe('Transaction Notification Parser', () => {
     });
 
     describe('Valid Transaction Parsing (Must Accept & Parse Correctly)', () => {
+        it('parses Google Wallet real-world Wolt purchase with Ticket Restaurant', () => {
+            const data = {
+                title: 'Wolt',
+                text: '€6.39 with Ticket Restaurant® ••2331',
+                packageName: 'com.google.android.apps.walletnfcrel'
+            };
+            const parsed = parseNotificationTransaction(data);
+            expect(parsed.isValidTransaction).toBe(true);
+            expect(parsed.amount).toBe(6.39);
+            expect(parsed.currency).toBe('EUR');
+            expect(parsed.type).toBe('expense');
+            expect(parsed.category).toBe('Φαγητό');
+            expect(parsed.merchant).toBe('Wolt');
+            expect(parsed.sourceName).toBe('Google Pay');
+        });
+
+        it('parses Google Wallet purchase with card indicator and Greek merchant', () => {
+            const data = {
+                title: 'AB Vassilopoulos',
+                text: '€14.50 with Visa ••1234',
+                packageName: 'com.google.android.apps.wallet'
+            };
+            const parsed = parseNotificationTransaction(data);
+            expect(parsed.isValidTransaction).toBe(true);
+            expect(parsed.amount).toBe(14.50);
+            expect(parsed.category).toBe('Σούπερ Μάρκετ');
+            expect(parsed.merchant).toBe('AB Vassilopoulos');
+        });
+
+        it('parses Google Wallet purchase in Greek with comma decimals', () => {
+            const data = {
+                title: 'Starbucks',
+                text: '4,80 € με κάρτα ••5678',
+                packageName: 'com.google.android.apps.walletnfcrel'
+            };
+            const parsed = parseNotificationTransaction(data);
+            expect(parsed.isValidTransaction).toBe(true);
+            expect(parsed.amount).toBe(4.80);
+            expect(parsed.category).toBe('Καφές');
+            expect(parsed.merchant).toBe('Starbucks');
+        });
+
         it('parses Google Pay expense at Sklavenitis', () => {
             const data = {
                 title: 'Google Pay',

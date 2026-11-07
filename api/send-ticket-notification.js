@@ -24,6 +24,20 @@ export function escapeHtml(str) {
 }
 
 /**
+ * Strips Greek accent marks (τόνοι) when converting text to uppercase.
+ * In Greek monotonic orthography, all-caps words never have accent marks.
+ * Preserves diaeresis/dialytika (διαλυτικά) to maintain correct pronunciation.
+ */
+export function stripGreekAccents(str) {
+  if (!str) return '';
+  return String(str)
+    .normalize('NFD')
+    .replace(/[\u0300-\u0307\u0309-\u036f]/g, '')
+    .normalize('NFC')
+    .toUpperCase();
+}
+
+/**
  * Normalizes and formats the app version string cleanly.
  * Prevents redundant prefixes such as "vΈκδοση 1.1.37".
  */
@@ -53,7 +67,11 @@ export function generateTicketEmailHtml({
   priority
 }) {
   const isHighPriority = String(priority).toLowerCase() === 'high';
-  const priorityText = isHighPriority ? 'Υψηλή (High)' : 'Κανονική (Normal)';
+  const priorityText = isHighPriority
+    ? 'ΥΨΗΛΗ (HIGH)'
+    : (priority && String(priority).toLowerCase() !== 'normal'
+        ? stripGreekAccents(priority)
+        : 'ΚΑΝΟΝΙΚΗ (NORMAL)');
   const priorityStyle = isHighPriority
     ? 'background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;'
     : 'background-color: #f1f5f9; color: #334155; border: 1px solid #e2e8f0;';
@@ -86,15 +104,15 @@ export function generateTicketEmailHtml({
               <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation">
                 <tr>
                   <td>
-                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #64748b; margin-bottom: 6px;">
-                      Spendlore &bull; Κέντρο Υποστήριξης
+                    <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: #64748b; margin-bottom: 6px;">
+                      SPENDLORE &bull; ΚΕΝΤΡΟ ΥΠΟΣΤΗΡΙΞΗΣ
                     </div>
                     <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; line-height: 1.3;">
                       Νέο Αίτημα Υποστήριξης
                     </h1>
                   </td>
                   <td align="right" valign="top">
-                    <span style="display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 6px; ${priorityStyle}">
+                    <span style="display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 10px; border-radius: 6px; ${priorityStyle}">
                       ${priorityText}
                     </span>
                   </td>
@@ -137,8 +155,8 @@ export function generateTicketEmailHtml({
           <!-- Message Area -->
           <tr>
             <td style="padding: 8px 28px 24px 28px;">
-              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; margin-bottom: 8px;">
-                Μήνυμα Χρήστη
+              <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #64748b; margin-bottom: 8px;">
+                ΜΗΝΥΜΑ ΧΡΗΣΤΗ
               </div>
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 3px solid #0f172a; border-radius: 6px; padding: 16px 18px;">
                 <div style="font-size: 14px; line-height: 1.6; color: #1e293b; white-space: pre-wrap; word-break: break-word; font-family: inherit;">{{USER_MESSAGE}}</div>

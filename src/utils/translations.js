@@ -116,7 +116,7 @@ export const translations = {
         user_guide: 'Οδηγός Χρήσης',
         user_guide_desc: 'Μάθετε πώς να χρησιμοποιείτε την εφαρμογή',
         // Onboarding interactive tour steps
-        tour_step1_title: 'Καλωσόρισες στο Spendlore! 🎉',
+        tour_step1_title: 'Καλωσόρισες στο Spendlore',
         tour_step1_desc: 'Σε 60 δευτερόλεπτα θα ξέρεις όλα όσα χρειάζεσαι για να πάρεις τον έλεγχο των οικονομικών σου.',
         tour_step2_title: 'Πρόσθεσε τη 1η σου συναλλαγή',
         tour_step2_desc: 'Πάτησε αυτό το κουμπί για να καταγράψεις έξοδο ή εισόδημα σε λιγότερο από 10 δευτερόλεπτα.',
@@ -1302,7 +1302,7 @@ export const translations = {
         user_guide: 'User Guide',
         user_guide_desc: 'Learn how to use the app',
         // Onboarding interactive tour steps
-        tour_step1_title: 'Welcome to Spendlore! 🎉',
+        tour_step1_title: 'Welcome to Spendlore',
         tour_step1_desc: 'In 60 seconds you will know everything you need to take control of your finances.',
         tour_step2_title: 'Add your 1st transaction',
         tour_step2_desc: 'Tap this button to record an expense or income in less than 10 seconds.',

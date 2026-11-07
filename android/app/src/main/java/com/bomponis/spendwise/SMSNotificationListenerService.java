@@ -141,6 +141,13 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         "xreosi|agora|pliromi|synallagi|katathesi|pistosi|egkrithike)"
     );
 
+    // Regex for digital wallet card payment indicators (e.g. "with Ticket Restaurant® ••2331", "με Visa ••1234")
+    private static final Pattern WALLET_CARD_PATTERN = Pattern.compile(
+        "(?i)(?:\\b(?:with|using|via)\\s+[\\w\\s®.-]*(?:••|\\.{2,}|\\*+)\\d{2,4}|" +
+        "\\b(?:με|μ[έε]σω)\\s+[\\w\\sΑ-Ωα-ωά-ώ®.-]*(?:••|\\.{2,}|\\*+|κ[άα]ρτα)\\s*\\d{0,4}|" +
+        "(?:••|\\.{2,}|\\*+)\\d{2,4})"
+    );
+
     // Regex for monetary amount with currency (REQUIRED)
     private static final Pattern AMOUNT_CURRENCY_PATTERN = Pattern.compile(
         "(?i)(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])\\s*\\d+(?:[.,]\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])|\\b\\d+[.,]\\d{2}\\b"
@@ -215,9 +222,13 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return;
         }
 
-        // 4. Positive Check: Transaction action keyword must be present
-        if (!TRANSACTION_ACTION_PATTERN.matcher(combined).find()) {
-            Log.d(TAG, "Rejected: No transaction action verb found");
+        // 4. Positive Check: Transaction action keyword or digital wallet card indicator must be present
+        boolean isWalletApp = isWalletPackage(packageName);
+        boolean hasActionVerb = TRANSACTION_ACTION_PATTERN.matcher(combined).find();
+        boolean hasWalletCard = WALLET_CARD_PATTERN.matcher(combined).find();
+
+        if (!hasActionVerb && !hasWalletCard && !isWalletApp) {
+            Log.d(TAG, "Rejected: No transaction action verb or wallet card pattern found");
             return;
         }
 
@@ -265,6 +276,12 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         }
 
         return false;
+    }
+
+    private boolean isWalletPackage(String pkg) {
+        if (pkg == null) return false;
+        String p = pkg.toLowerCase();
+        return p.contains("wallet") || p.contains("gpay") || p.contains("spay") || (p.contains("pay") && !p.contains("play"));
     }
 
     private boolean isSmsPackage(String pkg) {

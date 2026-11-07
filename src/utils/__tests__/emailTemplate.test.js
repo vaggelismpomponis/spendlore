@@ -1,7 +1,35 @@
 import { describe, it, expect } from 'vitest';
-import { escapeHtml, formatAppVersion, generateTicketEmailHtml } from '../../../api/send-ticket-notification.js';
+import {
+  escapeHtml,
+  formatAppVersion,
+  generateTicketEmailHtml,
+  stripGreekAccents
+} from '../../../api/send-ticket-notification.js';
 
 describe('Email Template Utilities', () => {
+  describe('stripGreekAccents', () => {
+    it('strips Greek accent marks (τόνοι) when converting to uppercase', () => {
+      expect(stripGreekAccents('Κέντρο Υποστήριξης')).toBe('ΚΕΝΤΡΟ ΥΠΟΣΤΗΡΙΞΗΣ');
+      expect(stripGreekAccents('Υψηλή (High)')).toBe('ΥΨΗΛΗ (HIGH)');
+      expect(stripGreekAccents('Κανονική (Normal)')).toBe('ΚΑΝΟΝΙΚΗ (NORMAL)');
+      expect(stripGreekAccents('Μήνυμα Χρήστη')).toBe('ΜΗΝΥΜΑ ΧΡΗΣΤΗ');
+      expect(stripGreekAccents('Ά Έ Ή Ί Ό Ύ Ώ')).toBe('Α Ε Η Ι Ο Υ Ω');
+      expect(stripGreekAccents('ά έ ή ί ό ύ ώ')).toBe('Α Ε Η Ι Ο Υ Ω');
+    });
+
+    it('preserves dialytika (διαλυτικά) in uppercase conversion', () => {
+      expect(stripGreekAccents('προϊόν')).toBe('ΠΡΟΪΟΝ');
+      expect(stripGreekAccents('ευφυΐα')).toBe('ΕΥΦΥΪΑ');
+      expect(stripGreekAccents('μαΐστρος')).toBe('ΜΑΪΣΤΡΟΣ');
+    });
+
+    it('returns empty string on empty or falsy inputs', () => {
+      expect(stripGreekAccents('')).toBe('');
+      expect(stripGreekAccents(null)).toBe('');
+      expect(stripGreekAccents(undefined)).toBe('');
+    });
+  });
+
   describe('escapeHtml', () => {
     it('escapes dangerous HTML characters', () => {
       const input = '<script>alert("xss")</script> & \'test\'';
@@ -40,7 +68,7 @@ describe('Email Template Utilities', () => {
   });
 
   describe('generateTicketEmailHtml', () => {
-    it('renders executive light-theme email template with clean typography', () => {
+    it('renders executive light-theme email template with clean typography and toneless uppercase Greek', () => {
       const html = generateTicketEmailHtml({
         ticketId: 't-12345',
         typeLabel: 'Τεχνική Υποστήριξη',
@@ -59,6 +87,16 @@ describe('Email Template Utilities', () => {
       expect(html).not.toContain('#7c3aed');
       expect(html).not.toContain('💡');
 
+      // Validates toneless uppercase Greek headers and badges (strictly no accents on capital letters)
+      expect(html).toContain('SPENDLORE &bull; ΚΕΝΤΡΟ ΥΠΟΣΤΗΡΙΞΗΣ');
+      expect(html).toContain('ΥΨΗΛΗ (HIGH)');
+      expect(html).toContain('ΜΗΝΥΜΑ ΧΡΗΣΤΗ');
+      expect(html).not.toContain('ΚΈΝΤΡΟ');
+      expect(html).not.toContain('ΥΠΟΣΤΉΡΙΞΗΣ');
+      expect(html).not.toContain('ΥΨΗΛΉ');
+      expect(html).not.toContain('ΜΉΝΥΜΑ');
+      expect(html).not.toContain('ΧΡΉΣΤΗ');
+
       // Validates metadata inclusion
       expect(html).toContain('Τεχνική Υποστήριξη');
       expect(html).toContain('ebomponis@gmail.com');
@@ -68,7 +106,6 @@ describe('Email Template Utilities', () => {
       expect(html).toContain('t-12345');
 
       // Validates high priority styling
-      expect(html).toContain('Υψηλή (High)');
       expect(html).toContain('#b91c1c');
 
       // Validates action button
@@ -76,7 +113,7 @@ describe('Email Template Utilities', () => {
       expect(html).toContain('Απάντηση στον Χρήστη');
     });
 
-    it('handles normal priority and missing optional fields', () => {
+    it('handles normal priority and missing optional fields with toneless uppercase', () => {
       const html = generateTicketEmailHtml({
         ticketId: undefined,
         typeLabel: 'Πρόταση Λειτουργίας',
@@ -86,7 +123,8 @@ describe('Email Template Utilities', () => {
         priority: 'normal'
       });
 
-      expect(html).toContain('Κανονική (Normal)');
+      expect(html).toContain('ΚΑΝΟΝΙΚΗ (NORMAL)');
+      expect(html).not.toContain('ΚΑΝΟΝΙΚΉ');
       expect(html).toContain('v1.2.0');
       expect(html).not.toContain('Ticket ID');
     });

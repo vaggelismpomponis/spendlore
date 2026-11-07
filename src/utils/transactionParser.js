@@ -44,6 +44,9 @@ const SECURITY_REGEX = /(?:\b(?:new\s*login|login\s*detected|unrecognized\s*devi
 // Pure balance alert (e.g. "Available balance: 150€") without transaction verbs
 const PURE_BALANCE_REGEX = /^(?:.*(?:διαθ[έε]σιμο\s*υπ[όο]λοιπο|υπ[όο]λοιπο\s*λογαριασμο[ύυ]|available\s*balance|account\s*balance|current\s*balance).*)$/i;
 
+// Wallet card payment indicators (e.g. "with Ticket Restaurant® ••2331", "με Visa ••1234", "with card ••5678")
+export const WALLET_CARD_REGEX = /(?:\b(?:with|using|via)\s+[\w\s®.-]*(?:••|\.{2,}|\*+)\d{2,4}|\b(?:με|μ[έε]σω)\s+[\w\sΑ-Ωα-ωά-ώ®.-]*(?:••|\.{2,}|\*+|κ[άα]ρτα)\s*\d{0,4}|(?:••|\.{2,}|\*+)\d{2,4})/i;
+
 // Positive transaction action keywords
 const EXPENSE_KEYWORDS_REGEX = /(?:\b(?:paid|payment|purchase|charged|spent|debit|withdrawal|sent|transferred|pos|spent\s*at)\b|αγορ[άα]|χρ[έε]ωσ[ηη]|πληρωμ[ήη]|πληρ[ώω]θηκε|χρε[ώω]θηκε|αν[άα]ληψη|εξ[όο]φληση|συναλλαγ[ήη]|έξοδο|μεταφορ[άα]\s*σε|απεστ[άα]λη|στε[ίι]λατε|εγκρ[ίι]θηκε\s*(?:συναλλαγ[ήη]|αγορ[άα])|xreosi|agora|pliromi|synallagi)/i;
 
@@ -72,6 +75,7 @@ export const isTransactionNotification = (data = {}) => {
     const title = (data.title || '').trim();
     const text = (data.text || '').trim();
     const bigText = (data.bigText || '').trim();
+    const packageName = (data.packageName || '').toLowerCase();
     const combined = `${title} ${text} ${bigText}`.trim();
 
     if (!combined || combined.length < 5) return false;
@@ -91,8 +95,14 @@ export const isTransactionNotification = (data = {}) => {
         return false;
     }
 
-    // 4. Filter out pure balance queries without an actual transaction action
-    const hasExpenseAction = EXPENSE_KEYWORDS_REGEX.test(combined);
+    // 4. Positive transaction action check:
+    // Recognizes explicit action verbs OR digital wallet card notifications
+    // (e.g. Google Wallet: "Wolt €6.39 with Ticket Restaurant® ••2331", "€14.20 with Visa ••1234", "6,39 € με κάρτα ••2331")
+    const isWalletNotification =
+        /wallet|gpay|spay/i.test(packageName) ||
+        WALLET_CARD_REGEX.test(combined);
+
+    const hasExpenseAction = EXPENSE_KEYWORDS_REGEX.test(combined) || isWalletNotification;
     const hasIncomeAction = INCOME_KEYWORDS_REGEX.test(combined);
     if (!hasExpenseAction && !hasIncomeAction) {
         return false;
@@ -186,10 +196,23 @@ export const extractTransactionType = (text = '') => {
  * Extracts clean merchant or counterparty name
  */
 export const extractMerchant = (rawText = '', title = '', sourceName = '') => {
-    let combined = `${title} ${rawText}`.replace(/\s+/g, ' ');
+    const t = (title || '').trim();
+    const r = (rawText || '').trim();
+
+    // Don't duplicate title if it's already in rawText or if title is the bank/wallet app name
+    const isSourceTitle = SOURCE_PATTERNS.some(s => s.regex.test(t)) || /notification|messages|sms/i.test(t);
+    let combined = '';
+    if (isSourceTitle || !t || r.toLowerCase().startsWith(t.toLowerCase())) {
+        combined = r;
+    } else {
+        combined = `${t} ${r}`;
+    }
+    combined = combined.replace(/\s+/g, ' ');
 
     // Specific merchant patterns
     const patterns = [
+        // Google Wallet / Digital Wallets: "Wolt €6.39 with Ticket Restaurant® ••2331" or "AB Vassilopoulos • €14.50 with Visa ••1234"
+        /^([A-Za-z0-9\sΑ-Ωα-ωά-ώ&'./\-]+?)(?:\s+[•·-]\s*|\s+)(?:[€$£]|EUR|USD|GBP)?\s*\d+(?:[.,]\d{1,2})?\s*(?:[€$£]|EUR|USD|GBP)?\s*(?:with|με|using|on)\s+/i,
         // "Paid €12.50 to Starbucks" -> Starbucks
         /(?:paid|payment\s+to|sent|transferred\s+to)\s+(?:[€$£\d.,\s\w]+?)\s+to\s+([A-Za-z0-9\s&'./\-]+?)(?:\s+(?:with|using|on|via|\.|$))/i,
         // "Spent €12.50 at Shell" or "Purchase at Zara" -> Shell / Zara
@@ -304,7 +327,7 @@ export const parseNotificationTransaction = (rawNotification = {}) => {
 
     const fullContent = `${title} ${text} ${bigText} ${subText}`.trim();
 
-    if (!isTransactionNotification({ title, text, bigText, subText })) {
+    if (!isTransactionNotification({ title, text, bigText, subText, packageName })) {
         return {
             isValidTransaction: false,
             reason: 'Notification is not an authentic transaction (e.g. OTP, promo, balance, or unrecognized)'
