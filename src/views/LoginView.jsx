@@ -55,7 +55,7 @@ const LoginView = ({
     // Verification State
     const [showVerification, setShowVerification] = useState(false);
     const [verificationEmail, setVerificationEmail] = useState('');
-    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '', '', '']);
+    const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
     const [resendTimer, setResendTimer] = useState(0);
     const codeRefs = useRef([]);
 
@@ -77,15 +77,15 @@ const LoginView = ({
         setVerificationCode(newCode);
 
         // Auto-focus next
-        if (val && idx < 7) {
+        if (val && idx < 5) {
             codeRefs.current[idx + 1]?.focus();
         }
 
-        // Auto-submit if all 8 filled
+        // Auto-submit if all 6 filled
         if (newCode.every(v => v !== '') && val) {
             const finalCode = newCode.join('');
             onVerifyOtp(verificationEmail, finalCode).catch(() => {
-                setVerificationCode(['', '', '', '', '', '', '', '']);
+                setVerificationCode(['', '', '', '', '', '']);
                 codeRefs.current[0]?.focus();
             });
         }
@@ -100,21 +100,21 @@ const LoginView = ({
     const handlePaste = (e) => {
         e.preventDefault();
         const pastedData = e.clipboardData.getData('text').trim();
-        const digits = pastedData.replace(/\D/g, '').slice(0, 8);
+        const digits = pastedData.replace(/\D/g, '').slice(0, 6);
 
         if (digits.length > 0) {
             const newCode = [...verificationCode];
             digits.split('').forEach((digit, i) => {
-                if (i < 8) newCode[i] = digit;
+                if (i < 6) newCode[i] = digit;
             });
             setVerificationCode(newCode);
 
-            const nextIdx = Math.min(digits.length, 7);
+            const nextIdx = Math.min(digits.length, 5);
             codeRefs.current[nextIdx]?.focus();
 
-            if (digits.length === 8) {
+            if (digits.length === 6) {
                 onVerifyOtp(verificationEmail, digits).catch(() => {
-                    setVerificationCode(['', '', '', '', '', '', '', '']);
+                    setVerificationCode(['', '', '', '', '', '']);
                     codeRefs.current[0]?.focus();
                 });
             }
@@ -240,7 +240,7 @@ const LoginView = ({
     const handleVerify = async (e) => {
         if (e) e.preventDefault();
         const code = verificationCode.join('');
-        if (code.length !== 8) return;
+        if (code.length !== 6) return;
 
         setIsLoading(true);
         try {
@@ -248,7 +248,7 @@ const LoginView = ({
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
-            setVerificationCode(['', '', '', '', '', '', '', '']);
+            setVerificationCode(['', '', '', '', '', '']);
             codeRefs.current[0]?.focus();
         }
     };
@@ -381,18 +381,16 @@ const LoginView = ({
                                 </button>
 
                                 <div className="text-center space-y-2">
-                                    <div className="w-14 h-14 rounded-2xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center mx-auto text-violet-400 mb-3 shadow-[0_0_20px_rgba(124,58,237,0.25)]">
-                                        <ShieldCheck size={30} />
-                                    </div>
+                                    <ShieldCheck size={30} className="mx-auto text-white/80 mb-1" />
                                     <h2 className="text-lg font-bold text-white tracking-tight">
                                         {t('verification_code') || 'Κωδικός Επιβεβαίωσης'}
                                     </h2>
                                     <p className="text-xs text-gray-400 leading-relaxed px-2">
-                                        {(t('check_email_for_code') || 'Σου στείλαμε έναν 8-ψήφιο κωδικό στο {email}.').replace('{email}', verificationEmail)}
+                                        {(t('check_email_for_code') || 'Σου στείλαμε έναν 6-ψήφιο κωδικό στο {email}.').replace('{email}', verificationEmail)}
                                     </p>
                                 </div>
 
-                                <div className="flex justify-center gap-1 sm:gap-1.5 py-3">
+                                <div className="flex justify-center gap-2 sm:gap-2.5 py-3">
                                     {verificationCode.map((digit, idx) => (
                                         <input
                                             key={idx}
@@ -405,7 +403,7 @@ const LoginView = ({
                                             onKeyDown={e => handleKeyDown(idx, e)}
                                             onPaste={handlePaste}
                                             aria-label={`Digit ${idx + 1}`}
-                                            className="w-8 h-11 sm:w-9 sm:h-12 text-center text-base sm:text-lg font-bold rounded-xl
+                                            className="w-11 h-14 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold rounded-xl
                                                      bg-white/[0.05] border border-white/10
                                                      focus:border-white focus:bg-white/10 focus:ring-1 focus:ring-white
                                                      text-white outline-none transition-all shadow-xs"

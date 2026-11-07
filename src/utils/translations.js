@@ -757,12 +757,12 @@ export const translations = {
         invalid_email_format: 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email.',
         disposable_email_blocked: 'Δεν επιτρέπονται προσωρινές διευθύνσεις email.',
         verification_code: 'Κωδικός Επιβεβαίωσης',
-        enter_6_digit_pin: 'Εισάγετε τον 8-ψήφιο κωδικό που στάλθηκε στο email σας.',
+        enter_6_digit_pin: 'Εισάγετε τον 6-ψήφιο κωδικό που στάλθηκε στο email σας.',
         verify_btn: 'Επιβεβαίωση',
         resend_code: 'Επαναποστολή κωδικού',
         invalid_code: 'Μη έγκυρος κωδικός. Δοκιμάστε ξανά.',
         verification_title: 'Επιβεβαίωση Email',
-        check_email_for_code: 'Σου στείλαμε έναν 8-ψήφιο κωδικό στο {email}.',
+        check_email_for_code: 'Σου στείλαμε έναν 6-ψήφιο κωδικό στο {email}.',
 
         // Lock Screen
         biometric_reason: 'Είσοδος στο Spendlore',
@@ -1937,12 +1937,12 @@ export const translations = {
         invalid_email_format: 'Please enter a valid email address.',
         disposable_email_blocked: 'Disposable email addresses are not allowed.',
         verification_code: 'Verification Code',
-        enter_6_digit_pin: 'Enter the 8-digit code sent to your email.',
+        enter_6_digit_pin: 'Enter the 6-digit code sent to your email.',
         verify_btn: 'Verify',
         resend_code: 'Resend code',
         invalid_code: 'Invalid code. Please try again.',
         verification_title: 'Email Verification',
-        check_email_for_code: 'We sent an 8-digit code to {email}.',
+        check_email_for_code: 'We sent a 6-digit code to {email}.',
 
         // Lock Screen
         biometric_reason: 'Sign in to Spendlore',
