@@ -66,7 +66,9 @@ const AdminFeedback = ({
         return localTickets.filter(item => {
             const currentStatus = item.status || 'open';
             const matchesStatus = statusFilter === 'all' || currentStatus === statusFilter;
-            const matchesType = typeFilter === 'all' || item.type === typeFilter;
+            const isSupport = item.type === 'support' || (item.message || '').includes('[Support]');
+            const matchesType = typeFilter === 'all' || 
+                (typeFilter === 'support' ? isSupport : (item.type === typeFilter && !isSupport));
             const search = searchTerm.toLowerCase();
             const matchesSearch = !searchTerm ||
                 (item.message || '').toLowerCase().includes(search) ||

@@ -13,14 +13,15 @@ import {
     Save
 } from 'lucide-react';
 
-const getTypeMeta = (type) => {
+const getTypeMeta = (type, message = '') => {
+    if (type === 'support' || (message && message.includes('[Support]'))) {
+        return {
+            icon: LifeBuoy,
+            label: 'Support Ticket',
+            badgeClass: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-500/20'
+        };
+    }
     switch (type) {
-        case 'support':
-            return {
-                icon: LifeBuoy,
-                label: 'Support Ticket',
-                badgeClass: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-500/20'
-            };
         case 'bug':
             return {
                 icon: Bug,
@@ -76,7 +77,7 @@ const AdminTicketCard = ({
     const [notes, setNotes] = useState(item.admin_notes || '');
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
-    const typeMeta = getTypeMeta(item.type);
+    const typeMeta = getTypeMeta(item.type, item.message);
     const TypeIcon = typeMeta.icon;
     const status = item.status || 'open';
     const priority = item.priority || (item.type === 'bug' || item.type === 'support' ? 'high' : 'normal');

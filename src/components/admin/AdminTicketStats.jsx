@@ -5,7 +5,7 @@ const AdminTicketStats = ({ tickets = [] }) => {
     const openCount = tickets.filter(t => (t.status || 'open') === 'open').length;
     const inProgressCount = tickets.filter(t => t.status === 'in_progress').length;
     const resolvedCount = tickets.filter(t => t.status === 'resolved').length;
-    const supportCount = tickets.filter(t => t.type === 'support').length;
+    const supportCount = tickets.filter(t => t.type === 'support' || (t.message || '').includes('[Support]')).length;
 
     return (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

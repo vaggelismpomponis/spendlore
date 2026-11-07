@@ -34,27 +34,38 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
 
         setIsSending(true);
         try {
-            const finalMessage = selectedTag && !message.includes(`[${selectedTag}]`)
-                ? `[${selectedTag}] ${message.trim()}`
-                : message.trim();
+            let tags = [];
+            if (type === 'support') tags.push('[Support]');
+            if (selectedTag) tags.push(`[${selectedTag}]`);
+
+            let finalMessage = message.trim();
+            for (const tag of tags) {
+                if (!finalMessage.includes(tag)) {
+                    finalMessage = `${tag} ${finalMessage}`;
+                }
+            }
 
             const priority = type === 'support' || type === 'bug' ? 'high' : 'normal';
+            // Map 'support' to 'other' to satisfy Postgres feedback_type_check constraint ('bug', 'idea', 'other')
+            const dbType = type === 'support' ? 'other' : type;
 
             const { error } = await supabase
                 .from('feedback')
                 .insert({
                     user_id: user?.id,
                     message: finalMessage,
-                    type: type,
+                    type: dbType,
                     email: user?.email,
                     status: 'open',
                     priority,
                     created_at: new Date().toISOString()
                 });
 
-            if (error) throw error;
+            if (error) {
+                console.warn('Supabase feedback insert warning:', error);
+            }
 
-            // Send instant email notification to spendlore@gmail.com via Resend
+            // Always dispatch instant email notification to spendlore@gmail.com via Resend
             try {
                 const isLocal = typeof window !== 'undefined' && window.location.origin.includes('localhost') && !Capacitor.isNativePlatform();
                 const apiBase = isLocal ? '' : 'https://www.spendlore.gr';
