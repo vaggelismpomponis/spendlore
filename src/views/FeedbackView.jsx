@@ -8,7 +8,9 @@ import {
     CheckCircle2,
     ShieldCheck,
     Tag,
-    Heart
+    Heart,
+    LifeBuoy,
+    Mail
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useSettings } from '../contexts/SettingsContext';
@@ -16,12 +18,13 @@ import { useToast } from '../contexts/ToastContext';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import { getAppVersionString } from '../utils/version';
+import { Capacitor } from '@capacitor/core';
 
 const FeedbackView = ({ user, onBack, hideHeader = false }) => {
     const { t: translate, language } = useSettings();
     const { showToast } = useToast();
     const [message, setMessage] = useState('');
-    const [type, setType] = useState('idea'); // 'idea', 'bug', 'other'
+    const [type, setType] = useState('support'); // 'support', 'bug', 'idea', 'other'
     const [selectedTag, setSelectedTag] = useState('');
     const [isSending, setIsSending] = useState(false);
 
@@ -35,19 +38,46 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                 ? `[${selectedTag}] ${message.trim()}`
                 : message.trim();
 
-            const { error } = await supabase
+            const priority = type === 'support' || type === 'bug' ? 'high' : 'normal';
+
+            const { data, error } = await supabase
                 .from('feedback')
                 .insert({
                     user_id: user?.id,
                     message: finalMessage,
                     type: type,
                     email: user?.email,
+                    status: 'open',
+                    priority,
                     created_at: new Date().toISOString()
-                });
+                })
+                .select()
+                .single();
 
             if (error) throw error;
 
-            showToast(translate('feedback_success') || 'Thank you for your feedback!', 'success');
+            // Send instant email notification to spendlore@gmail.com via Resend
+            try {
+                const isLocal = typeof window !== 'undefined' && window.location.origin.includes('localhost') && !Capacitor.isNativePlatform();
+                const apiBase = isLocal ? '' : 'https://spendlore.gr';
+
+                fetch(`${apiBase}/api/send-ticket-notification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ticketId: data?.id,
+                        type,
+                        message: finalMessage,
+                        userEmail: user?.email,
+                        priority,
+                        appVersion: getAppVersionString()
+                    })
+                }).catch(err => console.warn('Ticket notification dispatch failed:', err));
+            } catch (notifyErr) {
+                console.warn('Failed to dispatch ticket notification:', notifyErr);
+            }
+
+            showToast(translate('feedback_success') || 'Thank you! Your ticket has been submitted to Spendlore Support.', 'success');
             setMessage('');
             setSelectedTag('');
             setTimeout(onBack, 1500);
@@ -61,35 +91,46 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
 
     const types = [
         {
-            id: 'idea',
-            icon: Lightbulb,
-            title: translate('idea_title') || 'Feature Idea',
-            subtitle: translate('idea_subtitle') || 'Suggest a new tool or improvement',
-            color: 'text-amber-500',
-            bg: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/20',
-            activeBorder: 'border-amber-400 dark:border-amber-500/50 ring-1 ring-amber-400/30'
+            id: 'support',
+            icon: LifeBuoy,
+            title: language === 'el' ? 'Τεχνική Υποστήριξη' : 'Support & Help',
+            subtitle: language === 'el' ? 'Βοήθεια με λογαριασμό ή συνδρομές' : 'Account, billing or app questions',
+            color: 'text-blue-500',
+            bg: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200/60 dark:border-blue-500/20',
+            activeBorder: 'border-blue-400 dark:border-blue-500/50 ring-1 ring-blue-400/30'
         },
         {
             id: 'bug',
             icon: Bug,
-            title: translate('bug_title') || 'Bug Report',
-            subtitle: translate('bug_subtitle') || 'Report a glitch or error',
+            title: translate('bug_title') || (language === 'el' ? 'Αναφορά Σφάλματος' : 'Bug Report'),
+            subtitle: translate('bug_subtitle') || (language === 'el' ? 'Αναφέρετε κάποιο πρόβλημα' : 'Report a glitch or error'),
             color: 'text-rose-500',
             bg: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200/60 dark:border-rose-500/20',
             activeBorder: 'border-rose-400 dark:border-rose-500/50 ring-1 ring-rose-400/30'
         },
         {
+            id: 'idea',
+            icon: Lightbulb,
+            title: translate('idea_title') || (language === 'el' ? 'Πρόταση Λειτουργίας' : 'Feature Idea'),
+            subtitle: translate('idea_subtitle') || (language === 'el' ? 'Προτείνετε μια νέα δυνατότητα' : 'Suggest a new tool or improvement'),
+            color: 'text-amber-500',
+            bg: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/20',
+            activeBorder: 'border-amber-400 dark:border-amber-500/50 ring-1 ring-amber-400/30'
+        },
+        {
             id: 'other',
             icon: MessageSquare,
-            title: translate('other_title') || 'General Feedback',
-            subtitle: translate('other_subtitle') || 'Questions or thoughts',
-            color: 'text-indigo-500',
-            bg: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200/60 dark:border-indigo-500/20',
-            activeBorder: 'border-indigo-400 dark:border-indigo-500/50 ring-1 ring-indigo-400/30'
+            title: translate('other_title') || (language === 'el' ? 'Γενικό Σχόλιο' : 'General Feedback'),
+            subtitle: translate('other_subtitle') || (language === 'el' ? 'Ερωτήσεις ή σκέψεις' : 'Questions or thoughts'),
+            color: 'text-gray-500 dark:text-gray-400',
+            bg: 'bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/10',
+            activeBorder: 'border-gray-400 dark:border-white/40 ring-1 ring-gray-400/30'
         },
     ];
 
     const quickTags = [
+        'Account & Login',
+        'Billing & Plan',
         'UI & Design',
         'Receipt Scanner',
         'Budgets & Limits',
@@ -99,6 +140,11 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
     ];
 
     const getPlaceholder = () => {
+        if (type === 'support') {
+            return language === 'el'
+                ? 'Πώς μπορούμε να σας βοηθήσουμε; Περιγράψτε το αίτημά σας σχετικά με τον λογαριασμό, τη συνδρομή ή την εφαρμογή...'
+                : 'How can we help? Describe your question or issue regarding your account, subscription, or app features...';
+        }
         if (type === 'idea') {
             return translate('feedback_placeholder_idea') || 'Describe your idea... How would it help you manage your finances better?';
         }
@@ -166,16 +212,34 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                         </div>
                     </div>
 
-                    {/* ─────── Feedback Form Card ─────── */}
+                    {/* ─────── Direct Support Channels Banner ─────── */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 shadow-xs">
+                        <div className="flex items-center gap-3">
+                            <Mail size={18} className="text-gray-700 dark:text-gray-300 shrink-0" />
+                            <div>
+                                <span className="text-xs font-extrabold text-gray-900 dark:text-white">
+                                    {language === 'el' ? 'Επίσημο Email Υποστήριξης:' : 'Official Customer Support:'}
+                                </span>
+                                <span className="ml-2 text-xs font-bold text-gray-600 dark:text-gray-400">
+                                    info@spendlore.gr
+                                </span>
+                            </div>
+                        </div>
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                            {language === 'el' ? 'Απάντηση εντός 24 ωρών' : 'Guaranteed 24h response'}
+                        </span>
+                    </div>
+
+                    {/* ─────── Feedback & Ticket Form Card ─────── */}
                     <div className="bg-white dark:bg-surface-dark2 border border-gray-200/80 dark:border-white/10 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
 
                             {/* Type Selection */}
                             <div className="space-y-2.5">
                                 <label className="block text-xs font-extrabold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                                    {translate('type') || 'Feedback Type'}
+                                    {translate('type') || 'Request Type'}
                                 </label>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                     {types.map((t) => {
                                         const Icon = t.icon;
                                         const isSelected = type === t.id;
@@ -285,7 +349,11 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : (
                                     <>
-                                        <span>{translate('send_feedback') || 'Send Feedback'}</span>
+                                        <span>
+                                            {type === 'support'
+                                                ? (language === 'el' ? 'Υποβολή Αιτήματος Υποστήριξης' : 'Submit Support Ticket')
+                                                : (translate('send_feedback') || 'Send Feedback')}
+                                        </span>
                                         <Send size={16} />
                                     </>
                                 )}

@@ -5,7 +5,7 @@ import {
     LayoutDashboard, Users, MessageSquare, Radio,
     Filter, ChevronLeft, ChevronRight, ShieldCheck,
     Activity, CheckCircle2, SlidersHorizontal, ArrowRight,
-    ShieldAlert
+    ShieldAlert, LifeBuoy
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -30,22 +30,22 @@ const SidebarTab = ({ tab, isActive, onClick }) => {
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-left transition-all duration-150 group border ${isActive
-                    ? 'bg-violet-50 dark:bg-violet-500/15 text-violet-900 dark:text-violet-100 font-bold border-violet-200/80 dark:border-violet-500/30 shadow-xs'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white font-medium border-transparent'
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-150 group border ${isActive
+                    ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950 font-bold border-gray-950 dark:border-white shadow-xs'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-950 dark:hover:text-white font-medium border-transparent'
                 }`}
         >
-            <Icon size={17} strokeWidth={2.2} className={`shrink-0 ${isActive ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-gray-400'}`} />
+            <Icon size={16} strokeWidth={2.2} className={`shrink-0 ${isActive ? 'text-white dark:text-gray-950' : 'text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors'}`} />
             <span className="text-xs flex-1 truncate">{tab.label}</span>
             {tab.badge !== undefined && tab.badge !== null && (
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 ${isActive
-                        ? 'bg-violet-200/70 text-violet-800 dark:bg-violet-500/30 dark:text-violet-200'
-                        : 'bg-gray-200/60 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400'
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 tabular-nums ${isActive
+                        ? 'bg-white/20 text-white dark:bg-gray-950/10 dark:text-gray-950'
+                        : 'bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-white/10'
                     }`}>
                     {tab.badge}
                 </span>
             )}
-            {isActive && <ChevronRight size={13} className="shrink-0 text-violet-600 dark:text-violet-400" />}
+            {isActive && <ChevronRight size={13} className="shrink-0 text-white/70 dark:text-gray-950/70" />}
         </button>
     );
 };
@@ -593,10 +593,12 @@ const AdminView = ({ onBack, hideHeader }) => {
         return matchesFilter && matchesSearch;
     });
 
+    const openTicketsCount = feedback.filter(f => (f.status || 'open') !== 'resolved').length;
+
     const tabs = [
         { id: 'overview', icon: LayoutDashboard, label: translate('admin_tab_overview') || 'Overview', badge: null },
         { id: 'users', icon: Users, label: translate('admin_tab_users') || 'Users', badge: profiles.length || null },
-        { id: 'feedback', icon: MessageSquare, label: translate('admin_tab_feedback') || 'Feedback', badge: feedback.length || null },
+        { id: 'feedback', icon: LifeBuoy, label: translate('admin_tab_feedback') || 'Support & Tickets', badge: openTicketsCount > 0 ? `${openTicketsCount} open` : null },
         { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') || 'Updates', badge: updates.length || null },
         { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') || 'Broadcast', badge: 'Live' },
         { id: 'sentry', icon: ShieldAlert, label: translate('admin_tab_sentry') || 'Sentry Errors', badge: sentryErrors.length || null },
@@ -624,10 +626,20 @@ const AdminView = ({ onBack, hideHeader }) => {
                         metrics={metrics}
                         profiles={profiles}
                         sessions={sessions}
+                        feedback={feedback}
+                        sentryErrors={sentryErrors}
+                        updates={updates}
+                        openTicketsCount={openTicketsCount}
                         onNavigateUsers={() => setActiveSection('users')}
+                        onNavigateTab={(tab) => {
+                            setActiveSection(tab);
+                            if (tab !== 'users') setSelectedProfile(null);
+                        }}
                         onUserClick={handleProfileClick}
                         onSubClick={handleSubClick}
                         onDropdownAction={handleDropdownAction}
+                        onRefresh={fetchAllData}
+                        loading={loading}
                         translate={translate}
                     />
                 );
@@ -663,6 +675,9 @@ const AdminView = ({ onBack, hideHeader }) => {
                     <AdminFeedback
                         feedback={feedback}
                         onDelete={handleDeleteClick}
+                        onFeedbackUpdate={(id, updates) => {
+                            setFeedback(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+                        }}
                         translate={translate}
                     />
                 );
@@ -731,7 +746,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                         <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
                             <span>Admin Console</span>
                             <span className="text-gray-300 dark:text-white/20">/</span>
-                            <span className="font-extrabold text-violet-600 dark:text-violet-400 capitalize">
+                            <span className="font-extrabold text-gray-900 dark:text-white capitalize">
                                 {tabs.find(t => t.id === activeSection)?.label}
                             </span>
                         </div>
@@ -746,7 +761,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                         <button
                             onClick={fetchAllData}
                             disabled={loading}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-violet-50 dark:bg-violet-500/10 hover:bg-violet-100 dark:hover:bg-violet-500/20 border border-violet-200/60 dark:border-violet-500/20 text-xs font-bold text-violet-700 dark:text-violet-300 active:scale-95 transition-all"
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border border-gray-200/80 dark:border-white/10 text-xs font-bold text-gray-800 dark:text-gray-200 active:scale-95 transition-all"
                             title="Refresh Data"
                         >
                             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
@@ -784,12 +799,12 @@ const AdminView = ({ onBack, hideHeader }) => {
                                         key={tab.id}
                                         onClick={() => { setActiveSection(tab.id); if (tab.id !== 'users') setSelectedProfile(null); }}
                                         className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap
-                                            ${isActive ? 'bg-violet-600 text-white font-bold shadow-xs' : 'bg-gray-200/60 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400'}`}
+                                            ${isActive ? 'bg-gray-950 text-white font-bold shadow-xs dark:bg-white dark:text-gray-950' : 'bg-gray-200/60 dark:bg-white/[0.05] text-gray-600 dark:text-gray-400'}`}
                                     >
                                         <Icon size={13} />
                                         <span>{tab.label}</span>
                                         {tab.badge && (
-                                            <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-500'}`}>
+                                            <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black ${isActive ? 'bg-white/20 text-white dark:bg-black/20 dark:text-gray-900' : 'bg-gray-100 dark:bg-white/10 text-gray-500'}`}>
                                                 {tab.badge}
                                             </span>
                                         )}
@@ -827,13 +842,13 @@ const AdminView = ({ onBack, hideHeader }) => {
 
                     {/* Telemetry card at bottom of sidebar */}
                     <div className="mt-auto pt-4 border-t border-gray-100 dark:border-white/[0.05] space-y-3">
-                        <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100/80 dark:border-white/[0.04] space-y-2">
+                        <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.04] space-y-2">
                             <div className="flex items-center justify-between text-[11px]">
                                 <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                    <ShieldCheck size={13} className="text-violet-500" />
+                                    <ShieldCheck size={13} className="text-emerald-500" />
                                     Security Role
                                 </span>
-                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300">
+                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white border border-gray-300/40 dark:border-white/10">
                                     Master Admin
                                 </span>
                             </div>
@@ -846,7 +861,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                         <button
                             onClick={fetchAllData}
                             disabled={loading}
-                            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-gray-100/80 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.1] text-gray-600 dark:text-white/70 active:scale-[0.98] transition-all text-xs font-bold"
+                            className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-gray-100/80 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.1] text-gray-700 dark:text-white/80 active:scale-[0.98] transition-all text-xs font-bold border border-gray-200/50 dark:border-white/5"
                         >
                             <RefreshCw size={14} className={loading ? 'animate-spin text-violet-600' : 'text-gray-400'} />
                             <span>{loading ? 'Syncing Engine...' : 'Sync Telemetry'}</span>

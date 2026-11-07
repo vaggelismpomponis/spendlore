@@ -10,4 +10,17 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'profiles' AND COLUMN_NAME = 'admin_notes') THEN
         ALTER TABLE public.profiles ADD COLUMN admin_notes TEXT;
     END IF;
+
+    -- Add ticketing columns to feedback table if they don't exist
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'feedback' AND COLUMN_NAME = 'status') THEN
+        ALTER TABLE public.feedback ADD COLUMN status TEXT DEFAULT 'open';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'feedback' AND COLUMN_NAME = 'priority') THEN
+        ALTER TABLE public.feedback ADD COLUMN priority TEXT DEFAULT 'normal';
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'feedback' AND COLUMN_NAME = 'admin_notes') THEN
+        ALTER TABLE public.feedback ADD COLUMN admin_notes TEXT;
+    END IF;
 END $$;

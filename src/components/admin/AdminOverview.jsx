@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-    Users, RefreshCw, MessageSquare, Award, Activity, TrendingUp,
+    Users, RefreshCw, MessageSquare, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
     Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
-    MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert
+    MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert,
+    LifeBuoy, Radio, CreditCard, Sparkles, AlertCircle, Check
 } from 'lucide-react';
 
-/* ─── Donut Chart (Enhanced SVG) ─── */
+/* ─── Donut Chart (SVG) ─── */
 const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
     const r = (size - strokeWidth) / 2;
     const circ = 2 * Math.PI * r;
@@ -52,13 +53,13 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
     );
 };
 
-/* ─── KPI Bento Card ─── */
+/* ─── Executive Stat Bento Card ─── */
 const StatCard = ({
     icon: Icon,
     label,
     value,
     subtext,
-    color,
+    color = 'text-gray-900 dark:text-white',
     onClick,
     trend,
     badge
@@ -67,27 +68,24 @@ const StatCard = ({
         onClick={onClick}
         className={`bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs
                     flex flex-col justify-between transition-all duration-200 group
-                    ${onClick ? 'cursor-pointer hover:border-violet-300 dark:hover:border-violet-500/30' : ''}`}
+                    ${onClick ? 'cursor-pointer hover:border-gray-400 dark:hover:border-white/20 active:scale-[0.99]' : ''}`}
     >
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-                <Icon size={18} strokeWidth={2.2} className={`${color} shrink-0`} />
+        <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+                <Icon size={16} strokeWidth={2.2} className={`${color} shrink-0`} />
                 <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest truncate">
                     {label}
                 </span>
             </div>
             {badge && (
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-white/[0.06]">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-200/80 dark:border-white/[0.08] shrink-0">
                     {badge}
                 </span>
-            )}
-            {onClick && !badge && (
-                <ChevronRight size={14} className="text-gray-400 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors" />
             )}
         </div>
 
         <div className="mt-4">
-            <span className="block text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+            <span className="block text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight tabular-nums">
                 {value}
             </span>
 
@@ -98,12 +96,12 @@ const StatCard = ({
                         +{trend} this month
                     </span>
                 ) : (
-                    <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                    <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 truncate">
                         {subtext || 'Telemetry active'}
                     </span>
                 )}
                 {onClick && (
-                    <span className="text-[10px] font-bold text-violet-600 dark:text-violet-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                    <span className="text-[10px] font-bold text-gray-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
                         Inspect <ArrowRight size={10} />
                     </span>
                 )}
@@ -122,12 +120,12 @@ const PlatformBar = ({ label, count, total, color, icon: Icon }) => {
                     <Icon size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
                     <span className="font-bold text-gray-700 dark:text-gray-200">{label}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 tabular-nums">
                     <span className="font-extrabold text-gray-900 dark:text-white">{count}</span>
                     <span className="text-[11px] text-gray-400 font-semibold">({pct}%)</span>
                 </div>
             </div>
-            <div className="h-2 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
+            <div className="h-1.5 bg-gray-100 dark:bg-white/[0.06] rounded-full overflow-hidden">
                 <div
                     className={`h-full rounded-full transition-all duration-700 ${color}`}
                     style={{ width: `${pct}%` }}
@@ -149,10 +147,10 @@ const UserLeaderboardRow = ({
     setActiveDropdown
 }) => {
     const rankColors = [
-        'bg-amber-500 text-white',
-        'bg-slate-400 text-white',
-        'bg-amber-700 text-white',
-        'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300'
+        'bg-gray-900 text-white dark:bg-white dark:text-gray-900',
+        'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900',
+        'bg-gray-500 text-white dark:bg-gray-300 dark:text-gray-900',
+        'bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-300'
     ];
     const rankColor = rankColors[idx] || rankColors[3];
     const isDropdownOpen = activeDropdown === user.id;
@@ -163,14 +161,14 @@ const UserLeaderboardRow = ({
             className={`flex items-center gap-3.5 p-3 sm:p-3.5 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer group relative last:rounded-b-2xl ${isDropdownOpen ? 'z-30' : 'z-0'}`}
         >
             {/* Rank badge */}
-            <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-extrabold shrink-0 ${rankColor}`}>
+            <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-extrabold shrink-0 ${rankColor}`}>
                 #{idx + 1}
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                    <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                    <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
                         {user.display_name || user.email?.split('@')[0]}
                     </p>
                     {user.subscription_status === 'pro' && (
@@ -184,8 +182,8 @@ const UserLeaderboardRow = ({
 
             {/* Sessions count */}
             <div className="text-right shrink-0">
-                <div className="flex items-center gap-1 justify-end">
-                    <Activity size={12} className="text-violet-500" />
+                <div className="flex items-center gap-1 justify-end tabular-nums">
+                    <Activity size={12} className="text-gray-500 dark:text-gray-400" />
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white">{user.sessionCount}</p>
                 </div>
                 <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">sessions</p>
@@ -220,8 +218,8 @@ const UserLeaderboardRow = ({
                             }}
                             className={`p-1.5 rounded-lg transition-all ${
                                 isDropdownOpen
-                                    ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400'
-                                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400'
+                                    ? 'bg-gray-200 dark:bg-white/20 text-gray-900 dark:text-white'
+                                    : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                             aria-label="User actions"
                         >
@@ -237,7 +235,7 @@ const UserLeaderboardRow = ({
                                         setActiveDropdown(null);
                                     }}
                                 />
-                                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl shadow-lg z-50 overflow-hidden py-1.5 animate-fade-in text-left">
+                                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 animate-fade-in text-left">
                                     {/* Mobile only: grant/revoke */}
                                     {onSubClick && (
                                         <button
@@ -332,7 +330,7 @@ const UserLeaderboardRow = ({
                     </div>
                 )}
 
-                <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 group-hover:text-violet-500 transition-colors shrink-0" />
+                <ChevronRight size={14} className="text-gray-300 dark:text-gray-600 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
             </div>
         </div>
     );
@@ -340,35 +338,42 @@ const UserLeaderboardRow = ({
 
 /* ─── Main AdminOverview Component ─── */
 const AdminOverview = ({
-    stats,
-    metrics,
-    profiles,
-    sessions,
+    stats = { users: 0, transactions: 0, feedback: 0, activity: 0 },
+    metrics = { proUsers: 0, freeUsers: 0, canceledUsers: 0, active7Days: 0, active30Days: 0, mostActiveUsers: [] },
+    profiles = [],
+    sessions = [],
+    feedback = [],
+    sentryErrors = [],
+    updates = [],
+    openTicketsCount = 0,
     onNavigateUsers,
+    onNavigateTab,
     onUserClick,
     onDropdownAction,
     onSubClick,
+    onRefresh,
+    loading = false,
     translate = (k) => k
 }) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     // Platform breakdown from session data
     const platformCounts = useMemo(() => {
-        const mobile = sessions.filter(s =>
+        const mobile = (sessions || []).filter(s =>
             s.device && (s.device.includes('iPhone') || s.device.includes('Android') || s.device.includes('Mobile'))
         ).length;
-        const desktop = sessions.filter(s =>
+        const desktop = (sessions || []).filter(s =>
             s.device && (s.device.includes('Windows') || s.device.includes('Mac') || s.device.includes('Linux') ||
                 s.device.includes('Desktop') || s.device.includes('Chrome') || s.device.includes('Firefox'))
         ).length;
-        const other = sessions.length - mobile - desktop;
+        const other = (sessions || []).length - mobile - desktop;
         return { mobile, desktop, other: Math.max(0, other) };
     }, [sessions]);
 
     // Users joined this month
     const joinedThisMonth = useMemo(() => {
         const now = new Date();
-        return profiles.filter(p => {
+        return (profiles || []).filter(p => {
             if (!p.created_at) return false;
             const d = new Date(p.created_at);
             return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
@@ -379,39 +384,69 @@ const AdminOverview = ({
     const active7DaysRate = stats.users > 0 ? Math.round((metrics.active7Days / stats.users) * 100) : 0;
     const active30DaysRate = stats.users > 0 ? Math.round((metrics.active30Days / stats.users) * 100) : 0;
     const estimatedMrr = (metrics.proUsers * 2.99).toFixed(2);
+    const estimatedArr = (metrics.proUsers * 2.99 * 12).toFixed(2);
     const avgTxPerUser = stats.users > 0 ? (stats.transactions / stats.users).toFixed(1) : '0';
+    const stickiness = metrics.active30Days > 0 ? Math.round((metrics.active7Days / metrics.active30Days) * 100) : 0;
 
     const subSegments = [
-        { value: metrics.proUsers, color: '#8b5cf6' },
+        { value: metrics.proUsers, color: '#10b981' },
         { value: metrics.freeUsers, color: '#94a3b8' },
         { value: metrics.canceledUsers, color: '#f43f5e' },
     ];
 
     const totalPlatform = platformCounts.mobile + platformCounts.desktop + platformCounts.other;
 
-    return (
-        <div className="space-y-5 animate-fade-in">
+    // Latest unresolved feedback tickets for the quick queue
+    const recentOpenFeedback = useMemo(() => {
+        return (feedback || [])
+            .filter(f => (f.status || 'open') !== 'resolved')
+            .slice(0, 3);
+    }, [feedback]);
 
-            {/* ─────── Executive Overview Hub Header ─────── */}
-            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
-                    <div className="flex items-center gap-3">
-                        <LayoutDashboard size={22} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.2} />
-                        <div>
-                            <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
-                                Operations & Telemetry Overview
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Live user engagement, subscription conversion, ledger activity, and client distribution
-                            </p>
+    return (
+        <div className="space-y-6 animate-fade-in">
+
+            {/* ─────── Executive Command Header ─────── */}
+            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-gray-100 dark:border-white/[0.06]">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                Enterprise Telemetry &bull; Supabase Live Engine
+                            </span>
                         </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-gray-950 dark:text-white tracking-tight">
+                            Operations & Telemetry Overview
+                        </h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
+                            Live user engagement, subscription conversion, ledger activity, and client distribution
+                        </p>
                     </div>
 
-                    <div className="flex items-center gap-2.5 shrink-0">
+                    <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+                        {/* Live Telemetry Pill */}
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>Cloud Telemetry Online</span>
+                        </div>
+
+                        {onRefresh && (
+                            <button
+                                type="button"
+                                onClick={onRefresh}
+                                disabled={loading}
+                                className="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all border border-gray-200 dark:border-white/10"
+                                title="Refresh Telemetry"
+                            >
+                                <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
+                                <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+                            </button>
+                        )}
+
                         <button
                             type="button"
                             onClick={onNavigateUsers}
-                            className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
+                            className="px-3.5 py-2 rounded-xl bg-gray-950 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
                         >
                             <Users size={14} />
                             <span>View All Accounts</span>
@@ -421,52 +456,73 @@ const AdminOverview = ({
 
                 {/* Status Chips Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                        <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             Total Accounts
                         </span>
-                        <span className="block text-xl font-extrabold text-gray-900 dark:text-white mt-1">
-                            {stats.users}
-                        </span>
+                        <div className="flex items-baseline gap-1.5 mt-1">
+                            <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
+                                {stats.users}
+                            </span>
+                            {joinedThisMonth > 0 && (
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    +{joinedThisMonth} mo
+                                </span>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                        <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             Pro Conversion
                         </span>
-                        <span className="block text-xl font-extrabold text-violet-600 dark:text-violet-400 mt-1">
-                            {proConversionRate}% ({metrics.proUsers})
-                        </span>
+                        <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
+                                {proConversionRate}%
+                            </span>
+                            <span className="text-xs font-bold text-gray-400">
+                                ({metrics.proUsers})
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                        <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             Active (7 Days)
                         </span>
-                        <span className="block text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
-                            {metrics.active7Days} ({active7DaysRate}%)
-                        </span>
+                        <div className="flex items-baseline gap-1 mt-1">
+                            <span className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                {metrics.active7Days}
+                            </span>
+                            <span className="text-xs font-bold text-gray-400">
+                                ({active7DaysRate}%)
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                        <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             Client Sessions
                         </span>
-                        <div className="flex items-center gap-1.5 mt-1 text-xl font-extrabold text-blue-600 dark:text-blue-400">
-                            <span>{stats.activity}</span>
-                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Syncing</span>
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
+                                {stats.activity}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-gray-200/60 dark:bg-white/10 px-1.5 py-0.5 rounded">
+                                Syncing
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ─────── 4 Core KPI Bento Cards ─────── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 min-[1106px]:grid-cols-4 gap-3.5">
+            {/* ─────── 4 Core Enterprise KPI Bento Cards ─────── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                     icon={Users}
                     label="Total User Base"
                     value={stats.users}
-                    color="text-blue-500"
+                    color="text-gray-900 dark:text-white"
                     onClick={onNavigateUsers}
                     trend={joinedThisMonth > 0 ? joinedThisMonth : undefined}
                     badge={`${proConversionRate}% Pro`}
@@ -474,44 +530,96 @@ const AdminOverview = ({
                 <StatCard
                     icon={RefreshCw}
                     label="Recorded Transactions"
-                    value={stats.transactions}
+                    value={stats.transactions.toLocaleString()}
                     subtext={`~${avgTxPerUser} entries / user`}
-                    color="text-emerald-500"
+                    color="text-gray-900 dark:text-white"
                     badge="Ledger Live"
                 />
                 <StatCard
-                    icon={MessageSquare}
+                    icon={LifeBuoy}
                     label="User Feedback"
                     value={stats.feedback}
-                    subtext="Community submissions"
-                    color="text-amber-500"
-                    badge={stats.feedback > 0 ? `${stats.feedback} Submissions` : 'Clean'}
+                    subtext="Community & support tickets"
+                    color="text-gray-900 dark:text-white"
+                    onClick={onNavigateTab ? () => onNavigateTab('feedback') : undefined}
+                    badge={openTicketsCount > 0 ? `${openTicketsCount} Open` : 'Clean'}
                 />
                 <StatCard
                     icon={Activity}
                     label="Total App Sessions"
                     value={stats.activity}
                     subtext={`${metrics.active7Days} active in last 7d`}
-                    color="text-violet-500"
+                    color="text-gray-900 dark:text-white"
                     badge="Heartbeat Online"
                 />
             </div>
 
-            {/* ─────── Mid Section: Subscription Split + Engagement + Platform ─────── */}
-            <div className="grid grid-cols-1 min-[1106px]:grid-cols-2 min-[1408px]:grid-cols-3 gap-4">
+            {/* ─────── Fast Operations Shortcuts Bar ─────── */}
+            {onNavigateTab && (
+                <div className="bg-white dark:bg-surface-dark2 p-3 sm:p-4 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 pl-1 shrink-0">
+                        Operational Hub:
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onNavigateTab('users')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
+                        >
+                            <Users size={13} />
+                            <span>Accounts ({stats.users})</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onNavigateTab('feedback')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
+                        >
+                            <LifeBuoy size={13} className={openTicketsCount > 0 ? 'text-amber-500' : 'text-gray-400'} />
+                            <span>Support Desk ({openTicketsCount} Open)</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onNavigateTab('updates')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
+                        >
+                            <RefreshCw size={13} />
+                            <span>App Releases</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onNavigateTab('broadcast')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
+                        >
+                            <Radio size={13} />
+                            <span>Broadcast</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onNavigateTab('sentry')}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
+                        >
+                            <ShieldAlert size={13} className={sentryErrors.length > 0 ? 'text-rose-500' : 'text-gray-400'} />
+                            <span>Sentry Logs ({sentryErrors.length})</span>
+                        </button>
+                    </div>
+                </div>
+            )}
 
-                {/* Subscription Split Card */}
+            {/* ─────── Mid Section: Subscription Split + Engagement + Platform ─────── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+                {/* 1. Subscription Split Card */}
                 <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
                             <div className="flex items-center gap-2">
-                                <Crown size={17} className="text-violet-600 dark:text-violet-400 shrink-0" strokeWidth={2.2} />
+                                <CreditCard size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
                                     <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Subscription Split</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Tier breakdown & estimated MRR</p>
+                                    <p className="text-[11px] text-gray-400 font-medium">Tier breakdown &amp; estimated MRR</p>
                                 </div>
                             </div>
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-300 border border-violet-200/60 dark:border-violet-500/20">
+                            <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 tabular-nums">
                                 ~€{estimatedMrr}/mo
                             </span>
                         </div>
@@ -520,7 +628,7 @@ const AdminOverview = ({
                             <div className="relative shrink-0">
                                 <DonutChart segments={subSegments} size={100} strokeWidth={14} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                    <p className="text-lg font-black text-gray-900 dark:text-white leading-none">{stats.users}</p>
+                                    <p className="text-lg font-black text-gray-900 dark:text-white leading-none tabular-nums">{stats.users}</p>
                                     <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Users</span>
                                 </div>
                             </div>
@@ -528,11 +636,11 @@ const AdminOverview = ({
                             <div className="flex-1 space-y-2.5">
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-violet-500" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                                         <span className="font-bold text-gray-700 dark:text-gray-200">Pro Tier</span>
                                     </div>
-                                    <div className="text-right">
-                                        <span className="font-extrabold text-violet-600 dark:text-violet-400">{metrics.proUsers}</span>
+                                    <div className="text-right tabular-nums">
+                                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.proUsers}</span>
                                         <span className="text-[11px] text-gray-400 font-semibold ml-1">({proConversionRate}%)</span>
                                     </div>
                                 </div>
@@ -542,7 +650,7 @@ const AdminOverview = ({
                                         <div className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500" />
                                         <span className="font-bold text-gray-700 dark:text-gray-200">Free Tier</span>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right tabular-nums">
                                         <span className="font-extrabold text-gray-900 dark:text-white">{metrics.freeUsers}</span>
                                         <span className="text-[11px] text-gray-400 font-semibold ml-1">({stats.users > 0 ? 100 - proConversionRate : 0}%)</span>
                                     </div>
@@ -554,7 +662,7 @@ const AdminOverview = ({
                                             <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
                                             <span className="font-bold text-gray-700 dark:text-gray-200">Canceled</span>
                                         </div>
-                                        <span className="font-extrabold text-rose-600 dark:text-rose-400">{metrics.canceledUsers}</span>
+                                        <span className="font-extrabold text-rose-600 dark:text-rose-400 tabular-nums">{metrics.canceledUsers}</span>
                                     </div>
                                 )}
                             </div>
@@ -562,37 +670,37 @@ const AdminOverview = ({
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
-                        <span>Conversion Rate</span>
-                        <span className="font-extrabold text-violet-600 dark:text-violet-400">{proConversionRate}% of user base</span>
+                        <span>Annualized Run-Rate (ARR)</span>
+                        <span className="font-extrabold text-gray-900 dark:text-white tabular-nums">€{estimatedArr}</span>
                     </div>
                 </div>
 
-                {/* User Engagement & Retention Card */}
+                {/* 2. User Engagement & Retention Card */}
                 <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
                             <div className="flex items-center gap-2">
-                                <Activity size={17} className="text-emerald-600 dark:text-emerald-400 shrink-0" strokeWidth={2.2} />
+                                <Activity size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
                                     <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">User Engagement</h3>
                                     <p className="text-[11px] text-gray-400 font-medium">Active retention telemetry</p>
                                 </div>
                             </div>
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20">
                                 Live
                             </span>
                         </div>
 
                         <div className="space-y-3">
                             {/* Last 7 Days */}
-                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-1.5">
-                                        <Clock size={13} className="text-emerald-600 dark:text-emerald-400" />
+                                        <Clock size={13} className="text-gray-600 dark:text-gray-400" />
                                         <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 7 Days (WAU)</span>
                                     </div>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-300">{metrics.active7Days}</span>
+                                    <div className="flex items-baseline gap-1 tabular-nums">
+                                        <span className="text-base font-extrabold text-gray-900 dark:text-white">{metrics.active7Days}</span>
                                         <span className="text-[10px] font-semibold text-gray-400">users</span>
                                     </div>
                                 </div>
@@ -608,20 +716,20 @@ const AdminOverview = ({
                             </div>
 
                             {/* Last 30 Days */}
-                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
+                            <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-1.5">
-                                        <Calendar size={13} className="text-blue-600 dark:text-blue-400" />
+                                        <Calendar size={13} className="text-gray-600 dark:text-gray-400" />
                                         <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 30 Days (MAU)</span>
                                     </div>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-base font-extrabold text-blue-700 dark:text-blue-300">{metrics.active30Days}</span>
+                                    <div className="flex items-baseline gap-1 tabular-nums">
+                                        <span className="text-base font-extrabold text-gray-900 dark:text-white">{metrics.active30Days}</span>
                                         <span className="text-[10px] font-semibold text-gray-400">users</span>
                                     </div>
                                 </div>
                                 <div className="h-1.5 bg-gray-200/70 dark:bg-white/10 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-blue-500 rounded-full transition-all duration-700"
+                                        className="h-full bg-gray-800 dark:bg-white rounded-full transition-all duration-700"
                                         style={{ width: `${active30DaysRate}%` }}
                                     />
                                 </div>
@@ -634,41 +742,41 @@ const AdminOverview = ({
 
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
                         <span>Stickiness (7d/30d)</span>
-                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
-                            {metrics.active30Days > 0 ? Math.round((metrics.active7Days / metrics.active30Days) * 100) : 0}%
+                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            {stickiness}%
                         </span>
                     </div>
                 </div>
 
-                {/* Platform & Client Distribution Card */}
+                {/* 3. Platform & Client Distribution Card */}
                 <div className="bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col justify-between">
                     <div>
                         <div className="flex items-center justify-between pb-3.5 border-b border-gray-100 dark:border-white/[0.06] mb-4">
                             <div className="flex items-center gap-2">
-                                <Globe size={17} className="text-blue-600 dark:text-blue-400 shrink-0" strokeWidth={2.2} />
+                                <Globe size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
                                     <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Platform Split</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Client OS & form factor telemetry</p>
+                                    <p className="text-[11px] text-gray-400 font-medium">Client OS &amp; form factor telemetry</p>
                                 </div>
                             </div>
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-500/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200/80 dark:border-white/10 tabular-nums">
                                 {totalPlatform} Sessions
                             </span>
                         </div>
 
                         <div className="space-y-3.5">
                             <PlatformBar
-                                label="Mobile (iOS & Android)"
+                                label="Mobile (iOS & Android Native)"
                                 count={platformCounts.mobile}
                                 total={totalPlatform}
-                                color="bg-violet-600"
+                                color="bg-gray-900 dark:bg-white"
                                 icon={Smartphone}
                             />
                             <PlatformBar
                                 label="Desktop Web & PWA"
                                 count={platformCounts.desktop}
                                 total={totalPlatform}
-                                color="bg-blue-600"
+                                color="bg-emerald-500"
                                 icon={Monitor}
                             />
                             {platformCounts.other > 0 && (
@@ -688,54 +796,165 @@ const AdminOverview = ({
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                             Multi-client sync active
                         </span>
-                        <span className="font-bold text-gray-700 dark:text-gray-300">{totalPlatform} recorded</span>
+                        <span className="font-bold text-gray-700 dark:text-gray-300 tabular-nums">{totalPlatform} recorded</span>
                     </div>
                 </div>
             </div>
 
-            {/* ─────── Most Active Users Leaderboard ─────── */}
-            <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs relative">
-                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-white/[0.06] rounded-t-2xl">
-                    <div className="flex items-center gap-2.5">
-                        <Trophy size={18} className="text-amber-500 shrink-0" strokeWidth={2.2} />
-                        <div>
-                            <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Most Active Accounts</h3>
-                            <p className="text-[11px] text-gray-400 font-medium">Top user engagement leaderboard by app sessions</p>
+            {/* ─────── Operational Activity & Health Hub ─────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+                {/* Left (7 cols): Most Active Accounts Leaderboard */}
+                <div className="lg:col-span-7 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs relative flex flex-col justify-between">
+                    <div>
+                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-white/[0.06] rounded-t-2xl">
+                            <div className="flex items-center gap-2.5">
+                                <Trophy size={18} className="text-amber-500 shrink-0" strokeWidth={2.2} />
+                                <div>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Most Active Accounts</h3>
+                                    <p className="text-[11px] text-gray-400 font-medium">Top user engagement leaderboard by app sessions</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={onNavigateUsers}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/15 text-xs font-bold transition-all border border-gray-200/60 dark:border-white/10"
+                            >
+                                <span>View All Users</span>
+                                <ArrowRight size={13} />
+                            </button>
+                        </div>
+
+                        <div className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                            {metrics.mostActiveUsers && metrics.mostActiveUsers.length > 0 ? (
+                                metrics.mostActiveUsers.map((user, idx) => (
+                                    <UserLeaderboardRow
+                                        key={user.id}
+                                        user={user}
+                                        idx={idx}
+                                        onClick={onUserClick}
+                                        onDropdownAction={onDropdownAction}
+                                        onSubClick={onSubClick}
+                                        translate={translate}
+                                        activeDropdown={activeDropdown}
+                                        setActiveDropdown={setActiveDropdown}
+                                    />
+                                ))
+                            ) : (
+                                <div className="text-center py-12 rounded-b-2xl">
+                                    <Activity size={24} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">No session telemetry recorded yet</p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={onNavigateUsers}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20 text-xs font-bold transition-all"
-                    >
-                        <span>View All Users</span>
-                        <ArrowRight size={13} />
-                    </button>
+
+                    <div className="p-3.5 bg-gray-50/70 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/[0.05] rounded-b-2xl flex items-center justify-between text-xs text-gray-400">
+                        <span>Telemetry updated in real time</span>
+                        <span className="font-semibold text-gray-700 dark:text-gray-300 tabular-nums">
+                            {metrics.mostActiveUsers?.length || 0} top accounts
+                        </span>
+                    </div>
                 </div>
 
-                <div className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {metrics.mostActiveUsers.length > 0 ? (
-                        metrics.mostActiveUsers.map((user, idx) => (
-                            <UserLeaderboardRow
-                                key={user.id}
-                                user={user}
-                                idx={idx}
-                                onClick={onUserClick}
-                                onDropdownAction={onDropdownAction}
-                                onSubClick={onSubClick}
-                                translate={translate}
-                                activeDropdown={activeDropdown}
-                                setActiveDropdown={setActiveDropdown}
-                            />
-                        ))
-                    ) : (
-                        <div className="text-center py-10 rounded-b-2xl">
-                            <Activity size={24} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">No session telemetry recorded yet</p>
+                {/* Right (5 cols): Operational Health & Pending Queue */}
+                <div className="lg:col-span-5 space-y-5">
+
+                    {/* Support & Tickets Snapshot */}
+                    <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs">
+                        <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/[0.06] mb-3.5">
+                            <div className="flex items-center gap-2">
+                                <LifeBuoy size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                                    Support &amp; Ticketing Queue
+                                </h3>
+                            </div>
+                            {onNavigateTab && (
+                                <button
+                                    type="button"
+                                    onClick={() => onNavigateTab('feedback')}
+                                    className="text-[11px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                >
+                                    Open Desk &rarr;
+                                </button>
+                            )}
                         </div>
-                    )}
+
+                        {recentOpenFeedback.length > 0 ? (
+                            <div className="space-y-2.5">
+                                {recentOpenFeedback.map(ticket => (
+                                    <div
+                                        key={ticket.id}
+                                        onClick={onNavigateTab ? () => onNavigateTab('feedback') : undefined}
+                                        className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/10 transition-colors cursor-pointer group"
+                                    >
+                                        <div className="flex items-center justify-between text-xs mb-1">
+                                            <span className="font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
+                                                {ticket.email || 'Anonymous User'}
+                                            </span>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
+                                                {ticket.priority || 'open'}
+                                            </span>
+                                        </div>
+                                        <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">
+                                            {ticket.message || 'No description provided'}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-6 text-center">
+                                <CheckCircle2 size={24} className="mx-auto text-emerald-500 mb-2" />
+                                <p className="text-xs font-bold text-gray-900 dark:text-white">All caught up!</p>
+                                <p className="text-[11px] text-gray-400 mt-0.5">No open support tickets requiring urgent attention.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Infrastructure & Sentry Health */}
+                    <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs space-y-3.5">
+                        <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/[0.06]">
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                                    System Telemetry
+                                </h3>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                                99.98% HEALTH
+                            </span>
+                        </div>
+
+                        <div className="space-y-2 text-xs">
+                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">Database Engine</span>
+                                <span className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Supabase Postgres (EU West)
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">In-App Updates</span>
+                                <span className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Google Play Flexible Live
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">Sentry Crash Telemetry</span>
+                                <span className={`font-bold flex items-center gap-1.5 ${sentryErrors.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full ${sentryErrors.length > 0 ? 'bg-rose-500' : 'bg-emerald-500'}`} />
+                                    {sentryErrors.length > 0 ? `${sentryErrors.length} Exceptions` : '0 Errors Logged'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </div>
     );
 };

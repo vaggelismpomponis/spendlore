@@ -293,18 +293,20 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                     )}
                 </button>
 
-                {/* Add Button */}
-                <button
-                    id="tour-add-button"
-                    onClick={() => onAdd?.()}
-                    className="flex items-center gap-2 px-4 py-2.5
-                               bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
-                               rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
-                               active:scale-95 transition-all duration-200"
-                >
-                    <Plus size={16} strokeWidth={2.5} />
-                    {t('add_transaction') || 'Add'}
-                </button>
+                {/* Add Button (Personal finance entry - hidden on admin management view) */}
+                {activeTab !== 'admin' && (
+                    <button
+                        id="tour-add-button"
+                        onClick={() => onAdd?.()}
+                        className="flex items-center gap-2 px-4 py-2.5
+                                   bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
+                                   rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
+                                   active:scale-95 transition-all duration-200"
+                    >
+                        <Plus size={16} strokeWidth={2.5} />
+                        {t('add_transaction') || 'Add'}
+                    </button>
+                )}
             </div>
         </div>
     );
