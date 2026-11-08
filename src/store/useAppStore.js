@@ -4,16 +4,42 @@ import { get, set, del } from 'idb-keyval';
 import { calculateStb, getRemainingDaysInMonth, getDaysInMonth } from '../features/StbEngine';
 import { scheduleRegretCheckin } from '../services/NotificationService';
 
-// Custom IndexedDB storage engine for Zustand using idb-keyval
+// In-memory fallback for environments without indexedDB (e.g. Node/SSR/Unit tests)
+const memoryStorage = new Map();
+
+// Custom IndexedDB storage engine for Zustand using idb-keyval with safe fallback
 const idbStorage = {
     getItem: async (name) => {
-        return (await get(name)) || null;
+        if (typeof indexedDB === 'undefined') {
+            return memoryStorage.get(name) || null;
+        }
+        try {
+            return (await get(name)) || null;
+        } catch {
+            return memoryStorage.get(name) || null;
+        }
     },
     setItem: async (name, value) => {
-        await set(name, value);
+        if (typeof indexedDB === 'undefined') {
+            memoryStorage.set(name, value);
+            return;
+        }
+        try {
+            await set(name, value);
+        } catch {
+            memoryStorage.set(name, value);
+        }
     },
     removeItem: async (name) => {
-        await del(name);
+        if (typeof indexedDB === 'undefined') {
+            memoryStorage.delete(name);
+            return;
+        }
+        try {
+            await del(name);
+        } catch {
+            memoryStorage.delete(name);
+        }
     }
 };
 
@@ -36,6 +62,29 @@ export const useAppStore = create(
             // Tracks async IndexedDB rehydration — always false until storage is read
             hasHydrated: false,
             setHasHydrated: (val) => set({ hasHydrated: val }),
+
+            // Offline-First Sync Queue & Status
+            syncQueue: [],
+            lastSyncedAt: null,
+            isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+            isSyncing: false,
+            addToSyncQueue: (mutation) => set((state) => ({
+                syncQueue: [...state.syncQueue, mutation]
+            })),
+            removeFromSyncQueue: (mutationId) => set((state) => ({
+                syncQueue: state.syncQueue.filter((item) => item.id !== mutationId)
+            })),
+            updateSyncQueueItem: (mutationId, updater) => set((state) => ({
+                syncQueue: state.syncQueue.map((item) =>
+                    item.id === mutationId
+                        ? (typeof updater === 'function' ? updater(item) : { ...item, ...updater })
+                        : item
+                )
+            })),
+            clearSyncQueue: () => set({ syncQueue: [] }),
+            setIsOnline: (val) => set({ isOnline: val }),
+            setIsSyncing: (val) => set({ isSyncing: val }),
+            setLastSyncedAt: (val) => set({ lastSyncedAt: val }),
 
             // Actions for syncing state from Supabase and optimistic updates
             setTransactions: (updater) => set((state) => ({
@@ -146,9 +195,17 @@ export const useAppStore = create(
         {
             name: 'spendwise-store', // unique storage key
             storage: createJSONStorage(() => idbStorage),
-            // hasHydrated is runtime-only — never persist it
+            // hasHydrated, isOnline & isSyncing are runtime-only — never persist them
             partialize: (state) => {
-                const { hasHydrated, setHasHydrated, ...persisted } = state;
+                const {
+                    hasHydrated,
+                    setHasHydrated,
+                    isOnline,
+                    isSyncing,
+                    setIsOnline,
+                    setIsSyncing,
+                    ...persisted
+                } = state;
                 return persisted;
             },
             onRehydrateStorage: () => (state) => {

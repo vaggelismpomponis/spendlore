@@ -6,6 +6,7 @@ import DesktopSidebar from './DesktopSidebar';
 import TransactionItem from './TransactionItem';
 import Amount from './Amount';
 import CategoryIcon from './CategoryIcon';
+import OfflineIndicator from './OfflineIndicator';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 /* ─────────────────────────────────────────────
@@ -392,6 +393,9 @@ const DesktopLayout = ({
                     unreadCount={unreadCount}
                     onToggleNotifications={handleToggleNotifications}
                 />
+
+                {/* Offline / Sync status banner */}
+                <OfflineIndicator />
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import Navbar from './Navbar';
+import OfflineIndicator from './OfflineIndicator';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
 
@@ -149,6 +150,9 @@ export default function MobileLayout({
                                 )}
                             </motion.button>
                         </div>
+
+                        {/* Offline / Sync status banner */}
+                        <OfflineIndicator className="-mx-4 -mb-3 mt-2" />
                     </div>
 
                     <div className="h-4 shrink-0" />

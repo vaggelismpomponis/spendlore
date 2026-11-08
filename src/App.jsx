@@ -32,6 +32,7 @@ import { parseNotificationTransaction } from './utils/transactionParser';
 import { isLandingDomain } from './utils/platform';
 import { getCategoryTranslation } from './utils/categoryTranslations';
 import { useAppStore } from './store/useAppStore';
+import { isNetworkError, processSyncQueue, initSyncListeners } from './services/SyncService';
 
 // Components
 import LoginView from './views/LoginView';
@@ -971,6 +972,11 @@ function MainContent() {
 
         const fetchTransactions = async (retries = 3) => {
             try {
+                if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    setCoreDataLoaded(prev => ({ ...prev, transactions: true }));
+                    return;
+                }
+
                 const { data, error } = await supabase
                     .from('transactions')
                     .select('*')
@@ -982,11 +988,21 @@ function MainContent() {
                         setTimeout(() => fetchTransactions(retries - 1), 300);
                         return;
                     }
-                    logger.error('Failed to fetch transactions', error, 'App');
+                    if (!isNetworkError(error)) {
+                        logger.error('Failed to fetch transactions', error, 'App');
+                    }
                 } else {
-                    setTransactions(data || []);
+                    // Preserve any unsynced transactions created offline
+                    const pendingOfflineTxs = useAppStore.getState().transactions.filter(
+                        t => t._is_offline || (typeof t.id === 'string' && t.id.startsWith('local_tx_'))
+                    );
+                    const serverIds = new Set((data || []).map(d => d.id));
+                    const unsyncedOnly = pendingOfflineTxs.filter(t => !serverIds.has(t.id));
+                    const merged = [...unsyncedOnly, ...(data || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                    setTransactions(merged);
                     if (syncCategoriesFromTransactions) {
-                        syncCategoriesFromTransactions(data || []);
+                        syncCategoriesFromTransactions(merged);
                     }
                 }
             } catch (err) {
@@ -995,13 +1011,23 @@ function MainContent() {
                     setTimeout(() => fetchTransactions(retries - 1), 300);
                     return;
                 }
-                logger.error('Failed to fetch transactions', err, 'App');
+                if (!isNetworkError(err)) {
+                    logger.error('Failed to fetch transactions', err, 'App');
+                }
             } finally {
                 setCoreDataLoaded(prev => ({ ...prev, transactions: true }));
             }
         };
 
         fetchTransactions();
+
+        // Initialize Offline-First Sync Queue listener
+        const cleanupSyncListeners = initSyncListeners(supabase, () => user, {
+            onQueueDrained: () => {
+                showToast(translate('sync_complete') || 'Όλες οι συναλλαγές συγχρονίστηκαν επιτυχώς!', 'success');
+                fetchTransactions();
+            }
+        });
 
         // 1. Dedicated cross-device broadcast channel (instant client-to-client notification)
         const txSyncChannel = supabase.channel(`transactions-sync-${user.id}`);
@@ -1029,6 +1055,14 @@ function MainContent() {
         // 3. Foreground / Visibility change re-sync (when switching between apps or tabs)
         const handleReSync = () => {
             fetchTransactions();
+            if (user?.id && typeof navigator !== 'undefined' && navigator.onLine) {
+                processSyncQueue(supabase, user, {
+                    onQueueDrained: () => {
+                        showToast(translate('sync_complete') || 'Όλες οι συναλλαγές συγχρονίστηκαν επιτυχώς!', 'success');
+                        fetchTransactions();
+                    }
+                });
+            }
         };
 
         const handleVisibilityChange = () => {
@@ -1050,6 +1084,7 @@ function MainContent() {
         }
 
         return () => {
+            cleanupSyncListeners();
             supabase.removeChannel(txSyncChannel);
             txSyncChannelRef.current = null;
             supabase.removeChannel(channel);
@@ -1399,6 +1434,29 @@ function MainContent() {
                 setShowAddModal(false);
                 setEditingTransaction(null);
 
+                // If offline, queue mutation directly
+                if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    useAppStore.setState(state => ({
+                        transactions: state.transactions.map(t => t.id === editingTransaction.id ? { ...updatedTx, _is_offline: true } : t)
+                    }));
+                    const existingInsertQueue = useAppStore.getState().syncQueue.find(q => q.action === 'insert' && q.localId === editingTransaction.id);
+                    if (existingInsertQueue) {
+                        useAppStore.getState().updateSyncQueueItem(existingInsertQueue.id, { payload: { ...existingInsertQueue.payload, ...cleanPayload } });
+                    } else {
+                        useAppStore.getState().addToSyncQueue({
+                            id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                            entity: 'transactions',
+                            action: 'update',
+                            targetId: editingTransaction.id,
+                            payload: cleanPayload,
+                            createdAt: new Date().toISOString(),
+                            retryCount: 0
+                        });
+                    }
+                    showToast(translate('edited_offline') || 'Η επεξεργασία αποθηκεύτηκε τοπικά (Εκτός σύνδεσης).', 'info');
+                    return;
+                }
+
                 let { error } = await supabase.from('transactions')
                     .update(cleanPayload)
                     .eq('id', editingTransaction.id);
@@ -1415,6 +1473,22 @@ function MainContent() {
                 }
 
                 if (error) {
+                    if (isNetworkError(error)) {
+                        useAppStore.setState(state => ({
+                            transactions: state.transactions.map(t => t.id === editingTransaction.id ? { ...updatedTx, _is_offline: true } : t)
+                        }));
+                        useAppStore.getState().addToSyncQueue({
+                            id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                            entity: 'transactions',
+                            action: 'update',
+                            targetId: editingTransaction.id,
+                            payload: cleanPayload,
+                            createdAt: new Date().toISOString(),
+                            retryCount: 0
+                        });
+                        showToast(translate('edited_offline') || 'Η επεξεργασία αποθηκεύτηκε τοπικά (Εκτός σύνδεσης).', 'info');
+                        return;
+                    }
                     // Rollback on failure
                     setTransactions(prev =>
                         prev.map(t => t.id === editingTransaction.id ? editingTransaction : t)
@@ -1440,6 +1514,47 @@ function MainContent() {
                     }
                 );
             } else {
+                const tempId = `local_tx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+                const isDeviceOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+
+                // Optimistically insert locally immediately
+                const optimisticTx = { ...newTx, id: tempId, user_id: user.id, _is_offline: isDeviceOffline };
+                setTransactions(prev => [optimisticTx, ...prev]);
+                setShowAddModal(false);
+
+                // Notify immediately
+                const typeLabel = newTx.type === 'expense'
+                    ? translate('notification_added_expense') || 'New expense recorded'
+                    : translate('notification_added_income') || 'New income recorded';
+                addNotification(
+                    'add',
+                    typeLabel,
+                    {
+                        amount:   newTx.amount,
+                        category: newTx.category,
+                        note:     newTx.note,
+                        date:     newTx.date,
+                        txType:   newTx.type,
+                    }
+                );
+
+                if (isDeviceOffline) {
+                    useAppStore.getState().addToSyncQueue({
+                        id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                        entity: 'transactions',
+                        action: 'insert',
+                        localId: tempId,
+                        payload: { ...newTx, user_id: user.id },
+                        createdAt: new Date().toISOString(),
+                        retryCount: 0
+                    });
+                    showToast(translate('saved_offline') || 'Αποθηκεύτηκε τοπικά (Εκτός σύνδεσης). Θα συγχρονιστεί αυτόματα μόλις συνδεθείτε.', 'info');
+                    try {
+                        await checkBudgetThresholds(optimisticTx);
+                    } catch (_) {}
+                    return;
+                }
+
                 let { data, error } = await supabase.from('transactions')
                     .insert({ ...newTx, user_id: user.id })
                     .select();
@@ -1458,12 +1573,35 @@ function MainContent() {
                     }
                 }
 
-                if (error) throw error;
+                if (error) {
+                    if (isNetworkError(error)) {
+                        useAppStore.setState(state => ({
+                            transactions: state.transactions.map(t => t.id === tempId ? { ...t, _is_offline: true } : t)
+                        }));
+                        useAppStore.getState().addToSyncQueue({
+                            id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                            entity: 'transactions',
+                            action: 'insert',
+                            localId: tempId,
+                            payload: { ...newTx, user_id: user.id },
+                            createdAt: new Date().toISOString(),
+                            retryCount: 0
+                        });
+                        showToast(translate('saved_offline') || 'Αποθηκεύτηκε τοπικά (Εκτός σύνδεσης). Θα συγχρονιστεί αυτόματα μόλις συνδεθείτε.', 'info');
+                        try {
+                            await checkBudgetThresholds(optimisticTx);
+                        } catch (_) {}
+                        return;
+                    }
+                    // Rollback on non-network failure
+                    setTransactions(prev => prev.filter(t => t.id !== tempId));
+                    throw error;
+                }
+
                 const insertedRow = Array.isArray(data) ? data[0] : data;
-                txId = insertedRow?.id || `tx_${Date.now()}`;
-                // Optimistic add: insert at the top immediately
-                setTransactions(prev => [{ ...newTx, id: txId, user_id: user.id }, ...prev]);
-                setShowAddModal(false);
+                txId = insertedRow?.id || tempId;
+                // Update tempId with real server ID
+                setTransactions(prev => prev.map(t => t.id === tempId ? { ...t, id: txId, _is_offline: false } : t));
 
                 // Broadcast new transaction to all active devices
                 txSyncChannelRef.current?.send({
@@ -1471,22 +1609,6 @@ function MainContent() {
                     event: 'transactions-updated',
                     payload: { action: 'add', id: txId }
                 }).catch(() => {});
-
-                // Notify
-                const typeLabel = newTx.type === 'expense'
-                    ? translate('notification_added_expense') || 'New expense recorded'
-                    : translate('notification_added_income') || 'New income recorded';
-                addNotification(
-                    'add',
-                    typeLabel,
-                    {
-                        amount:   newTx.amount,
-                        category: newTx.category,
-                        note:     newTx.note,
-                        date:     newTx.date,
-                        txType:   newTx.type,
-                    }
-                );
 
                 try {
                     await checkBudgetThresholds({ ...newTx, id: txId });
@@ -1521,28 +1643,12 @@ function MainContent() {
         if (!user || !transactionToDelete) return;
         try {
             const deletedTx = transactions.find(t => t.id === transactionToDelete);
+            const targetId = transactionToDelete;
 
             // Optimistic update: αφαίρεσε αμέσως από το UI
-            setTransactions(prev => prev.filter(t => t.id !== transactionToDelete));
+            setTransactions(prev => prev.filter(t => t.id !== targetId));
             setShowDeleteModal(false);
             setTransactionToDelete(null);
-
-            const { error } = await supabase.from('transactions')
-                .delete()
-                .eq('id', transactionToDelete);
-            if (error) {
-                // Rollback αν αποτύχει
-                setTransactions(prev => [...prev, deletedTx].sort((a, b) => new Date(b.date) - new Date(a.date)));
-                showToast('Σφάλμα διαγραφής. Προσπάθησε ξανά.', 'error');
-                throw error;
-            }
-
-            // Broadcast deletion to all active devices
-            txSyncChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'transactions-updated',
-                payload: { action: 'delete', id: transactionToDelete }
-            }).catch(() => {});
 
             // Notify delete
             addNotification(
@@ -1556,6 +1662,56 @@ function MainContent() {
                     txType:   deletedTx?.type,
                 }
             );
+
+            // Check if offline
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                // If it was a pending insert in queue, remove it from queue
+                const existingInsert = useAppStore.getState().syncQueue.find(q => q.action === 'insert' && q.localId === targetId);
+                if (existingInsert) {
+                    useAppStore.getState().removeFromSyncQueue(existingInsert.id);
+                } else {
+                    useAppStore.getState().addToSyncQueue({
+                        id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                        entity: 'transactions',
+                        action: 'delete',
+                        targetId: targetId,
+                        createdAt: new Date().toISOString(),
+                        retryCount: 0
+                    });
+                }
+                showToast(translate('deleted_offline') || 'Η διαγραφή αποθηκεύτηκε τοπικά (Εκτός σύνδεσης).', 'info');
+                return;
+            }
+
+            const { error } = await supabase.from('transactions')
+                .delete()
+                .eq('id', targetId);
+
+            if (error) {
+                if (isNetworkError(error)) {
+                    useAppStore.getState().addToSyncQueue({
+                        id: `sq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                        entity: 'transactions',
+                        action: 'delete',
+                        targetId: targetId,
+                        createdAt: new Date().toISOString(),
+                        retryCount: 0
+                    });
+                    showToast(translate('deleted_offline') || 'Η διαγραφή αποθηκεύτηκε τοπικά (Εκτός σύνδεσης).', 'info');
+                    return;
+                }
+                // Rollback αν αποτύχει (μη δικτυακό σφάλμα)
+                setTransactions(prev => [...prev, deletedTx].sort((a, b) => new Date(b.date) - new Date(a.date)));
+                showToast('Σφάλμα διαγραφής. Προσπάθησε ξανά.', 'error');
+                throw error;
+            }
+
+            // Broadcast deletion to all active devices
+            txSyncChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'transactions-updated',
+                payload: { action: 'delete', id: targetId }
+            }).catch(() => {});
 
             if (deletedTx?.type === 'expese' && deletedTx.category) {
                 const affectedBudget = budgets.find(b =>

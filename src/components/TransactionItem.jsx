@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Trash2, ChevronRight } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight, CloudOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CategoryIcon, { CATEGORY_ACCENT } from './CategoryIcon';
 import Amount from './Amount';
@@ -42,8 +42,13 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
 
             {/* Title & Metadata */}
             <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm text-gray-900 dark:text-white truncate capitalize flex items-center">
-                    {categoryTitle}
+                <p className="font-semibold text-sm text-gray-900 dark:text-white truncate capitalize flex items-center gap-1.5">
+                    <span className="truncate">{categoryTitle}</span>
+                    {transaction?._is_offline && (
+                        <span title={t('pending_sync')} className="inline-flex items-center shrink-0">
+                            <CloudOff size={13} className="text-amber-500" />
+                        </span>
+                    )}
                 </p>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate flex items-center gap-1.5 font-medium">
                     {transaction?.note ? (
