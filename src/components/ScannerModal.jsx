@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Camera, Upload, RotateCw, Check, Loader2 } from 'lucide-react';
+import { X, Camera, Upload, RotateCw, Check, Loader2, Layers } from 'lucide-react';
 import Tesseract from 'tesseract.js';
 import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { getCroppedImg } from '../utils/canvasUtils';
 import { useSettings } from '../contexts/SettingsContext';
 
-const ScannerModal = ({ onClose, onScanComplete }) => {
+const ScannerModal = ({ onClose, onScanComplete, onSwitchToBulk, onOpenBulk }) => {
     const { t } = useSettings();
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -23,7 +23,16 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
     const cameraInputRef = useRef(null);
 
     const handleImageUpload = (e) => {
-        const file = e.target.files[0];
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        if (files.length > 1 && onSwitchToBulk) {
+            onSwitchToBulk(files);
+            e.target.value = '';
+            return;
+        }
+
+        const file = files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
@@ -280,22 +289,41 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         </div>
                     ) : (
                         /* Start Screen */
-                        <div className="grid grid-cols-2 gap-4 mb-6 mt-4">
-                            <button
-                                onClick={() => cameraInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100"
-                            >
-                                <Camera size={32} className="text-indigo-600 dark:text-indigo-400 mb-3" />
-                                <span className="font-bold text-indigo-900 dark:text-indigo-200">{t('camera')}</span>
-                            </button>
+                        <div className="flex flex-col gap-3 my-auto py-2">
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => cameraInputRef.current?.click()}
+                                    className="flex flex-col items-center justify-center p-6 sm:p-8 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-2xl transition-colors border-2 border-indigo-100 dark:border-indigo-900/40"
+                                >
+                                    <Camera size={30} className="text-indigo-600 dark:text-indigo-400 mb-2.5" />
+                                    <span className="font-bold text-sm text-indigo-900 dark:text-indigo-200">{t('camera')}</span>
+                                </button>
 
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-surface-dark2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100"
-                            >
-                                <Upload size={32} className="text-gray-600 dark:text-gray-400 mb-3" />
-                                <span className="font-bold text-gray-700 dark:text-gray-300">{t('file')}</span>
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="flex flex-col items-center justify-center p-6 sm:p-8 bg-gray-50 dark:bg-surface-dark2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-colors border-2 border-gray-100 dark:border-white/10"
+                                >
+                                    <Upload size={30} className="text-gray-600 dark:text-gray-400 mb-2.5" />
+                                    <span className="font-bold text-sm text-gray-700 dark:text-gray-300">{t('file')}</span>
+                                </button>
+                            </div>
+
+                            {onOpenBulk && (
+                                <button
+                                    type="button"
+                                    onClick={onOpenBulk}
+                                    className="w-full py-2.5 px-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface-dark3 hover:bg-gray-50 dark:hover:bg-white/[0.04] text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                                >
+                                    <Layers size={15} className="shrink-0 text-indigo-600 dark:text-indigo-400" />
+                                    <span>{t('scan_bulk_title') || 'Μαζική Σάρωση (Πολλά)'}</span>
+                                </button>
+                            )}
+
+                            <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto text-center mt-1">
+                                {t('scan_description')}
+                            </p>
                         </div>
                     )}
 
@@ -303,6 +331,7 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                     <input
                         type="file"
                         accept="image/*"
+                        multiple
                         ref={fileInputRef}
                         onChange={handleImageUpload}
                         className="hidden"
@@ -315,12 +344,6 @@ const ScannerModal = ({ onClose, onScanComplete }) => {
                         onChange={handleImageUpload}
                         className="hidden"
                     />
-
-                    {!image && !isCropping && (
-                        <p className="text-xs text-gray-400 dark:text-gray-500 max-w-xs mx-auto text-center">
-                            {t('scan_description')}
-                        </p>
-                    )}
                 </div>
             </div>
         </div>

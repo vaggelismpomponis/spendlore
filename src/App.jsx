@@ -1348,90 +1348,103 @@ function MainContent() {
     const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0), [transactions]);
 
     const checkBudgetThresholds = async (transaction) => {
-        if (transaction.type !== 'expense' || !transaction.category) return;
+        if (transaction.type !== 'expense') return;
 
-        const budget = budgets.find(b =>
-            b.category?.toLowerCase() === transaction.category?.toLowerCase()
-        );
-
-        if (!budget || !budget.notification_threshold) return;
+        const itemsToCheck = (Array.isArray(transaction.splits) && transaction.splits.length >= 2)
+            ? transaction.splits.map(s => ({ category: s.category || s.category_id, amount: Number(s.amount) || 0 }))
+            : (transaction.category ? [{ category: transaction.category, amount: Number(transaction.amount) || 0 }] : []);
 
         const now = new Date();
         const currentMonthStr = `${now.getFullYear()}-${now.getMonth() + 1}`;
 
-        const alreadyNotified =
-            budget.last_notified_month === currentMonthStr &&
-            (budget.last_notified_pct || 0) >= budget.notification_threshold;
-        if (alreadyNotified) return;
-
-        let totalSpent = transaction.amount;
-        transactions.forEach(t => {
-            const tDate = new Date(t.date);
-            if (t.type === 'expense' &&
-                t.id !== transaction.id &&
-                tDate.getMonth() === now.getMonth() &&
-                tDate.getFullYear() === now.getFullYear() &&
-                t.category?.toLowerCase() === budget.category?.toLowerCase()) {
-                totalSpent += t.amount;
-            }
-        });
-
-        const percentage = (totalSpent / budget.amount) * 100;
-        const pctFloor = Math.floor(percentage);
-
-        if (percentage >= budget.notification_threshold) {
-            const isExceeded = pctFloor >= 100;
-            const categoryName = getCategoryTranslation(budget.category, translate) || budget.category;
-            const notifTitle = translate(isExceeded ? 'budget_exceeded_title' : 'budget_alert_title');
-
-            const rawBodyTemplate = translate(isExceeded ? 'budget_exceeded_body' : 'budget_alert_body');
-            const notifBody = (rawBodyTemplate || '')
-                .replace('{category}', categoryName)
-                .replace('{percent}', pctFloor.toString())
-                .replace('{spent}', totalSpent.toFixed(2))
-                .replace('{budget}', budget.amount.toFixed(2))
-                .replace(/\{currency\}/g, currency || '€');
-
-            showToast(notifBody, isExceeded ? 'error' : 'warning');
-            addNotification(
-                'info',
-                notifBody,
-                {
-                    category: budget.category,
-                    amount: budget.amount,
-                    percentage: pctFloor
-                }
+        for (const item of itemsToCheck) {
+            if (!item.category) continue;
+            const budget = budgets.find(b =>
+                b.category?.toLowerCase() === item.category?.toLowerCase()
             );
 
-            if (Capacitor.isNativePlatform()) {
-                try {
-                    await LocalNotifications.schedule({
-                        notifications: [{
-                            title: notifTitle,
-                            body: notifBody,
-                            id: Math.floor(Math.random() * 100000),
-                            schedule: { at: new Date(Date.now() + 500) },
-                            smallIcon: 'ic_stat_spendlore',
-                            largeIcon: 'ic_spendlore_logo',
-                            iconColor: '#7C3AED',
-                            actionTypeId: '',
-                            extra: null
-                        }]
-                    });
-                } catch (e) {
-                    logger.error('Local Notification Error', e, 'App');
-                }
-            }
+            if (!budget || !budget.notification_threshold) continue;
 
-            try {
-                await supabase.from('budgets')
-                    .update({
-                        last_notified_month: currentMonthStr,
-                        last_notified_pct: pctFloor
-                    })
-                    .eq('id', budget.id);
-            } catch (e) {
-                logger.error('Error updating budget notification state', e, 'App');
+            const alreadyNotified =
+                budget.last_notified_month === currentMonthStr &&
+                (budget.last_notified_pct || 0) >= budget.notification_threshold;
+            if (alreadyNotified) continue;
+
+            let totalSpent = item.amount;
+            transactions.forEach(t => {
+                const tDate = new Date(t.date);
+                if (t.type === 'expense' &&
+                    t.id !== transaction.id &&
+                    tDate.getMonth() === now.getMonth() &&
+                    tDate.getFullYear() === now.getFullYear()) {
+                    if (Array.isArray(t.splits) && t.splits.length >= 2) {
+                        const splitAmt = t.splits
+                            .filter(s => (s.category || s.category_id)?.toLowerCase() === budget.category?.toLowerCase())
+                            .reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
+                        totalSpent += splitAmt;
+                    } else if (t.category?.toLowerCase() === budget.category?.toLowerCase()) {
+                        totalSpent += t.amount;
+                    }
+                }
+            });
+
+            const percentage = (totalSpent / budget.amount) * 100;
+            const pctFloor = Math.floor(percentage);
+
+            if (percentage >= budget.notification_threshold) {
+                const isExceeded = pctFloor >= 100;
+                const categoryName = getCategoryTranslation(budget.category, translate) || budget.category;
+                const notifTitle = translate(isExceeded ? 'budget_exceeded_title' : 'budget_alert_title');
+
+                const rawBodyTemplate = translate(isExceeded ? 'budget_exceeded_body' : 'budget_alert_body');
+                const notifBody = (rawBodyTemplate || '')
+                    .replace('{category}', categoryName)
+                    .replace('{percent}', pctFloor.toString())
+                    .replace('{spent}', totalSpent.toFixed(2))
+                    .replace('{budget}', budget.amount.toFixed(2))
+                    .replace(/\{currency\}/g, currency || '€');
+
+                showToast(notifBody, isExceeded ? 'error' : 'warning');
+                addNotification(
+                    'info',
+                    notifBody,
+                    {
+                        category: budget.category,
+                        amount: budget.amount,
+                        percentage: pctFloor
+                    }
+                );
+
+                if (Capacitor.isNativePlatform()) {
+                    try {
+                        await LocalNotifications.schedule({
+                            notifications: [{
+                                title: notifTitle,
+                                body: notifBody,
+                                id: Math.floor(Math.random() * 100000),
+                                schedule: { at: new Date(Date.now() + 500) },
+                                smallIcon: 'ic_stat_spendlore',
+                                largeIcon: 'ic_spendlore_logo',
+                                iconColor: '#7C3AED',
+                                actionTypeId: '',
+                                extra: null
+                            }]
+                        });
+                    } catch (e) {
+                        logger.error('Local Notification Error', e, 'App');
+                    }
+                }
+
+                try {
+                    await supabase.from('budgets')
+                        .update({
+                            last_notified_month: currentMonthStr,
+                            last_notified_pct: pctFloor
+                        })
+                        .eq('id', budget.id);
+                } catch (e) {
+                    logger.error('Error updating budget notification state', e, 'App');
+                }
             }
         }
     };
@@ -1455,11 +1468,21 @@ function MainContent() {
                 ? transaction.note.trim().substring(0, 500)
                 : '';
 
+            const sanitizedSplits = (Array.isArray(transaction?.splits) && transaction.splits.length >= 2)
+                ? transaction.splits.map(s => ({
+                    category: (s.category || s.category_id || '').trim(),
+                    category_id: (s.category_id || s.category || '').trim(),
+                    amount: Math.round((parseFloat(s.amount) || 0) * 100) / 100,
+                    note: typeof s.note === 'string' ? s.note.trim().substring(0, 100) : ''
+                }))
+                : (transaction?.splits === null ? null : (editingTransaction?.splits || null));
+
             const cleanPayload = {
                 type: sanitizedType,
                 amount: sanitizedAmount,
                 category: sanitizedCategory,
-                note: sanitizedNote
+                note: sanitizedNote,
+                splits: sanitizedSplits
             };
 
             const newTx = {
@@ -1504,6 +1527,14 @@ function MainContent() {
                 let { error } = await supabase.from('transactions')
                     .update(cleanPayload)
                     .eq('id', editingTransaction.id);
+
+                if (error && (error.code === 'PGRST204' || error.message?.includes('splits'))) {
+                    const { splits: _omit, ...cleanPayloadNoSplits } = cleanPayload;
+                    const fallbackRes = await supabase.from('transactions')
+                        .update(cleanPayloadNoSplits)
+                        .eq('id', editingTransaction.id);
+                    error = fallbackRes.error;
+                }
 
                 if (error && (error.code === '42501' || error.message?.includes('JWT') || error.message?.includes('security policy'))) {
                     const { data: refreshData, error: refreshErr } = await supabase.auth.refreshSession();
@@ -1602,6 +1633,15 @@ function MainContent() {
                 let { data, error } = await supabase.from('transactions')
                     .insert({ ...newTx, user_id: user.id })
                     .select();
+
+                if (error && (error.code === 'PGRST204' || error.message?.includes('splits'))) {
+                    const { splits: _omit, ...newTxNoSplits } = newTx;
+                    const fallbackRes = await supabase.from('transactions')
+                        .insert({ ...newTxNoSplits, user_id: user.id })
+                        .select();
+                    data = fallbackRes.data;
+                    error = fallbackRes.error;
+                }
 
                 if (error && (error.code === '42501' || error.message?.includes('JWT') || error.message?.includes('security policy'))) {
                     // Token expired or invalid session — auto refresh session and retry

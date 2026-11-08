@@ -7,7 +7,7 @@ import { getCroppedImg } from '../utils/canvasUtils';
 import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 
-const BulkScannerModal = ({ onClose, onScanComplete }) => {
+const BulkScannerModal = ({ onClose, onScanComplete, initialFiles = [] }) => {
     // Array of images: { id, src, croppedSrc, status: 'pending' | 'cropping' | 'ready' | 'processing' | 'done', result: null | {amount, date, note} }
     const { t } = useSettings();
     const [images, setImages] = useState([]);
@@ -25,6 +25,24 @@ const BulkScannerModal = ({ onClose, onScanComplete }) => {
     const cameraInputRef = useRef(null);
 
     const generateId = () => Math.random().toString(36).substring(2, 9);
+
+    useEffect(() => {
+        if (initialFiles && initialFiles.length > 0) {
+            initialFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    setImages(prev => [...prev, {
+                        id: generateId(),
+                        src: event.target.result,
+                        croppedSrc: null,
+                        status: 'pending',
+                        result: null
+                    }]);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);

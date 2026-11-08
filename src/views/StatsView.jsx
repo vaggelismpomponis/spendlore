@@ -240,14 +240,31 @@ const StatsView = ({ transactions }) => {
 
     const drillDownTransactions = useMemo(() => {
         if (!selectedCategory) return [];
+        const catLower = selectedCategory.toLowerCase();
         return filteredTransactions
-            .filter(t => t.type === 'expense' && t.category?.toLowerCase() === selectedCategory.toLowerCase())
+            .filter(t => {
+                if (t.type !== 'expense') return false;
+                if (Array.isArray(t.splits) && t.splits.length >= 2) {
+                    return t.splits.some(s => (s.category || s.category_id)?.toLowerCase() === catLower);
+                }
+                return t.category?.toLowerCase() === catLower;
+            })
             .sort((a, b) => new Date(b.date) - new Date(a.date));
     }, [filteredTransactions, selectedCategory]);
 
     const drillDownTotal = useMemo(() => {
-        return drillDownTransactions.reduce((s, t) => s + t.amount, 0);
-    }, [drillDownTransactions]);
+        if (!selectedCategory) return 0;
+        const catLower = selectedCategory.toLowerCase();
+        return drillDownTransactions.reduce((s, t) => {
+            if (Array.isArray(t.splits) && t.splits.length >= 2) {
+                const splitSum = t.splits
+                    .filter(sp => (sp.category || sp.category_id)?.toLowerCase() === catLower)
+                    .reduce((acc, sp) => acc + (Number(sp.amount) || 0), 0);
+                return s + splitSum;
+            }
+            return s + t.amount;
+        }, 0);
+    }, [drillDownTransactions, selectedCategory]);
 
     /* ── Aggregations ── */
     const { totalIncome, totalExpense, categoryData, trendData } = useMemo(() => {
@@ -262,7 +279,14 @@ const StatsView = ({ transactions }) => {
             if (tx.type === 'income') inc += tx.amount;
             else {
                 exp += tx.amount;
-                catMap[tx.category] = (catMap[tx.category] || 0) + tx.amount;
+                if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                    tx.splits.forEach(s => {
+                        const sCat = s.category || s.category_id || 'other';
+                        catMap[sCat] = (catMap[sCat] || 0) + (Number(s.amount) || 0);
+                    });
+                } else {
+                    catMap[tx.category] = (catMap[tx.category] || 0) + tx.amount;
+                }
             }
 
             const d = new Date(tx.date);
@@ -833,32 +857,49 @@ const StatsView = ({ transactions }) => {
                                             <Activity size={48} className="mb-4" />
                                             <p className="font-bold">{t('stats_no_records')}</p>
                                         </div>
-                                    ) : drillDownTransactions.map(tx => (
-                                        <div key={tx.id}
-                                            className="flex justify-between items-center
-                                                        bg-gray-50/80 dark:bg-white/[0.03]
-                                                        p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-white/5
-                                                        hover:bg-gray-100 dark:hover:bg-white/10
-                                                        hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
-                                            <div className="flex items-center gap-3.5 min-w-0">
-                                                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-105 transition-transform shrink-0">
-                                                    <CategoryIcon category={tx.category} type="expense" size={20} />
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="font-bold text-sm text-gray-800 dark:text-white capitalize truncate">
-                                                        {getCategoryTranslation(tx.category, t)}
-                                                    </p>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 truncate">
-                                                        {tx.note && <span className="text-gray-600 dark:text-gray-300 normal-case font-medium truncate">{tx.note} •</span>}
-                                                        <span className="shrink-0">{new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                    ) : drillDownTransactions.map(tx => {
+                                        const splitForCat = (Array.isArray(tx.splits) && tx.splits.length >= 2)
+                                            ? tx.splits.filter(s => (s.category || s.category_id)?.toLowerCase() === selectedCategory.toLowerCase())
+                                            : null;
+                                        const displayAmount = splitForCat && splitForCat.length > 0
+                                            ? splitForCat.reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+                                            : tx.amount;
+                                        const splitNote = splitForCat && splitForCat.length > 0
+                                            ? splitForCat.map(s => s.note).filter(Boolean).join(', ')
+                                            : tx.note;
+
+                                        return (
+                                            <div key={tx.id}
+                                                className="flex justify-between items-center
+                                                            bg-gray-50/80 dark:bg-white/[0.03]
+                                                            p-3.5 sm:p-4 rounded-2xl border border-gray-100 dark:border-white/5
+                                                            hover:bg-gray-100 dark:hover:bg-white/10
+                                                            hover:border-violet-200 dark:hover:border-violet-500/30 transition-colors group">
+                                                <div className="flex items-center gap-3.5 min-w-0">
+                                                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white dark:bg-white/5 shadow-sm group-hover:scale-105 transition-transform shrink-0">
+                                                        <CategoryIcon category={selectedCategory} type="expense" size={20} />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-sm text-gray-800 dark:text-white capitalize truncate">
+                                                            {getCategoryTranslation(selectedCategory, t)}
+                                                        </p>
+                                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 truncate">
+                                                            {splitNote && <span className="text-gray-600 dark:text-gray-300 normal-case font-medium truncate">{splitNote} •</span>}
+                                                            <span className="shrink-0">{new Date(tx.date).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                            {splitForCat && (
+                                                                <span className="normal-case font-medium text-gray-400 dark:text-gray-500 truncate">
+                                                                    ({t('split_part_of_total')?.replace('{total}', `€${tx.amount.toFixed(2)}`) || `από €${tx.amount.toFixed(2)}`})
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <span className="font-black text-rose-500 text-sm sm:text-base shrink-0 ml-3">
+                                                    <Amount value={displayAmount} prefix="−" />
+                                                </span>
                                             </div>
-                                            <span className="font-black text-rose-500 text-sm sm:text-base shrink-0 ml-3">
-                                                <Amount value={tx.amount} prefix="−" />
-                                            </span>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </motion.div>
                         </motion.div>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
-    X, TrendingDown, ArrowDownLeft, TrendingUp 
+import {
+    ChevronLeft, ChevronRight, Calendar as CalendarIcon,
+    X, TrendingDown, ArrowDownLeft, TrendingUp
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import Amount from './Amount';
@@ -21,12 +21,12 @@ const COLORS = [
     '#ef4444'  // Red
 ];
 
-const CalendarSection = ({ 
-    transactions, 
-    calendarYear: viewYear, 
-    calendarMonth: viewMonth, 
-    setCalendarYear: setViewYear, 
-    setCalendarMonth: setViewMonth 
+const CalendarSection = ({
+    transactions,
+    calendarYear: viewYear,
+    calendarMonth: viewMonth,
+    setCalendarYear: setViewYear,
+    setCalendarMonth: setViewMonth
 }) => {
     const { t, language, privacyMode } = useSettings();
     const locale = language === 'el' ? 'el-GR' : 'en-US';
@@ -135,7 +135,14 @@ const CalendarSection = ({
     const dayCategoriesBreakdown = useMemo(() => {
         const catMap = {};
         dayTransactions.forEach(tx => {
-            catMap[tx.category] = (catMap[tx.category] || 0) + tx.amount;
+            if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                tx.splits.forEach(s => {
+                    const c = s.category || s.category_id || 'other';
+                    catMap[c] = (catMap[c] || 0) + (Number(s.amount) || 0);
+                });
+            } else {
+                catMap[tx.category] = (catMap[tx.category] || 0) + tx.amount;
+            }
         });
         return Object.entries(catMap)
             .map(([name, value]) => ({ name, value }))
@@ -179,7 +186,7 @@ const CalendarSection = ({
     // Render calendar grid items
     const calendarCells = useMemo(() => {
         const cells = [];
-        
+
         // Blank cells before the first day of the month
         for (let i = 0; i < startOffset; i++) {
             cells.push({ id: `empty-${i}`, isPlaceholder: true });
@@ -223,7 +230,7 @@ const CalendarSection = ({
                         </p>
                     </div>
                 </div>
-                
+
                 <div className="flex items-center gap-1 bg-gray-50 dark:bg-white/5 p-1 rounded-xl border border-gray-100 dark:border-white/5">
                     <button
                         onClick={handlePrevMonth}
@@ -300,16 +307,16 @@ const CalendarSection = ({
                             className={`fixed inset-0 z-[100] flex ${isDesktop ? 'items-center p-4 sm:p-6' : 'items-end'} justify-center pointer-events-none`}
                         >
                             {/* Backdrop */}
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-auto"
-                                onClick={() => setSelectedDay(null)} 
+                                onClick={() => setSelectedDay(null)}
                             />
-                            
+
                             {/* Panel / Centered Modal */}
-                            <motion.div 
+                            <motion.div
                                 initial={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
                                 animate={isDesktop ? { opacity: 1, scale: 1, y: 0 } : { y: 0 }}
                                 exit={isDesktop ? { opacity: 0, scale: 0.95, y: 16 } : { y: '100%' }}
@@ -340,7 +347,7 @@ const CalendarSection = ({
                                             </p>
                                         </div>
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={() => setSelectedDay(null)}
                                         className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 flex items-center justify-center text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
                                     >
@@ -408,7 +415,7 @@ const CalendarSection = ({
                                                                 </span>
                                                             </div>
                                                             <div className="h-1.5 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-                                                                <div 
+                                                                <div
                                                                     className="h-full rounded-full transition-all duration-700"
                                                                     style={{ width: `${pct}%`, background: COLORS[idx % COLORS.length] }}
                                                                 />
@@ -433,7 +440,7 @@ const CalendarSection = ({
                                             <div className="space-y-2.5">
                                                 {dayTransactions.map(tx => (
                                                     <div key={tx.id}
-                                                         className="flex justify-between items-center bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-500/30 transition-all group"
+                                                        className="flex justify-between items-center bg-gray-50 dark:bg-white/[0.03] p-4 rounded-2xl border border-gray-100 dark:border-white/5 hover:border-violet-200 dark:hover:border-violet-500/30 transition-all group"
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex items-center justify-center shrink-0">

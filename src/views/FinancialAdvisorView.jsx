@@ -128,8 +128,16 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
         const buckets = { needs: 0, wants: 0, savings: 0, uncategorized: 0 };
         expenses.forEach(tx => {
-            const bucket = CATEGORY_MAP[tx.category?.toLowerCase()] || 'uncategorized';
-            buckets[bucket] += tx.amount;
+            if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                tx.splits.forEach(s => {
+                    const c = (s.category || s.category_id || '').toLowerCase();
+                    const bucket = CATEGORY_MAP[c] || 'uncategorized';
+                    buckets[bucket] += (Number(s.amount) || 0);
+                });
+            } else {
+                const bucket = CATEGORY_MAP[tx.category?.toLowerCase()] || 'uncategorized';
+                buckets[bucket] += tx.amount;
+            }
         });
 
         const totalExp = buckets.needs + buckets.wants + buckets.savings + buckets.uncategorized;
@@ -145,16 +153,30 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
         // Category sums
         const catTotals = {};
         expenses.forEach(tx => {
-            const cat = tx.category || 'other';
-            catTotals[cat] = (catTotals[cat] || 0) + tx.amount;
+            if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                tx.splits.forEach(s => {
+                    const cat = s.category || s.category_id || 'other';
+                    catTotals[cat] = (catTotals[cat] || 0) + (Number(s.amount) || 0);
+                });
+            } else {
+                const cat = tx.category || 'other';
+                catTotals[cat] = (catTotals[cat] || 0) + tx.amount;
+            }
         });
         const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0];
 
         // Last month by category
         const lastCatTotals = {};
         lastExpenses.forEach(tx => {
-            const cat = tx.category || 'other';
-            lastCatTotals[cat] = (lastCatTotals[cat] || 0) + tx.amount;
+            if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                tx.splits.forEach(s => {
+                    const cat = s.category || s.category_id || 'other';
+                    lastCatTotals[cat] = (lastCatTotals[cat] || 0) + (Number(s.amount) || 0);
+                });
+            } else {
+                const cat = tx.category || 'other';
+                lastCatTotals[cat] = (lastCatTotals[cat] || 0) + tx.amount;
+            }
         });
 
         // This week coffee

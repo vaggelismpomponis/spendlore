@@ -23,4 +23,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'feedback' AND COLUMN_NAME = 'admin_notes') THEN
         ALTER TABLE public.feedback ADD COLUMN admin_notes TEXT;
     END IF;
+
+    -- Add splits column to transactions table if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'transactions' AND COLUMN_NAME = 'splits') THEN
+        ALTER TABLE public.transactions ADD COLUMN splits JSONB;
+    END IF;
 END $$;

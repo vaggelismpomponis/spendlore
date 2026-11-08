@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pencil, Trash2, ChevronRight, CloudOff } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight, CloudOff, GitFork } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CategoryIcon, { CATEGORY_ACCENT } from './CategoryIcon';
 import Amount from './Amount';
@@ -44,6 +44,12 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
             <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-gray-900 dark:text-white truncate capitalize flex items-center gap-1.5">
                     <span className="truncate">{categoryTitle}</span>
+                    {Array.isArray(transaction?.splits) && transaction.splits.length >= 2 && (
+                        <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 normal-case tracking-normal shrink-0" title={`${transaction.splits.length} ${t('split_categories_count')?.replace('{count}', transaction.splits.length) || 'κατηγορίες'}`}>
+                            <GitFork size={12} className="text-gray-400 dark:text-gray-500" />
+                            <span>{transaction.splits.length}</span>
+                        </span>
+                    )}
                     {transaction?._is_offline && (
                         <span title={t('pending_sync')} className="inline-flex items-center shrink-0">
                             <CloudOff size={13} className="text-amber-500" />
@@ -65,6 +71,17 @@ const TransactionItem = ({ transaction, onDelete, onEdit }) => {
                         <span>{formattedDate}</span>
                     )}
                 </div>
+                {Array.isArray(transaction?.splits) && transaction.splits.length >= 2 && (
+                    <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-gray-500 dark:text-gray-400 font-medium">
+                        {transaction.splits.map((s, idx) => (
+                            <span key={idx} className="inline-flex items-center gap-1">
+                                <span className="font-semibold text-gray-700 dark:text-gray-300">{getCategoryTranslation(s.category, t)}</span>
+                                <span className="tabular-nums">€{Number(s.amount).toFixed(2)}</span>
+                                {idx < transaction.splits.length - 1 && <span className="text-gray-300 dark:text-gray-600">•</span>}
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Amount and Chevron */}

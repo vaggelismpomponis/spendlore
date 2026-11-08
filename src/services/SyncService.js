@@ -68,6 +68,16 @@ export const processSyncQueue = async (supabase, user, options = {}) => {
                         }
                     }
 
+                    if (error && (error.code === 'PGRST204' || error.message?.includes('splits'))) {
+                        const { splits: _omit, ...fallbackPayload } = item.payload;
+                        const retryRes = await supabase
+                            .from(item.entity || 'transactions')
+                            .insert(fallbackPayload)
+                            .select();
+                        data = retryRes.data;
+                        error = retryRes.error;
+                    }
+
                     if (error) {
                         if (isNetworkError(error)) {
                             logger.warn('Network error during sync insert, halting queue', 'SyncService');
@@ -112,6 +122,15 @@ export const processSyncQueue = async (supabase, user, options = {}) => {
                                 .eq('id', item.targetId);
                             error = retryRes.error;
                         }
+                    }
+
+                    if (error && (error.code === 'PGRST204' || error.message?.includes('splits'))) {
+                        const { splits: _omit, ...fallbackPayload } = item.payload;
+                        const retryRes = await supabase
+                            .from(item.entity || 'transactions')
+                            .update(fallbackPayload)
+                            .eq('id', item.targetId);
+                        error = retryRes.error;
                     }
 
                     if (error) {

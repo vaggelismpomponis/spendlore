@@ -89,3 +89,16 @@ Whenever building or redesigning modals, dialogs, forms, or new interactive surf
 - **Zero Technical Error Details in Production**: NEVER display technical error messages, exceptions, stack traces, component stacks, or collapsible "Error Details / Λεπτομέρειες Σφάλματος" UI to end users in production. Exposing technical stack traces in production is a severe security, privacy, and corporate standards violation.
 - **Strict Development-Only Diagnostics**: Any detailed diagnostics, raw error objects, stack traces, and "Copy Error" actions must be strictly guarded behind development mode (`import.meta.env.DEV`). In production builds, the error boundary must only present clean, reassuring, user-friendly language ("Κάτι πήγε στραβά / Something went wrong") alongside recovery actions ("Ανανέωση Εφαρμογής", "Εκκαθάριση & Επανεκκίνηση").
 - **Silent Telemetry Only**: All technical diagnostics, error objects, and component stacks in production must be reported silently to Sentry and background logging without polluting the user-facing UI.
+
+## Cross-Device Cloud Sync & Account-Level State Invariant (Single Source of Truth)
+
+Whenever implementing, expanding, or modifying features (current and future):
+- **Account-Level, Never Device-Locked**: All user data, settings, and financial records (transactions, split transaction items, budgets, goals, recurring transactions, notifications, custom categories, merchant rules, cooling-off items) belong strictly to the authenticated account (`user_id`), NEVER to an isolated device or browser storage.
+- **Universal Multi-Device Parity**: A user accessing Spendlore on an Android smartphone, a laptop browser, a desktop PWA, or a tablet MUST see identical state, identical transactions, identical categories, and identical notifications across all devices.
+- **Offline-First Architecture Requirements**:
+  1. **Optimistic Local Cache**: Update local store (`useAppStore` / scoped cache) immediately for seamless 0ms UI responsiveness.
+  2. **Cloud Synchronization Queue**: Route all mutations (inserts, updates, deletes) through Supabase cloud storage and the persistent offline queue (`SyncService.js`) so that actions taken offline drain automatically upon network reconnection.
+  3. **Realtime Multi-Device Broadcast**: Bind entities to Supabase Realtime Postgres Changes subscriptions and dedicated broadcast channels (e.g. `transactions-sync-${userId}`, `notifications-sync-${userId}`) so actions taken on Device A immediately reflect on Device B without requiring manual page reload.
+  4. **Foreground Hydration on Tab/App Focus**: Ensure that whenever the user switches between apps or tabs (`visibilitychange` / `window.onfocus`), active subscriptions trigger background refreshes from Supabase to catch up with changes made on other devices.
+- **Prohibit Device-Only Storage for User Features**: NEVER store new user-facing entities, features, or configurations solely in `localStorage` without corresponding Supabase tables/columns and cloud synchronization.
+

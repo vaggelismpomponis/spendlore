@@ -212,14 +212,22 @@ const DesktopGoalMiniCard = ({ goal }) => {
 const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
     const spent = useMemo(() => {
         const now = new Date();
+        const budgetCatLower = budget.category?.toLowerCase();
         return transactions
             .filter(tx =>
                 tx.type === 'expense' &&
-                tx.category?.toLowerCase() === budget.category?.toLowerCase() &&
                 new Date(tx.date).getMonth() === now.getMonth() &&
                 new Date(tx.date).getFullYear() === now.getFullYear()
             )
-            .reduce((s, tx) => s + tx.amount, 0);
+            .reduce((s, tx) => {
+                if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                    const splitSpent = tx.splits
+                        .filter(sp => (sp.category || sp.category_id)?.toLowerCase() === budgetCatLower)
+                        .reduce((acc, sp) => acc + (Number(sp.amount) || 0), 0);
+                    return s + splitSpent;
+                }
+                return tx.category?.toLowerCase() === budgetCatLower ? s + (Number(tx.amount) || 0) : s;
+            }, 0);
     }, [transactions, budget]);
 
     const pct = Math.min((spent / budget.amount) * 100, 100);
@@ -451,8 +459,15 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
         const catMap = {};
         monthExpenseTxs.forEach(tx => {
-            const cat = tx.category || 'other';
-            catMap[cat] = (catMap[cat] || 0) + (tx.amount || 0);
+            if (Array.isArray(tx.splits) && tx.splits.length >= 2) {
+                tx.splits.forEach(sp => {
+                    const c = sp.category || sp.category_id || 'other';
+                    catMap[c] = (catMap[c] || 0) + (Number(sp.amount) || 0);
+                });
+            } else {
+                const cat = tx.category || 'other';
+                catMap[cat] = (catMap[cat] || 0) + (tx.amount || 0);
+            }
         });
 
         const sortedCats = Object.entries(catMap)
@@ -480,7 +495,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 const cat = (tx.category || '').toLowerCase();
                 const note = (tx.note || '').toLowerCase();
                 const tr = getCategoryTranslation(tx.category, t).toLowerCase();
-                return cat.includes(q) || note.includes(q) || tr.includes(q);
+                const matchesSplits = Array.isArray(tx.splits) && tx.splits.some(sp =>
+                    (sp.category || '').toLowerCase().includes(q) ||
+                    (sp.note || '').toLowerCase().includes(q) ||
+                    getCategoryTranslation(sp.category, t).toLowerCase().includes(q)
+                );
+                return cat.includes(q) || note.includes(q) || tr.includes(q) || matchesSplits;
             }
             return true;
         }).slice(0, 8);

@@ -3,6 +3,7 @@ import TransactionItem from '../components/TransactionItem';
 import { Search, X, ArrowUpRight, ArrowDownRight, LayoutList, ChevronRight } from 'lucide-react';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
 
 // Sums for a date group
 const groupTotal = (txs) => txs.reduce((acc, t) =>
@@ -34,9 +35,17 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
     const filteredTransactions = useMemo(() =>
         transactions.filter(t => {
             const date = new Date(t.date);
-            const matchesSearch =
-                t.note?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                t.category?.toLowerCase().includes(searchTerm.toLowerCase());
+            const q = searchTerm.toLowerCase().trim();
+            const matchesSplits = Array.isArray(t.splits) && t.splits.some(s =>
+                (s.category || s.category_id || '').toLowerCase().includes(q) ||
+                (s.note || '').toLowerCase().includes(q) ||
+                getCategoryTranslation(s.category, t).toLowerCase().includes(q)
+            );
+            const matchesSearch = !q ||
+                t.note?.toLowerCase().includes(q) ||
+                t.category?.toLowerCase().includes(q) ||
+                getCategoryTranslation(t.category, t).toLowerCase().includes(q) ||
+                matchesSplits;
             const matchesType = filterType === 'all' || t.type === filterType;
             
             const matchesYear = date.getFullYear() === selectedYear;
@@ -44,7 +53,7 @@ const HistoryView = ({ transactions, onDelete, onEdit }) => {
             
             return matchesSearch && matchesType && matchesYear && matchesMonth;
         }),
-        [transactions, searchTerm, filterType, selectedYear, selectedMonth]
+        [transactions, searchTerm, filterType, selectedYear, selectedMonth, t]
     );
 
     const totalIncome = useMemo(() => filteredTransactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0), [filteredTransactions]);

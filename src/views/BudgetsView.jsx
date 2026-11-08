@@ -319,17 +319,26 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
+        const targetCatLower = category.toLowerCase();
+
         return transactions
             .filter(t => {
                 const tDate = new Date(t.date);
                 return (
                     t.type === 'expense' &&
                     tDate.getMonth() === currentMonth &&
-                    tDate.getFullYear() === currentYear &&
-                    t.category?.toLowerCase() === category.toLowerCase()
+                    tDate.getFullYear() === currentYear
                 );
             })
-            .reduce((acc, t) => acc + t.amount, 0);
+            .reduce((acc, t) => {
+                if (Array.isArray(t.splits) && t.splits.length >= 2) {
+                    const splitAmt = t.splits
+                        .filter(s => (s.category || s.category_id)?.toLowerCase() === targetCatLower)
+                        .reduce((sSum, s) => sSum + (Number(s.amount) || 0), 0);
+                    return acc + splitAmt;
+                }
+                return t.category?.toLowerCase() === targetCatLower ? acc + (Number(t.amount) || 0) : acc;
+            }, 0);
     }, [transactions]);
 
     /* ── Summary stats ── */

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
-    MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes
+    MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes, GitFork
 } from 'lucide-react';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import ScannerModal from './ScannerModal';
 import BulkScannerModal from './BulkScannerModal';
+import SplitTransactionModal from './SplitTransactionModal';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
@@ -51,9 +52,12 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
     const [note, setNote] = useState('');
+    const [splits, setSplits] = useState([]);
+    const [showSplitModal, setShowSplitModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showScanner, setShowScanner] = useState(false);
     const [showBulkScanner, setShowBulkScanner] = useState(false);
+    const [bulkInitialFiles, setBulkInitialFiles] = useState([]);
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [showNote, setShowNote] = useState(false);
@@ -110,6 +114,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             setCategory(initialData.category || '');
             setNote(initialData.note ? initialData.note.substring(0, NOTE_MAX_LENGTH) : '');
             setShowNote(!!(initialData.note));
+            if (Array.isArray(initialData.splits) && initialData.splits.length >= 2) {
+                setSplits(initialData.splits);
+            } else {
+                setSplits([]);
+            }
         } else {
             // Reset if no data
             setAmount('');
@@ -117,6 +126,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             setNote('');
             setShowNote(false);
             setIsNoteFocused(false);
+            setSplits([]);
         }
     }, [initialData]);
 
@@ -397,9 +407,25 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     const [amountError, setAmountError] = useState('');
 
+    const handleApplySplits = (appliedSplits, updatedTotal) => {
+        if (Array.isArray(appliedSplits) && appliedSplits.length >= 2) {
+            setSplits(appliedSplits);
+            if (updatedTotal > 0) {
+                setAmount(updatedTotal.toString());
+            }
+            // Set primary category to the split with the highest amount
+            const sorted = [...appliedSplits].sort((a, b) => (parseFloat(b.amount) || 0) - (parseFloat(a.amount) || 0));
+            if (sorted[0]?.category) {
+                setCategory(sorted[0].category);
+            }
+        } else {
+            setSplits([]);
+        }
+    };
+
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
-        if (!amount || !category) return;
+        if (!amount || (!category && splits.length === 0)) return;
 
         // Validate amount
         const parsedAmount = parseFloat(amount);
@@ -411,15 +437,38 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             setAmountError(t('amount_max_error'));
             return;
         }
+
+        // Validate splits if active
+        if (splits.length >= 2) {
+            const splitSum = splits.reduce((sum, s) => sum + (parseFloat(s.amount) || 0), 0);
+            if (Math.abs(splitSum - parsedAmount) >= 0.01) {
+                const sumStr = splitSum.toFixed(2);
+                const totalStr = parsedAmount.toFixed(2);
+                const msg = (t('split_error_sum') || 'Το άθροισμα των κατηγοριών ({sum}€) πρέπει να ισούται με το συνολικό ποσό ({total}€).')
+                    .replace('{sum}', sumStr)
+                    .replace('{total}', totalStr);
+                setAmountError(msg);
+                return;
+            }
+        }
+
         setAmountError('');
 
         setIsSubmitting(true);
         const sanitizedType = (type === 'income' || type === 'expense') ? type : 'expense';
+        const primaryCategory = typeof category === 'string' && category ? category : (splits[0]?.category || 'Άλλο');
+
         await onAdd({
             type: sanitizedType,
             amount: parsedAmount,
-            category: typeof category === 'string' ? category : '',
-            note: typeof note === 'string' ? note.substring(0, NOTE_MAX_LENGTH) : ''
+            category: primaryCategory,
+            note: typeof note === 'string' ? note.substring(0, NOTE_MAX_LENGTH) : '',
+            splits: splits.length >= 2 ? splits.map(s => ({
+                category: (s.category || s.category_id || '').trim(),
+                category_id: (s.category_id || s.category || '').trim(),
+                amount: Math.round((parseFloat(s.amount) || 0) * 100) / 100,
+                note: typeof s.note === 'string' ? s.note.substring(0, 100).trim() : ''
+            })) : null
         });
         hapticSaveSuccess();
 
@@ -566,8 +615,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         whileTap={{ scale: 0.95 }}
                         type="button"
                         onClick={handleSubmit}
-                        disabled={!amount || !category || isSubmitting}
-                        className={`text-sm lg:text-base font-bold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full transition-all ${!amount || !category
+                        disabled={!amount || (!category && splits.length === 0) || isSubmitting}
+                        className={`text-sm lg:text-base font-bold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full transition-all ${!amount || (!category && splits.length === 0)
                             ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
                             : 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                             }`}
@@ -635,47 +684,80 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         </motion.div>
                     </div>
 
-                    {/* Category Selector Bar — tapping opens the bottom-sheet picker */}
+                    {/* Category Selector Bar — tapping opens the bottom-sheet picker or split manager */}
                     <div className="px-4 lg:px-8 pb-3 lg:pb-4 flex-shrink-0">
-                        <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            type="button"
-                            id="category-selector-btn"
-                            aria-label="Select category"
-                            onClick={() => { setCategorySearch(''); setShowCategoryPicker(true); }}
-                            className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-6 py-3 lg:py-4 rounded-2xl border transition-all duration-200
-                                bg-gray-50 dark:bg-surface-dark3
-                                border-gray-200 dark:border-white/5
-                                hover:border-indigo-300 dark:hover:border-indigo-500/50
-                                hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5
-                                group"
-                        >
-                            {category ? (() => {
-                                const Icon = getCategoryIcon(category);
-                                const accentHex = getCategoryAccent(category, type);
-                                return (
-                                    <>
-                                        <Icon size={20} className="shrink-0" style={{ color: accentHex }} />
-                                        <span className="flex-1 text-left text-sm lg:text-base font-semibold" style={{ color: accentHex }}>
-                                            {getCategoryTranslation(category, t)}
+                        {splits.length >= 2 ? (
+                            <motion.button
+                                whileTap={{ scale: 0.98 }}
+                                type="button"
+                                id="category-selector-btn"
+                                aria-label="Edit split transaction"
+                                onClick={() => setShowSplitModal(true)}
+                                className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-6 py-3 lg:py-3.5 rounded-2xl border transition-all duration-200
+                                    bg-gray-100 dark:bg-surface-dark3
+                                    border-gray-300 dark:border-white/10
+                                    hover:border-gray-400 dark:hover:border-white/25
+                                    group text-left"
+                            >
+                                <GitFork size={20} className="shrink-0 text-gray-700 dark:text-gray-300" />
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm lg:text-base font-bold text-gray-900 dark:text-white">
+                                            {t('split_transaction_title') || 'Διαχωρισμός Συναλλαγής'}
                                         </span>
-                                        <span className="text-xs lg:text-sm text-gray-400 dark:text-gray-500 group-hover:text-indigo-400 transition-colors">
-                                            {t('change_category') || 'Αλλαγή'}
+                                        <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-300">
+                                            {splits.length} {t('split_categories_count')?.replace('{count}', '') || 'κατηγορίες'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400 truncate mt-0.5 font-medium">
+                                        {splits.map(s => `${getCategoryTranslation(s.category, t)}: €${parseFloat(s.amount || 0).toFixed(2)}`).join(' • ')}
+                                    </p>
+                                </div>
+                                <span className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 font-bold group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                                    {t('edit') || 'Επεξεργασία'}
+                                </span>
+                            </motion.button>
+                        ) : (
+                            <motion.button
+                                whileTap={{ scale: 0.98 }}
+                                type="button"
+                                id="category-selector-btn"
+                                aria-label="Select category"
+                                onClick={() => { setCategorySearch(''); setShowCategoryPicker(true); }}
+                                className="w-full flex items-center gap-3 lg:gap-4 px-4 lg:px-6 py-3 lg:py-4 rounded-2xl border transition-all duration-200
+                                    bg-gray-50 dark:bg-surface-dark3
+                                    border-gray-200 dark:border-white/5
+                                    hover:border-indigo-300 dark:hover:border-indigo-500/50
+                                    hover:bg-indigo-50/50 dark:hover:bg-indigo-500/5
+                                    group"
+                            >
+                                {category ? (() => {
+                                    const Icon = getCategoryIcon(category);
+                                    const accentHex = getCategoryAccent(category, type);
+                                    return (
+                                        <>
+                                            <Icon size={20} className="shrink-0" style={{ color: accentHex }} />
+                                            <span className="flex-1 text-left text-sm lg:text-base font-semibold" style={{ color: accentHex }}>
+                                                {getCategoryTranslation(category, t)}
+                                            </span>
+                                            <span className="text-xs lg:text-sm text-gray-400 dark:text-gray-500 group-hover:text-indigo-400 transition-colors">
+                                                {t('change_category') || 'Αλλαγή'}
+                                            </span>
+                                        </>
+                                    );
+                                })() : (
+                                    <>
+                                        <Shapes size={20} className="shrink-0 text-gray-400 dark:text-gray-500" />
+                                        <span className="flex-1 text-left text-sm lg:text-base font-medium text-gray-400 dark:text-gray-500">
+                                            {t('select_category') || 'Επιλογή κατηγορίας…'}
+                                        </span>
+                                        <span className="text-xs lg:text-sm text-indigo-400 dark:text-indigo-500 font-semibold">
+                                            {t('tap_to_pick') || 'Πάτησε'}
                                         </span>
                                     </>
-                                );
-                            })() : (
-                                <>
-                                    <Shapes size={20} className="shrink-0 text-gray-400 dark:text-gray-500" />
-                                    <span className="flex-1 text-left text-sm lg:text-base font-medium text-gray-400 dark:text-gray-500">
-                                        {t('select_category') || 'Επιλογή κατηγορίας…'}
-                                    </span>
-                                    <span className="text-xs lg:text-sm text-indigo-400 dark:text-indigo-500 font-semibold">
-                                        {t('tap_to_pick') || 'Πάτησε'}
-                                    </span>
-                                </>
-                            )}
-                        </motion.button>
+                                )}
+                            </motion.button>
+                        )}
                     </div>
 
                     {/* ── Category Picker Bottom Sheet ── */}
@@ -968,22 +1050,22 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                         )}
                     </AnimatePresence>
 
-                    {/* Tool Strip — voice, scan, bulk */}
+                    {/* Tool Strip — voice, scan (single & bulk), split */}
                     {!isNoteFocused && (
-                        <div className="px-5 lg:px-8 pb-3 lg:pb-5 flex justify-center gap-3 lg:gap-4 flex-shrink-0">
+                        <div className="w-full max-w-sm sm:max-w-md lg:max-w-xl mx-auto px-3 sm:px-6 lg:px-8 pb-3 lg:pb-5 flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 flex-shrink-0">
                             <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.96 }}
                                 type="button"
                                 onClick={startListening}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
+                                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs lg:text-sm font-bold py-2 lg:py-2.5 px-2.5 sm:px-4 lg:px-5 rounded-xl text-rose-700 dark:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all whitespace-nowrap"
                             >
-                                <Mic size={15} />
-                                {t('voice')}
+                                <Mic size={15} className="shrink-0" />
+                                <span>{t('voice')}</span>
                             </motion.button>
                             <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.96 }}
                                 type="button"
                                 onClick={() => {
                                     if (!isPro) {
@@ -992,28 +1074,29 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                     }
                                     setShowScanner(true);
                                 }}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all"
+                                className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs lg:text-sm font-bold py-2 lg:py-2.5 px-2.5 sm:px-4 lg:px-5 rounded-xl text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all whitespace-nowrap"
                             >
-                                <Camera size={15} />
-                                {t('scan')}
-                                {!isPro && <ShieldCheck size={13} className="text-amber-500 ml-1 inline-block" />}
+                                <Camera size={15} className="shrink-0" />
+                                <span>{t('scan')}</span>
+                                {!isPro && <ShieldCheck size={13} className="text-amber-500 shrink-0 ml-0.5 inline-block" />}
                             </motion.button>
                             <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.96 }}
                                 type="button"
-                                onClick={() => {
-                                    if (!isPro) {
-                                        openUpgradeModal('scanner');
-                                        return;
-                                    }
-                                    setShowBulkScanner(true);
-                                }}
-                                className="flex items-center gap-1.5 text-xs lg:text-sm font-bold px-4 lg:px-5 py-2 lg:py-2.5 rounded-xl text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1] transition-all"
+                                onClick={() => setShowSplitModal(true)}
+                                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 text-xs lg:text-sm font-bold py-2 lg:py-2.5 px-2.5 sm:px-4 lg:px-5 rounded-xl border transition-all whitespace-nowrap ${
+                                    splits.length >= 2
+                                        ? 'text-gray-900 dark:text-white bg-gray-300/80 dark:bg-white/20 border-gray-400 dark:border-white/30'
+                                        : 'text-gray-700 dark:text-gray-200 bg-gray-200/60 hover:bg-gray-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.1] border border-gray-300/60 dark:border-white/[0.1]'
+                                }`}
                             >
-                                <Layers size={15} />
-                                {t('bulk')}
-                                {!isPro && <ShieldCheck size={13} className="text-amber-500 ml-1 inline-block" />}
+                                <GitFork size={15} className="shrink-0" />
+                                <span>
+                                    {splits.length >= 2
+                                        ? `${splits.length} ${t('split_transaction') || 'Διαχωρισμός'}`
+                                        : (t('split_transaction') || 'Διαχωρισμός')}
+                                </span>
                             </motion.button>
                         </div>
                     )}
@@ -1061,8 +1144,8 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                 whileTap={{ scale: 0.9 }}
                                 type="button"
                                 onClick={handleSubmit}
-                                disabled={!amount || !category || isSubmitting}
-                                className={`h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all ${!amount || !category
+                                disabled={!amount || (!category && splits.length === 0) || isSubmitting}
+                                className={`h-14 lg:h-[72px] xl:h-[76px] rounded-2xl text-xl lg:text-3xl font-bold flex items-center justify-center transition-all ${!amount || (!category && splits.length === 0)
                                     ? 'bg-gray-200 dark:bg-surface-dark3 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                     : 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/30 hover:bg-indigo-700'
                                     }`}
@@ -1077,8 +1160,44 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                     </div>
                 )}
 
-                {showScanner && <ScannerModal onClose={() => setShowScanner(false)} onScanComplete={handleScanComplete} />}
-                {showBulkScanner && <BulkScannerModal onClose={() => setShowBulkScanner(false)} onScanComplete={handleBulkScanComplete} />}
+                {showScanner && (
+                    <ScannerModal
+                        onClose={() => setShowScanner(false)}
+                        onScanComplete={handleScanComplete}
+                        onSwitchToBulk={(files) => {
+                            setShowScanner(false);
+                            setBulkInitialFiles(files || []);
+                            setShowBulkScanner(true);
+                        }}
+                        onOpenBulk={() => {
+                            setShowScanner(false);
+                            setBulkInitialFiles([]);
+                            setShowBulkScanner(true);
+                        }}
+                    />
+                )}
+                {showBulkScanner && (
+                    <BulkScannerModal
+                        onClose={() => {
+                            setShowBulkScanner(false);
+                            setBulkInitialFiles([]);
+                        }}
+                        onScanComplete={handleBulkScanComplete}
+                        initialFiles={bulkInitialFiles}
+                    />
+                )}
+                {showSplitModal && (
+                    <SplitTransactionModal
+                        isOpen={showSplitModal}
+                        onClose={() => setShowSplitModal(false)}
+                        totalAmount={amount}
+                        currentCategory={category}
+                        currentNote={note}
+                        initialSplits={splits}
+                        onApplySplits={handleApplySplits}
+                        type={type}
+                    />
+                )}
             </motion.div>
         </motion.div>
     );
