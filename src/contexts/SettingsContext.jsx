@@ -6,6 +6,7 @@ import { isBaseCategory } from '../utils/categoryTranslations';
 import { supabase } from '../supabase';
 import { DEFAULT_STARTER_RULES } from '../utils/merchantRules';
 import { setNativeMerchantRules } from '../utils/notificationListener';
+import { isHapticsEnabled as getIsHapticsEnabled, setHapticsEnabled as setGlobalHapticsEnabled } from '../utils/haptics';
 
 const SettingsContext = createContext();
 
@@ -106,6 +107,17 @@ export const SettingsProvider = ({ children }) => {
 
     // 5b. Privacy Mode (Amount Masking)
     const [privacyMode, setPrivacyMode] = useState(() => localStorage.getItem('privacyMode') === 'true');
+
+    // 5c. Haptic Feedback
+    const [hapticsEnabled, setHapticsEnabledState] = useState(() => getIsHapticsEnabled());
+
+    const toggleHaptics = useCallback((val) => {
+        setHapticsEnabledState(prev => {
+            const nextVal = typeof val === 'boolean' ? val : !prev;
+            setGlobalHapticsEnabled(nextVal);
+            return nextVal;
+        });
+    }, []);
 
     // 5. Theme (System / Light / Dark)
     const [themePreference, setThemePreference] = useState(() => {
@@ -850,7 +862,9 @@ export const SettingsProvider = ({ children }) => {
         deleteMerchantRule,
         resetMerchantRulesToDefault,
         privacyMode,
-        togglePrivacyMode
+        togglePrivacyMode,
+        hapticsEnabled,
+        toggleHaptics
     };
 
     // Track Activity for Grace Period

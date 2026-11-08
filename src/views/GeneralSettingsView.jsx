@@ -11,7 +11,8 @@ import {
     SlidersHorizontal,
     X,
     Tag,
-    FileText
+    FileText,
+    Vibrate
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -30,7 +31,7 @@ import { getAppVersionString } from '../utils/version';
 
 
 const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader = false }) => {
-    const { language, updateLanguage, t: translate, customCategories } = useSettings();
+    const { language, updateLanguage, t: translate, customCategories, hapticsEnabled, toggleHaptics } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
@@ -269,6 +270,25 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                             </div>
                                         </div>
                                         <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
+                                    </div>
+
+                                    {/* Haptic Feedback */}
+                                    <div
+                                        onClick={() => toggleHaptics()}
+                                        className="flex items-center justify-between gap-3.5 p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] hover:bg-gray-100/60 dark:hover:bg-white/[0.05] transition-all cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                                            <Vibrate size={20} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.2} />
+                                            <div className="min-w-0 flex-1">
+                                                <span className="block font-bold text-sm text-gray-900 dark:text-white leading-tight">
+                                                    {translate('haptic_feedback') || (isEL ? 'Απτική Ανάδραση' : 'Haptic Feedback')}
+                                                </span>
+                                                <span className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight block mt-0.5">
+                                                    {translate('haptic_feedback_desc') || (isEL ? 'Μικρές, διακριτικές δονήσεις κατά την πληκτρολόγηση ποσών, αποθήκευση και βιομετρική ταυτοποίηση.' : 'Subtle vibrations when typing amounts, saving transactions, and authenticating biometrically.')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <Toggle enabled={hapticsEnabled} onClick={() => toggleHaptics()} />
                                     </div>
 
                                     {/* Custom Categories Management */}

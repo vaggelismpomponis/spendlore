@@ -28,6 +28,7 @@ import ProBadge from '../components/ProBadge';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import { hapticBiometricSuccess, hapticImpactLight } from '../utils/haptics';
 import { getAppVersionString } from '../utils/version';
 
 const BIOMETRIC_SERVER = 'app.myfinances.lock';
@@ -124,6 +125,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader = false }) => {
                     await registerWebBiometric(user?.id ?? 'spendwise_user');
                 }
                 toggleBiometrics(true);
+                hapticBiometricSuccess();
             } catch (error) {
                 console.warn('Biometric setup cancelled or failed:', error);
             }
@@ -137,6 +139,7 @@ const SecuritySettingsView = ({ user, onBack, hideHeader = false }) => {
                 clearWebBiometric();
             }
             toggleBiometrics(false);
+            hapticImpactLight();
         }
     };
 

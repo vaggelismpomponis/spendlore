@@ -6,6 +6,7 @@ import { Capacitor } from '@capacitor/core';
 import { useSettings } from '../contexts/SettingsContext';
 import { supabase } from '../supabase';
 import PromptModal from '../components/PromptModal';
+import { hapticKeypadPress, hapticBiometricSuccess, hapticBiometricError } from '../utils/haptics';
 
 const BIOMETRIC_SERVER = 'app.myfinances.lock';
 
@@ -52,6 +53,7 @@ const LockScreen = ({ onSignOut, user }) => {
                     server: BIOMETRIC_SERVER,
                 });
                 if (credentials.password === appPin) {
+                    hapticBiometricSuccess();
                     unlockApp();
                     setPin('');
                 }
@@ -69,10 +71,14 @@ const LockScreen = ({ onSignOut, user }) => {
                     return;
                 }
                 await verifyWebBiometric();
+                hapticBiometricSuccess();
                 unlockApp();
                 setPin('');
             }
-        } catch { /* cancelled or failed — stay locked */ }
+        } catch {
+            hapticBiometricError();
+            /* cancelled or failed — stay locked */
+        }
         finally { setIsScanning(false); }
     };
 
@@ -88,14 +94,17 @@ const LockScreen = ({ onSignOut, user }) => {
     }, [isBiometricsEnabled]);
 
     const handleNumberClick = (num) => {
+        hapticKeypadPress();
         if (pin.length < 4) { setPin(p => p + num); setError(false); }
     };
 
     useEffect(() => {
         if (pin.length === 4) {
             if (pin === appPin) {
+                hapticBiometricSuccess();
                 setTimeout(() => { unlockApp(); setPin(''); }, 180);
             } else {
+                hapticBiometricError();
                 setError(true);
                 setTimeout(() => setPin(''), 480);
             }
@@ -205,7 +214,7 @@ const LockScreen = ({ onSignOut, user }) => {
                     0
                 </button>
 
-                <button onClick={() => setPin(p => p.slice(0, -1))}
+                <button onClick={() => { hapticKeypadPress(); setPin(p => p.slice(0, -1)); }}
                         className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center
                                    text-gray-400 hover:text-white hover:bg-white/10
                                    transition-all duration-200 press-effect">

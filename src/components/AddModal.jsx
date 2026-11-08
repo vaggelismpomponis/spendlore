@@ -18,6 +18,7 @@ import useIsDesktop from '../hooks/useIsDesktop';
 import { getCategoryTranslation, isBaseCategory } from '../utils/categoryTranslations';
 import { matchMerchantRule } from '../utils/merchantRules';
 import { useToast } from '../contexts/ToastContext';
+import { hapticKeypadPress, hapticSaveSuccess, hapticImpactLight } from '../utils/haptics';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
@@ -374,6 +375,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     // Numpad handler
     const handleNumpadPress = (key) => {
+        hapticKeypadPress();
         if (key === 'backspace') {
             setAmount(prev => prev.slice(0, -1));
         } else if (key === '.') {
@@ -419,6 +421,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             category: typeof category === 'string' ? category : '',
             note: typeof note === 'string' ? note.substring(0, NOTE_MAX_LENGTH) : ''
         });
+        hapticSaveSuccess();
 
         // If in batch mode, load next item
         if (batchQueue.length > 0 && batchIndex < batchQueue.length - 1) {
