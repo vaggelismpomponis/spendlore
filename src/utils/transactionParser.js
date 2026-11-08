@@ -11,6 +11,8 @@
  * are NEVER recognized as transactions.
  */
 
+import { matchMerchantRule } from './merchantRules';
+
 // Known financial source identifiers
 const SOURCE_PATTERNS = [
     { key: 'revolut', name: 'Revolut', regex: /revolut/i },
@@ -254,54 +256,64 @@ export const extractMerchant = (rawText = '', title = '', sourceName = '') => {
 /**
  * Maps merchant and transaction context to Spendlore Greek categories
  */
-export const categorizeTransaction = (merchant = '', text = '', type = 'expense') => {
-    const combined = `${merchant} ${text}`.toLowerCase();
+export const categorizeTransaction = (merchant = '', text = '', type = 'expense', userRules = []) => {
+    const combined = `${merchant} ${text}`.trim();
+
+    // 0. Priority: Custom user merchant rules & aliasing
+    if (Array.isArray(userRules) && userRules.length > 0) {
+        const matched = matchMerchantRule(combined, userRules, type);
+        if (matched && matched.category) {
+            return matched.category;
+        }
+    }
+
+    const lowerCombined = combined.toLowerCase();
 
     if (type === 'income') {
-        if (/μισθοδοσ[ίι]α|salary|payroll/i.test(combined)) return 'Μισθός';
-        if (/επιστροφ[ήη]|refund|cashback|δ[ώω]ρο|gift/i.test(combined)) return 'Δώρο';
-        if (/μ[έε]ρισμα|dividend|interest|τ[όο]κοι|επ[έε]νδυσ[ηη]|investment|crypto/i.test(combined)) return 'Επενδύσεις';
+        if (/μισθοδοσ[ίι]α|salary|payroll/i.test(lowerCombined)) return 'Μισθός';
+        if (/επιστροφ[ήη]|refund|cashback|δ[ώω]ρο|gift/i.test(lowerCombined)) return 'Δώρο';
+        if (/μ[έε]ρισμα|dividend|interest|τ[όο]κοι|επ[έε]νδυσ[ηη]|investment|crypto/i.test(lowerCombined)) return 'Επενδύσεις';
         return 'Άλλα Έσοδα';
     }
 
     // Expense categories
     // 1. Supermarket / Groceries
-    if (/σκλαβεν[ίι]τη[ςς]|sklavenitis|lidl|ab\s*vassilopoulos|αβ\s*βασιλ[όο]πουλος|μασο[ύυ]τη[ςς]|masoutis|market\s*in|γαλαξ[ίι]α[ςς]|galaxias|bazaar|supermarket|super\s*market|παντοπωλε[ίι]ο|μαν[άα]βικο|κρεοπωλε[ίι]ο|carrefour/i.test(combined)) {
+    if (/σκλαβεν[ίι]τη[ςς]|sklavenitis|lidl|ab\s*vassilopoulos|αβ\s*βασιλ[όο]πουλος|μασο[ύυ]τη[ςς]|masoutis|market\s*in|γαλαξ[ίι]α[ςς]|galaxias|bazaar|supermarket|super\s*market|παντοπωλε[ίι]ο|μαν[άα]βικο|κρεοπωλε[ίι]ο|carrefour/i.test(lowerCombined)) {
         return 'Σούπερ Μάρκετ';
     }
 
     // 2. Food & Delivery
-    if (/e[- ]?food|wolt|goody'?s|mcdonald'?s|kfc|pizza|domino|ταβ[έε]ρνα|σουβλ[άα]κι|ψητοπωλε[ίι]ο|grill|burger|restaurant|εστιατ[όο]ριο|delivery|everest|γρηγ[όο]ρη[ςς]|gregory'?s/i.test(combined)) {
+    if (/e[- ]?food|wolt|goody'?s|mcdonald'?s|kfc|pizza|domino|ταβ[έε]ρνα|σουβλ[άα]κι|ψητοπωλε[ίι]ο|grill|burger|restaurant|εστιατ[όο]ριο|delivery|everest|γρηγ[όο]ρη[ςς]|gregory'?s/i.test(lowerCombined)) {
         return 'Φαγητό';
     }
 
     // 3. Coffee
-    if (/starbucks|coffee\s*island|mikel|coffee\s*lab|coffee|caf[ée]|espresso|freddo|καφ[έε][ςς]/i.test(combined)) {
+    if (/starbucks|coffee\s*island|mikel|coffee\s*lab|coffee|caf[ée]|espresso|freddo|καφ[έε][ςς]/i.test(lowerCombined)) {
         return 'Καφές';
     }
 
     // 4. Fuel & Gas
-    if (/shell|bp|eko|avin|revoil|elin|ελιν|petrol|fuel|gas\s*station|βενζιν[άα]δικο|κα[ύυ]σιμα|δι[όο]δια|attiki\s*odos/i.test(combined)) {
+    if (/shell|bp|eko|avin|revoil|elin|ελιν|petrol|fuel|gas\s*station|βενζιν[άα]δικο|κα[ύυ]σιμα|δι[όο]δια|attiki\s*odos/i.test(lowerCombined)) {
         return 'Βενζίνη';
     }
 
     // 5. Bills & Utilities
-    if (/δεη|dei|cosmote|vodafone|nova|ευδαπ|eydap|οτε|ote|δεδδηε|deddie|ppc|taxisnet|εφκα|efka|ενφια|bill|λογαριασμ[όο][ςς]|ρε[ύυ]μα|νερο/i.test(combined)) {
+    if (/δεη|dei|cosmote|vodafone|nova|ευδαπ|eydap|οτε|ote|δεδδηε|deddie|ppc|taxisnet|εφκα|efka|ενφια|bill|λογαριασμ[όο][ςς]|ρε[ύυ]μα|νερο/i.test(lowerCombined)) {
         return 'Λογαριασμοί';
     }
 
     // 6. Entertainment
-    if (/netflix|spotify|cinema|village|odeon|steam|playstation|youtube\s*premium|disney|σινεμ[άα]|θ[έε]ατρο|εισιτ[ήη]ρια|concert/i.test(combined)) {
+    if (/netflix|spotify|cinema|village|odeon|steam|playstation|youtube\s*premium|disney|σινεμ[άα]|θ[έε]ατρο|εισιτ[ήη]ρια|concert/i.test(lowerCombined)) {
         return 'Διασκέδαση';
     }
 
     // 7. Health & Pharmacy
-    if (/φαρμακε[ίι]ο|farmakeio|pharmacy|γιατρ[όο][ςς]|doctor|κλινικ[ήη]|νοσοκομε[ίι]ο|clinic/i.test(combined)) {
+    if (/φαρμακε[ίι]ο|farmakeio|pharmacy|γιατρ[όο][ςς]|doctor|κλινικ[ήη]|νοσοκομε[ίι]ο|clinic/i.test(lowerCombined)) {
         return 'Υγεία';
     }
 
     // 8. Home
-    if (/ikea|ικεα|praktiker|leroy\s*merlin|jysk|zara\s*home|σπ[ίι]τι|[έε]πιπλα/i.test(combined)) {
+    if (/ikea|ικεα|praktiker|leroy\s*merlin|jysk|zara\s*home|σπ[ίι]τι|[έε]πιπλα/i.test(lowerCombined)) {
         return 'Σπίτι';
     }
 
@@ -312,9 +324,10 @@ export const categorizeTransaction = (merchant = '', text = '', type = 'expense'
  * Full parsing pipeline for an incoming notification object
  * 
  * @param {Object} rawNotification - { title, text, bigText, subText, packageName, date }
+ * @param {Array} userRules - Optional custom merchant rules
  * @returns {Object} Structured Spendlore transaction or invalid flag
  */
-export const parseNotificationTransaction = (rawNotification = {}) => {
+export const parseNotificationTransaction = (rawNotification = {}, userRules = []) => {
     if (!rawNotification) {
         return { isValidTransaction: false, reason: 'Empty notification' };
     }
@@ -342,7 +355,7 @@ export const parseNotificationTransaction = (rawNotification = {}) => {
     const sourceName = detectSource(packageName, title, fullContent);
     const type = extractTransactionType(fullContent);
     const merchant = extractMerchant(fullContent, title, sourceName);
-    const category = categorizeTransaction(merchant, fullContent, type);
+    const category = categorizeTransaction(merchant, fullContent, type, userRules);
 
     // Formulate a clean note
     let note = merchant;

@@ -27,7 +27,7 @@ import { ToastProvider, useToast } from './contexts/ToastContext';
 import { SubscriptionProvider, useSubscription } from './contexts/SubscriptionContext';
 import { NotificationProvider, useNotifications } from './contexts/NotificationContext';
 import { trackSession } from './utils/session';
-import { setupNotificationListener } from './utils/notificationListener';
+import { setupNotificationListener, setNativeProStatus } from './utils/notificationListener';
 import { parseNotificationTransaction } from './utils/transactionParser';
 import { isLandingDomain } from './utils/platform';
 import { getCategoryTranslation } from './utils/categoryTranslations';
@@ -77,7 +77,7 @@ const UpgradeNavigatorRegistrar = ({ activeTab, setActiveTab, setPreviousTab }) 
 
 function MainContent() {
     const { isPro: isContextPro } = useSubscription();
-    const { isLocked, theme, toggleTheme, t: translate, currency, language, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode, syncCategoriesFromTransactions } = useSettings();
+    const { isLocked, theme, toggleTheme, t: translate, currency, language, isPrivacyScreenEnabled, privacyMode, togglePrivacyMode, syncCategoriesFromTransactions, merchantRules } = useSettings();
     const { showToast } = useToast();
     const { addNotification, unreadCount } = useNotifications();
     const windowWidth = useWindowWidth();
@@ -105,6 +105,7 @@ function MainContent() {
     const fabPressStartRef = useRef(false);
     const gsiInitialized = useRef(false);
     const txSyncChannelRef = useRef(null);
+    const addTransactionRef = useRef(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState(null);
     const [editingTransaction, setEditingTransaction] = useState(null);
@@ -306,30 +307,73 @@ function MainContent() {
         setImgRetries(0);
     }, [user?.user_metadata?.avatar_url, user?.user_metadata?.picture]);
 
+    // Sync Pro status to native Android layer for background notifications
+    useEffect(() => {
+        setNativeProStatus(isPro);
+    }, [isPro]);
+
     // Notification Listener for Bank & Wallet Transactions
     useEffect(() => {
-        const cleanup = setupNotificationListener((rawTransactions) => {
-            if (!rawTransactions || rawTransactions.length === 0) return;
+        const cleanup = setupNotificationListener(
+            (rawTransactions) => {
+                if (!rawTransactions || rawTransactions.length === 0) return;
 
-            // Strict Pro gating: Only subscribers can use automated notification transaction tracking
-            if (!isPro) {
-                logger.info('Notification transactions received but feature is gated for Pro users', 'App');
-                return;
+                // Strict Pro gating: Only subscribers can use automated notification transaction tracking
+                if (!isPro) {
+                    logger.info('Notification transactions received but feature is gated for Pro users', 'App');
+                    return;
+                }
+
+                // Rigorously filter and parse ONLY authentic transactions
+                const validTransactions = rawTransactions
+                    .map(raw => parseNotificationTransaction(raw, merchantRules))
+                    .filter(parsed => parsed && parsed.isValidTransaction);
+
+                if (validTransactions.length === 0) {
+                    logger.debug('No valid transaction notifications found in batch', 'App');
+                    return;
+                }
+
+                logger.info(`Queuing ${validTransactions.length} valid transaction notification(s)`, 'App');
+                setPendingNotificationTransactions(prev => [...prev, ...validTransactions]);
+            },
+            async (confirmedTransactions) => {
+                if (!confirmedTransactions || confirmedTransactions.length === 0) return;
+
+                if (!isPro) {
+                    logger.info('Confirmed notification transactions received but feature is gated for Pro users', 'App');
+                    return;
+                }
+
+                logger.info(`Processing ${confirmedTransactions.length} confirmed quick-action transaction(s)`, 'App');
+                for (const ctx of confirmedTransactions) {
+                    try {
+                        const amount = typeof ctx.amount === 'number' ? ctx.amount : parseFloat(ctx.amount);
+                        if (isNaN(amount) || amount <= 0) continue;
+
+                        const newTx = {
+                            amount,
+                            type: ctx.type || 'expense',
+                            category: ctx.category || 'Φαγητό',
+                            note: ctx.note || ctx.merchant || 'Συναλλαγή κάρτας',
+                            date: ctx.date ? new Date(ctx.date).toISOString() : new Date().toISOString()
+                        };
+
+                        if (addTransactionRef.current) {
+                            await addTransactionRef.current(newTx);
+                        }
+
+                        const label = ctx.merchant || ctx.category || 'Συναλλαγή';
+                        showToast(
+                            `✓ Καταγράφηκε: ${label} (${amount.toFixed(2)}€)`,
+                            'success'
+                        );
+                    } catch (err) {
+                        logger.error('Failed to auto-insert confirmed notification transaction', err, 'App');
+                    }
+                }
             }
-
-            // Rigorously filter and parse ONLY authentic transactions
-            const validTransactions = rawTransactions
-                .map(raw => parseNotificationTransaction(raw))
-                .filter(parsed => parsed && parsed.isValidTransaction);
-
-            if (validTransactions.length === 0) {
-                logger.debug('No valid transaction notifications found in batch', 'App');
-                return;
-            }
-
-            logger.info(`Queuing ${validTransactions.length} valid transaction notification(s)`, 'App');
-            setPendingNotificationTransactions(prev => [...prev, ...validTransactions]);
-        });
+        );
 
         // Listen for Regret Check-in Action
         const notificationListener = Capacitor.isNativePlatform() ? 
@@ -348,7 +392,7 @@ function MainContent() {
                 notificationListener.then(listener => listener.remove());
             }
         };
-    }, [isPro]);
+    }, [isPro, showToast]);
 
     // Sequential Queue Processing for Pending Notification Transactions
     useEffect(() => {
@@ -1633,6 +1677,7 @@ function MainContent() {
             }
         }
     };
+    addTransactionRef.current = addTransaction;
 
     const deleteTransaction = (id) => {
         setTransactionToDelete(id);

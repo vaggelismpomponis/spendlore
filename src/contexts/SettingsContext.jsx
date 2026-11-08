@@ -4,6 +4,8 @@ import { Capacitor } from '@capacitor/core';
 import { translations } from '../utils/translations';
 import { isBaseCategory } from '../utils/categoryTranslations';
 import { supabase } from '../supabase';
+import { DEFAULT_STARTER_RULES } from '../utils/merchantRules';
+import { setNativeMerchantRules } from '../utils/notificationListener';
 
 const SettingsContext = createContext();
 
@@ -40,6 +42,19 @@ const getStoredDeletedCategories = (uid) => {
     }
 };
 
+const getStoredMerchantRules = (uid) => {
+    try {
+        if (uid) {
+            const userKey = localStorage.getItem(`spendwise_merchant_rules_${uid}`);
+            if (userKey) return JSON.parse(userKey);
+        }
+        const legacy = localStorage.getItem('spendwise_merchant_rules');
+        return legacy ? JSON.parse(legacy) : DEFAULT_STARTER_RULES;
+    } catch {
+        return DEFAULT_STARTER_RULES;
+    }
+};
+
 export const SettingsProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
 
@@ -64,6 +79,7 @@ export const SettingsProvider = ({ children }) => {
     // Custom Categories & Deleted Categories
     const [customCategories, setCustomCategories] = useState(() => getStoredCategories(null));
     const [deletedCategories, setDeletedCategories] = useState(() => getStoredDeletedCategories(null));
+    const [merchantRules, setMerchantRules] = useState(() => getStoredMerchantRules(null));
 
     const categoriesChannelRef = useRef(null);
     const cloudSyncTimeoutRef = useRef(null);
@@ -122,16 +138,22 @@ export const SettingsProvider = ({ children }) => {
     });
 
     // Cloud sync helper (debounced) with session refresh retry
-    const syncCategoriesToCloud = useCallback((updatedCategories, updatedDeleted) => {
+    const syncCategoriesToCloud = useCallback((updatedCategories, updatedDeleted, updatedRules) => {
         if (!userId) return;
         if (cloudSyncTimeoutRef.current) {
             clearTimeout(cloudSyncTimeoutRef.current);
         }
         cloudSyncTimeoutRef.current = setTimeout(async () => {
             try {
-                const updatePayload = { custom_categories: updatedCategories };
+                const updatePayload = {};
+                if (updatedCategories !== undefined) {
+                    updatePayload.custom_categories = updatedCategories;
+                }
                 if (updatedDeleted !== undefined) {
                     updatePayload.deleted_categories = updatedDeleted;
+                }
+                if (updatedRules !== undefined) {
+                    updatePayload.merchant_rules = updatedRules;
                 }
                 let { error } = await supabase.auth.updateUser({
                     data: updatePayload
@@ -148,10 +170,10 @@ export const SettingsProvider = ({ children }) => {
                 }
 
                 if (error) {
-                    console.error('Failed to sync custom categories to Supabase user account:', error);
+                    console.error('Failed to sync settings to Supabase user account:', error);
                 }
             } catch (err) {
-                console.warn('Failed to sync custom categories to Supabase user account:', err);
+                console.warn('Failed to sync settings to Supabase user account:', err);
             }
         }, 500);
     }, [userId]);
@@ -167,11 +189,33 @@ export const SettingsProvider = ({ children }) => {
         }
     }, []);
 
+    const broadcastMerchantRules = useCallback((updatedRules) => {
+        if (categoriesChannelRef.current) {
+            categoriesChannelRef.current.send({
+                type: 'broadcast',
+                event: 'merchant-rules-update',
+                payload: updatedRules
+            }).catch(() => {});
+        }
+    }, []);
+
     // Category reconciliation helper
-    const applyUserCategories = useCallback((uid, cloudCats, cloudDeleted) => {
+    const applyUserCategories = useCallback((uid, cloudCats, cloudDeleted, cloudRules) => {
         if (!uid) return;
         const localCached = getStoredCategories(uid);
         const localDeleted = getStoredDeletedCategories(uid);
+        const localRules = getStoredMerchantRules(uid);
+
+        if (Array.isArray(cloudRules) && cloudRules.length > 0) {
+            setMerchantRules(cloudRules);
+            localStorage.setItem(`spendwise_merchant_rules_${uid}`, JSON.stringify(cloudRules));
+            setNativeMerchantRules(cloudRules);
+        } else if (localRules && localRules.length > 0) {
+            setNativeMerchantRules(localRules);
+            if (cloudRules === undefined) {
+                syncCategoriesToCloud(undefined, undefined, localRules);
+            }
+        }
 
         let mergedDeleted = localDeleted;
         if (Array.isArray(cloudDeleted)) {
@@ -219,7 +263,12 @@ export const SettingsProvider = ({ children }) => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
-            applyUserCategories(userId, user.user_metadata?.custom_categories, user.user_metadata?.deleted_categories);
+            applyUserCategories(
+                userId,
+                user.user_metadata?.custom_categories,
+                user.user_metadata?.deleted_categories,
+                user.user_metadata?.merchant_rules
+            );
         } catch (err) {
             console.warn('Could not fetch user metadata for categories sync:', err);
         }
@@ -231,7 +280,12 @@ export const SettingsProvider = ({ children }) => {
             const uid = session?.user?.id || null;
             setUserId(uid);
             if (uid) {
-                applyUserCategories(uid, session?.user?.user_metadata?.custom_categories, session?.user?.user_metadata?.deleted_categories);
+                applyUserCategories(
+                    uid,
+                    session?.user?.user_metadata?.custom_categories,
+                    session?.user?.user_metadata?.deleted_categories,
+                    session?.user?.user_metadata?.merchant_rules
+                );
             }
         };
 
@@ -267,6 +321,14 @@ export const SettingsProvider = ({ children }) => {
                     setCustomCategories(updated);
                     localStorage.setItem(`spendwise_categories_${userId}`, JSON.stringify(updated));
                     localStorage.setItem('customCategories', JSON.stringify(updated));
+                }
+            })
+            .on('broadcast', { event: 'merchant-rules-update' }, ({ payload }) => {
+                if (Array.isArray(payload)) {
+                    setMerchantRules(payload);
+                    localStorage.setItem(`spendwise_merchant_rules_${userId}`, JSON.stringify(payload));
+                    localStorage.setItem('spendwise_merchant_rules', JSON.stringify(payload));
+                    setNativeMerchantRules(payload);
                 }
             })
             .subscribe();
@@ -675,6 +737,85 @@ export const SettingsProvider = ({ children }) => {
         }
     };
 
+    // Merchant Rules Actions
+    const addMerchantRule = (ruleData) => {
+        if (!ruleData || !ruleData.merchantPattern || !ruleData.category) {
+            return { success: false, error: 'invalid_payload' };
+        }
+
+        const newRule = {
+            id: `rule_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            merchantPattern: ruleData.merchantPattern.trim(),
+            category: ruleData.category.trim(),
+            type: ruleData.type || 'expense',
+            exactMatch: Boolean(ruleData.exactMatch),
+            createdAt: new Date().toISOString()
+        };
+
+        setMerchantRules(prev => {
+            const updated = [newRule, ...prev];
+            if (userId) {
+                localStorage.setItem(`spendwise_merchant_rules_${userId}`, JSON.stringify(updated));
+            }
+            localStorage.setItem('spendwise_merchant_rules', JSON.stringify(updated));
+            syncCategoriesToCloud(undefined, undefined, updated);
+            broadcastMerchantRules(updated);
+            setNativeMerchantRules(updated);
+            return updated;
+        });
+
+        return { success: true, rule: newRule };
+    };
+
+    const editMerchantRule = (id, updates) => {
+        if (!id || !updates) return { success: false };
+
+        setMerchantRules(prev => {
+            const updated = prev.map(r => r.id === id ? { ...r, ...updates } : r);
+            if (userId) {
+                localStorage.setItem(`spendwise_merchant_rules_${userId}`, JSON.stringify(updated));
+            }
+            localStorage.setItem('spendwise_merchant_rules', JSON.stringify(updated));
+            syncCategoriesToCloud(undefined, undefined, updated);
+            broadcastMerchantRules(updated);
+            setNativeMerchantRules(updated);
+            return updated;
+        });
+
+        return { success: true };
+    };
+
+    const deleteMerchantRule = (id) => {
+        if (!id) return { success: false };
+
+        setMerchantRules(prev => {
+            const updated = prev.filter(r => r.id !== id);
+            if (userId) {
+                localStorage.setItem(`spendwise_merchant_rules_${userId}`, JSON.stringify(updated));
+            }
+            localStorage.setItem('spendwise_merchant_rules', JSON.stringify(updated));
+            syncCategoriesToCloud(undefined, undefined, updated);
+            broadcastMerchantRules(updated);
+            setNativeMerchantRules(updated);
+            return updated;
+        });
+
+        return { success: true };
+    };
+
+    const resetMerchantRulesToDefault = () => {
+        const updated = [...DEFAULT_STARTER_RULES];
+        setMerchantRules(updated);
+        if (userId) {
+            localStorage.setItem(`spendwise_merchant_rules_${userId}`, JSON.stringify(updated));
+        }
+        localStorage.setItem('spendwise_merchant_rules', JSON.stringify(updated));
+        syncCategoriesToCloud(undefined, undefined, updated);
+        broadcastMerchantRules(updated);
+        setNativeMerchantRules(updated);
+        return { success: true };
+    };
+
     const value = {
         currency,
         language,
@@ -703,6 +844,11 @@ export const SettingsProvider = ({ children }) => {
         deleteCustomCategory,
         removeCustomCategory,
         syncCategoriesFromTransactions,
+        merchantRules,
+        addMerchantRule,
+        editMerchantRule,
+        deleteMerchantRule,
+        resetMerchantRulesToDefault,
         privacyMode,
         togglePrivacyMode
     };

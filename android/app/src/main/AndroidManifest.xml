@@ -3,6 +3,7 @@
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -53,6 +54,10 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".NotificationActionReceiver"
+            android:exported="false" />
         <!-- Default Notification Icon and Color -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

@@ -3,14 +3,22 @@ package com.bomponis.spendwise;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Build;
 import android.content.SharedPreferences;
 import android.content.Context;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.Date;
 import java.util.UUID;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import android.util.Log;
@@ -18,6 +26,7 @@ import android.util.Log;
 public class SMSNotificationListenerService extends NotificationListenerService {
 
     private static final String TAG = "SpendWiseNotifListener";
+    public static final String CHANNEL_ID = "spendlore_transactions";
 
     // Deduplication buffer for recent notification signatures
     private static final LinkedHashSet<String> sProcessedSignatures = new LinkedHashSet<>();
@@ -160,6 +169,29 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     );
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Συναλλαγές Spendlore",
+                NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Άμεση επιβεβαίωση και κατηγοριοποίηση συναλλαγών");
+            channel.enableVibration(true);
+            channel.setShowBadge(true);
+            NotificationManager nm = getSystemService(NotificationManager.class);
+            if (nm != null) {
+                nm.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (sbn == null) return;
 
@@ -246,7 +278,7 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         }
 
         Log.i(TAG, "Valid financial transaction notification confirmed from: " + packageName);
-        saveTransaction(packageName, title, text, bigText, subText);
+        saveAndPostTransaction(packageName, title, text, bigText, subText, combined);
     }
 
     private boolean isAllowedPackage(String pkg) {
@@ -290,30 +322,318 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         return p.contains("messaging") || p.contains("mms") || p.contains("sms");
     }
 
-    private void saveTransaction(String packageName, String title, String text, String bigText, String subText) {
+    private void saveAndPostTransaction(String packageName, String title, String text, String bigText, String subText, String combined) {
         try {
             SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
             String existing = prefs.getString("pending", "[]");
             JSONArray jsonArray = new JSONArray(existing);
 
+            String txId = UUID.randomUUID().toString();
+            long now = new Date().getTime();
+
             JSONObject obj = new JSONObject();
-            obj.put("id", UUID.randomUUID().toString());
+            obj.put("id", txId);
             obj.put("packageName", packageName);
             obj.put("title", title);
             obj.put("text", text);
             obj.put("bigText", bigText);
             obj.put("subText", subText);
-            obj.put("date", new Date().getTime());
+            obj.put("date", now);
 
             jsonArray.put(obj);
 
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("pending", jsonArray.toString());
-            boolean success = editor.commit(); // Synchronous write
+            boolean success = editor.commit();
 
-            Log.i(TAG, "Financial transaction saved successfully. Pending count: " + jsonArray.length() + " Success: " + success);
+            Log.i(TAG, "Financial transaction saved to pending. Pending count: " + jsonArray.length() + " Success: " + success);
+
+            // Check if user has Pro enabled
+            boolean isPro = prefs.getBoolean("isPro", true);
+            if (!isPro) {
+                Log.d(TAG, "Interactive notification omitted because user is not Pro");
+                return;
+            }
+
+            // Post Interactive Notification with Quick-Action Chips
+            postQuickActionNotification(txId, packageName, title, combined, now);
+
         } catch (Exception e) {
             Log.e(TAG, "Error saving pending financial transaction", e);
         }
+    }
+
+    private void postQuickActionNotification(String txId, String packageName, String title, String combined, long date) {
+        try {
+            createNotificationChannel();
+
+            double amount = extractAmountValue(combined);
+            if (amount <= 0.0) {
+                Log.w(TAG, "Could not extract valid amount for notification: " + combined);
+                return;
+            }
+
+            String merchant = extractMerchantName(title, combined, packageName);
+            CategoryInfo categoryInfo = predictCategory(merchant, combined);
+            String category = categoryInfo.category;
+            String chipLabel = categoryInfo.chipLabel;
+
+            int notifId = Math.abs(txId.hashCode());
+
+            // 1. Content Intent: Tapping notification body opens Spendlore to review/edit
+            Intent openIntent = new Intent(this, MainActivity.class);
+            openIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            openIntent.putExtra("notification_id", notifId);
+            openIntent.putExtra("transaction_id", txId);
+            PendingIntent pendingOpen = PendingIntent.getActivity(
+                this,
+                notifId * 7 + 4,
+                openIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            // 2. Action 1: [Επιβεβαίωση] - logs directly with auto-predicted category
+            Intent confirmIntent = new Intent(this, NotificationActionReceiver.class);
+            confirmIntent.setAction(NotificationActionReceiver.ACTION_CONFIRM);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notifId);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_TRANSACTION_ID, txId);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_AMOUNT, amount);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_NOTE, merchant);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_CATEGORY, category);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_MERCHANT, merchant);
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_TYPE, "expense");
+            confirmIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, date);
+            PendingIntent pendingConfirm = PendingIntent.getBroadcast(
+                this,
+                notifId * 7 + 1,
+                confirmIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            // 3. Action 2: [Φαγητό / Καφές] (or contextual category chip)
+            Intent chipIntent = new Intent(this, NotificationActionReceiver.class);
+            chipIntent.setAction(NotificationActionReceiver.ACTION_SET_CATEGORY);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notifId);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_TRANSACTION_ID, txId);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_AMOUNT, amount);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_NOTE, merchant);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_CATEGORY, category);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_MERCHANT, merchant);
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_TYPE, "expense");
+            chipIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, date);
+            PendingIntent pendingChip = PendingIntent.getBroadcast(
+                this,
+                notifId * 7 + 2,
+                chipIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            // 4. Action 3: [Αγνόηση] - dismisses notification and drops transaction
+            Intent dismissIntent = new Intent(this, NotificationActionReceiver.class);
+            dismissIntent.setAction(NotificationActionReceiver.ACTION_DISMISS);
+            dismissIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIFICATION_ID, notifId);
+            dismissIntent.putExtra(NotificationActionReceiver.EXTRA_TRANSACTION_ID, txId);
+            PendingIntent pendingDismiss = PendingIntent.getBroadcast(
+                this,
+                notifId * 7 + 3,
+                dismissIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+
+            String formattedAmount = String.format(Locale.GERMANY, "%.2f €", amount);
+            String notifTitle = (merchant != null && !merchant.isEmpty() && !merchant.equals("Συναλλαγή"))
+                ? (merchant + " • " + formattedAmount)
+                : formattedAmount;
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_spendlore)
+                .setContentTitle(notifTitle)
+                .setContentText("Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια:")
+                .setContentIntent(pendingOpen)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setColor(0xFF7C3AED)
+                .addAction(0, "Επιβεβαίωση", pendingConfirm)
+                .addAction(0, chipLabel, pendingChip)
+                .addAction(0, "Αγνόηση", pendingDismiss);
+
+            NotificationManagerCompat.from(this).notify(notifId, builder.build());
+            Log.i(TAG, "Interactive notification posted successfully: ID " + notifId + " (" + notifTitle + ")");
+
+        } catch (SecurityException se) {
+            Log.w(TAG, "POST_NOTIFICATIONS permission not granted yet", se);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to post interactive notification", e);
+        }
+    }
+
+    private double extractAmountValue(String text) {
+        try {
+            // Remove dates and card numbers to avoid false matches
+            String cleaned = text.replaceAll("\\b\\d{1,2}[/.-]\\d{1,2}[/.-]\\d{2,4}\\b", " ");
+            cleaned = cleaned.replaceAll("(?i)(?:\\*+|\\.{2,}|κάρτα\\s*|card\\s*)\\d{4}\\b", " ");
+
+            // Pattern for currency prefix/postfix
+            Pattern p = Pattern.compile("(?i)(?:[€$£]|EUR|USD|GBP)\\s*(\\d+(?:[.,]\\d{1,2})?)|(\\d+(?:[.,]\\d{1,2})?)\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])|\\b(\\d+[.,]\\d{2})\\b");
+            Matcher m = p.matcher(cleaned);
+            if (m.find()) {
+                String val = m.group(1);
+                if (val == null) val = m.group(2);
+                if (val == null) val = m.group(3);
+
+                if (val != null) {
+                    val = val.replace(',', '.');
+                    return Double.parseDouble(val);
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Amount parsing exception", e);
+        }
+        return 0.0;
+    }
+
+    private String extractMerchantName(String title, String combined, String packageName) {
+        String cleanTitle = (title != null) ? title.trim() : "";
+        String lowerTitle = cleanTitle.toLowerCase();
+
+        // 1. If title is a known merchant (not just the bank or system app)
+        if (!cleanTitle.isEmpty() && !lowerTitle.contains("wallet") && !lowerTitle.contains("bank") &&
+            !lowerTitle.contains("revolut") && !lowerTitle.contains("messages") && !lowerTitle.contains("sms")) {
+            return cleanTitle;
+        }
+
+        // 2. Specific merchant pattern: "Wolt €6.39 with Ticket Restaurant"
+        Pattern walletPattern = Pattern.compile("^([A-Za-z0-9\\sΑ-Ωα-ωά-ώ&'./\\-]+?)(?:\\s+[•·-]\\s*|\\s+)(?:[€$£]|EUR|USD)?\\s*\\d+(?:[.,]\\d{1,2})?\\s*(?:[€$£]|EUR|USD)?\\s*(?:with|με|using)", Pattern.CASE_INSENSITIVE);
+        Matcher wm = walletPattern.matcher(combined);
+        if (wm.find()) {
+            String m = wm.group(1).trim();
+            if (m.length() >= 2) return m;
+        }
+
+        // 3. Greek patterns: "στην επιχείρηση SKLAVENITIS" or "στο SKLAVENITIS"
+        Pattern greekPattern = Pattern.compile("(?:στην\\s+επιχείρηση|στο|σε|από)\\s+([A-Za-z0-9\\sΑ-Ωα-ωά-ώ&'./\\-]+?)(?:\\s+(?:με|στις|την|για|μέσω|\\.|,|$))", Pattern.CASE_INSENSITIVE);
+        Matcher gm = greekPattern.matcher(combined);
+        if (gm.find()) {
+            String m = gm.group(1).trim();
+            if (m.length() >= 2 && !m.equalsIgnoreCase("eur") && !m.equalsIgnoreCase("euro")) return m;
+        }
+
+        // 4. English patterns: "paid to X", "spent at X", "purchase at X"
+        Pattern engPattern = Pattern.compile("(?:paid\\s+to|spent\\s+at|purchase\\s+at)\\s+([A-Za-z0-9\\s&'./\\-]+?)(?:\\s+(?:with|using|on|via|\\.|,|$))", Pattern.CASE_INSENSITIVE);
+        Matcher em = engPattern.matcher(combined);
+        if (em.find()) {
+            String m = em.group(1).trim();
+            if (m.length() >= 2) return m;
+        }
+
+        if (!cleanTitle.isEmpty()) {
+            return cleanTitle;
+        }
+
+        return "Συναλλαγή";
+    }
+
+    private static class CategoryInfo {
+        final String category;
+        final String chipLabel;
+
+        CategoryInfo(String category, String chipLabel) {
+            this.category = category;
+            this.chipLabel = chipLabel;
+        }
+    }
+
+    private String normalizeForMatching(String s) {
+        if (s == null) return "";
+        try {
+            String normalized = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
+            normalized = normalized.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+            return normalized.toLowerCase(Locale.ROOT).trim();
+        } catch (Exception e) {
+            return s.toLowerCase(Locale.ROOT).trim();
+        }
+    }
+
+    private CategoryInfo predictCategory(String merchant, String combined) {
+        // 0. Priority: Custom user merchant rules & aliasing
+        try {
+            SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+            String rulesJson = prefs.getString("merchant_rules", "[]");
+            JSONArray rulesArray = new JSONArray(rulesJson);
+            String targetText = normalizeForMatching(merchant + " " + combined);
+
+            for (int i = 0; i < rulesArray.length(); i++) {
+                JSONObject rule = rulesArray.getJSONObject(i);
+                String pattern = rule.optString("merchantPattern", "");
+                String category = rule.optString("category", "");
+                boolean exactMatch = rule.optBoolean("exactMatch", false);
+                if (pattern.isEmpty() || category.isEmpty()) continue;
+
+                String[] keywords = pattern.split("[,|]");
+                for (String kw : keywords) {
+                    String normKw = normalizeForMatching(kw.trim());
+                    if (normKw.isEmpty()) continue;
+
+                    String stem = (normKw.endsWith("ς") && normKw.length() > 3)
+                        ? normKw.substring(0, normKw.length() - 1) : null;
+
+                    if (exactMatch) {
+                        String normMerchant = normalizeForMatching(merchant);
+                        if (normMerchant.equals(normKw) || (stem != null && normMerchant.equals(stem))) {
+                            Log.d(TAG, "Custom merchant rule matched (exact): '" + kw + "' -> " + category);
+                            return new CategoryInfo(category, category);
+                        }
+                    } else {
+                        if (targetText.contains(normKw) || (stem != null && targetText.contains(stem))) {
+                            Log.d(TAG, "Custom merchant rule matched: '" + kw + "' -> " + category);
+                            return new CategoryInfo(category, category);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error matching custom merchant rules", e);
+        }
+
+        String text = (merchant + " " + combined).toLowerCase();
+
+        // 1. Food & Delivery -> Chip: [Φαγητό / Καφές] (per user explicit specification)
+        if (text.matches(".*(?:wolt|efood|e-food|goody|mcdonald|kfc|pizza|domino|burger|grill|restaurant|ταβερν|σουβλακ|φαγητο|delivery|everest|gregory|γρηγορη).*")) {
+            return new CategoryInfo("Φαγητό", "Φαγητό / Καφές");
+        }
+
+        // 2. Coffee -> Chip: [Φαγητό / Καφές]
+        if (text.matches(".*(?:starbucks|mikel|coffee|caf[eé]|espresso|freddo|καφε).*")) {
+            return new CategoryInfo("Καφές", "Φαγητό / Καφές");
+        }
+
+        // 3. Supermarket -> Chip: [Σούπερ Μάρκετ]
+        if (text.matches(".*(?:sklavenitis|σκλαβενιτη|lidl|ab\\b|αβ\\b|vassilopoulos|βασιλοπουλος|masoutis|μασουτη|market\\s*in|galaxias|γαλαξια|bazaar|supermarket|super\\s*market|παντοπωλειο|μαναβικο|κρεοπωλειο).*")) {
+            return new CategoryInfo("Σούπερ Μάρκετ", "Σούπερ Μάρκετ");
+        }
+
+        // 4. Fuel & Gas -> Chip: [Βενζίνη]
+        if (text.matches(".*(?:shell|bp|eko|εκο|avin|revoil|elin|ελιν|fuel|gas\\s*station|petrol|βενζιν|διοδια|attiki\\s*odos).*")) {
+            return new CategoryInfo("Βενζίνη", "Βενζίνη");
+        }
+
+        // 5. Bills & Utilities -> Chip: [Λογαριασμοί]
+        if (text.matches(".*(?:dei|δεη|cosmote|vodafone|nova|eydap|ευδαπ|deddie|δεδδηε|ppc|taxisnet|efka|εφκα|bill|λογαριασμ|ρευμα|νερο).*")) {
+            return new CategoryInfo("Λογαριασμοί", "Λογαριασμοί");
+        }
+
+        // 6. Entertainment -> Chip: [Διασκέδαση]
+        if (text.matches(".*(?:netflix|spotify|cinema|village|odeon|steam|playstation|youtube|disney|σινεμα|θεατρο).*")) {
+            return new CategoryInfo("Διασκέδαση", "Διασκέδαση");
+        }
+
+        // 7. Health & Pharmacy -> Chip: [Υγεία]
+        if (text.matches(".*(?:pharmacy|farmakeio|φαρμακει|doctor|γιατρ|κλινικ|νοσοκομει).*")) {
+            return new CategoryInfo("Υγεία", "Υγεία");
+        }
+
+        // Default: Category "Φαγητό", Chip "[Φαγητό / Καφές]"
+        return new CategoryInfo("Φαγητό", "Φαγητό / Καφές");
     }
 }

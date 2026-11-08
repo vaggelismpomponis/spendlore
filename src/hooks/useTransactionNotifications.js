@@ -14,32 +14,49 @@ export function useTransactionNotifications({
     pendingNotificationTransactions,
     setEditingTransaction,
     setShowAddModal,
-    showToast
+    showToast,
+    onConfirmedTransaction
 }) {
     // Notification Listener for Bank & Wallet Transactions
     useEffect(() => {
-        const cleanup = setupNotificationListener((rawTransactions) => {
-            if (!rawTransactions || rawTransactions.length === 0) return;
+        const cleanup = setupNotificationListener(
+            (rawTransactions) => {
+                if (!rawTransactions || rawTransactions.length === 0) return;
 
-            // Strict Pro gating: Only subscribers can use automated notification transaction tracking
-            if (!isPro) {
-                logger.info('Notification transactions received but feature is gated for Pro users', 'App');
-                return;
+                // Strict Pro gating: Only subscribers can use automated notification transaction tracking
+                if (!isPro) {
+                    logger.info('Notification transactions received but feature is gated for Pro users', 'App');
+                    return;
+                }
+
+                // Rigorously filter and parse ONLY authentic transactions
+                const validTransactions = rawTransactions
+                    .map(raw => parseNotificationTransaction(raw))
+                    .filter(parsed => parsed && parsed.isValidTransaction);
+
+                if (validTransactions.length === 0) {
+                    logger.debug('No valid transaction notifications found in batch', 'App');
+                    return;
+                }
+
+                logger.info(`Queuing ${validTransactions.length} valid transaction notification(s)`, 'App');
+                setPendingNotificationTransactions(prev => [...prev, ...validTransactions]);
+            },
+            (confirmedTransactions) => {
+                if (!confirmedTransactions || confirmedTransactions.length === 0) return;
+
+                if (!isPro) {
+                    logger.info('Confirmed notification transactions received but feature is gated for Pro users', 'App');
+                    return;
+                }
+
+                if (typeof onConfirmedTransaction === 'function') {
+                    for (const ctx of confirmedTransactions) {
+                        onConfirmedTransaction(ctx);
+                    }
+                }
             }
-
-            // Rigorously filter and parse ONLY authentic transactions
-            const validTransactions = rawTransactions
-                .map(raw => parseNotificationTransaction(raw))
-                .filter(parsed => parsed && parsed.isValidTransaction);
-
-            if (validTransactions.length === 0) {
-                logger.debug('No valid transaction notifications found in batch', 'App');
-                return;
-            }
-
-            logger.info(`Queuing ${validTransactions.length} valid transaction notification(s)`, 'App');
-            setPendingNotificationTransactions(prev => [...prev, ...validTransactions]);
-        });
+        );
 
         // Listen for Regret Check-in Action
         const notificationListener = Capacitor.isNativePlatform() ? 
@@ -58,7 +75,7 @@ export function useTransactionNotifications({
                 notificationListener.then(listener => listener.remove());
             }
         };
-    }, [isPro, setActiveRegretTxId, setPendingNotificationTransactions, setShowRegretModal]);
+    }, [isPro, setActiveRegretTxId, setPendingNotificationTransactions, setShowRegretModal, onConfirmedTransaction]);
 
     // Sequential Queue Processing for Pending Notification Transactions
     useEffect(() => {

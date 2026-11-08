@@ -16,13 +16,16 @@ import logger from '../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import useIsDesktop from '../hooks/useIsDesktop';
 import { getCategoryTranslation, isBaseCategory } from '../utils/categoryTranslations';
+import { matchMerchantRule } from '../utils/merchantRules';
+import { useToast } from '../contexts/ToastContext';
 
 const NOTE_MAX_LENGTH = 200;
 const CATEGORY_NAME_MAX_LENGTH = 30;
 const AMOUNT_MAX_VALUE = 999999.99;
 
 const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
-    const { customCategories, addCustomCategory, t, privacyMode } = useSettings();
+    const { customCategories, addCustomCategory, t, privacyMode, merchantRules } = useSettings();
+    const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
     const isDesktop = useIsDesktop();
     const [isAddingCategory, setIsAddingCategory] = useState(false);
@@ -354,7 +357,14 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             setShowNote(true);
         }
         setType('expense');
-        setCategory('');
+        const matched = matchMerchantRule(item?.note || '', merchantRules, 'expense');
+        if (matched && matched.category) {
+            setCategory(matched.category);
+        } else if (item?.category) {
+            setCategory(item.category);
+        } else {
+            setCategory('');
+        }
     };
 
     // Category icon mapping — use centralized map from CategoryIcon.jsx
@@ -426,6 +436,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
     };
 
     const handleScanComplete = (data) => {
+        const matched = matchMerchantRule(data?.note || '', merchantRules, 'expense');
+        if (matched?.category) {
+            setCategory(matched.category);
+            showToast(`✓ Αυτόματη κατηγορία: ${matched.category}`, 'info');
+        }
         if (data.amount) setAmount(data.amount.toString());
         if (data.note) {
             setNote(data.note.substring(0, 30));

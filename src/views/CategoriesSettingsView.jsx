@@ -11,8 +11,10 @@ import {
     ChevronUp,
     ShieldCheck,
     ArrowRightLeft,
-    CheckCircle2
+    CheckCircle2,
+    SlidersHorizontal
 } from 'lucide-react';
+import MerchantRulesManager from '../components/MerchantRulesManager';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -33,12 +35,18 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
         customCategories,
         addCustomCategory,
         editCustomCategory,
-        deleteCustomCategory
+        deleteCustomCategory,
+        merchantRules,
+        addMerchantRule,
+        editMerchantRule,
+        deleteMerchantRule,
+        resetMerchantRulesToDefault
     } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
     const { isPro, openUpgradeModal } = useSubscription();
 
+    const [mainTab, setMainTab] = useState('categories');
     const [activeType, setActiveType] = useState('expense');
     const [newCatName, setNewCatName] = useState('');
     const [isAdding, setIsAdding] = useState(false);
@@ -230,22 +238,54 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
                                 {translate('custom_categories_desc') || (isEL ? 'Επεξεργαστείτε, μετονομάστε ή διαγράψτε τις δικές σας κατηγορίες. Οι αλλαγές συγχρονίζονται άμεσα σε όλες τις συσκευές σας.' : 'Edit, rename, or delete your custom categories. Changes synchronize across all your devices instantly.')}
                             </p>
 
-                            {/* Stats Chips */}
-                            <div className="pt-2 flex flex-wrap items-center gap-2 text-xs font-semibold">
-                                <span className="px-3 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <Tag size={12} strokeWidth={2.5} />
-                                    <span>{translate('categories_expense_tab') || 'Έξοδα'}: {expenseCustom.length}</span>
-                                </span>
-                                <span className="px-3 py-1 rounded-lg bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                                    <Tag size={12} strokeWidth={2.5} />
-                                    <span>{translate('categories_income_tab') || 'Έσοδα'}: {incomeCustom.length}</span>
-                                </span>
+                            {/* Main Tabs Navigation: Categories vs Merchant Rules */}
+                            <div className="pt-2 flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setMainTab('categories')}
+                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${mainTab === 'categories'
+                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-sm'
+                                        : 'bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-300 dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+                                    }`}
+                                >
+                                    <Tag size={13} strokeWidth={2.3} />
+                                    <span>{translate('categories_tab') || 'Κατηγορίες'}</span>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/20 dark:bg-black/20 font-black">
+                                        {expenseCustom.length + incomeCustom.length}
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setMainTab('rules')}
+                                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${mainTab === 'rules'
+                                        ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 shadow-sm'
+                                        : 'bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-300 dark:bg-white/[0.08] dark:hover:bg-white/[0.12]'
+                                    }`}
+                                >
+                                    <SlidersHorizontal size={13} strokeWidth={2.3} />
+                                    <span>{translate('merchant_rules_tab') || 'Κανόνες Εμπόρων'}</span>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/20 dark:bg-black/20 font-black">
+                                        {(merchantRules || []).length}
+                                    </span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Type Toggle & Add Bar */}
-                    <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-5">
+                    {mainTab === 'rules' ? (
+                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-5">
+                            <MerchantRulesManager
+                                rules={merchantRules || []}
+                                onAdd={addMerchantRule}
+                                onEdit={editMerchantRule}
+                                onDelete={deleteMerchantRule}
+                                onRestoreStarter={resetMerchantRulesToDefault}
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            {/* Type Toggle & Add Bar */}
+                            <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 sm:p-6 space-y-5">
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                             {/* Segmented Type Toggle */}
                             <div className="flex bg-gray-100 dark:bg-white/[0.06] p-1.5 rounded-2xl shrink-0">
@@ -516,6 +556,8 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
                             </div>
                         )}
                     </div>
+                </>
+            )}
 
                 </div>
             </div>
