@@ -1075,21 +1075,23 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
 
                         {/* ─── SECTION D: Weekly Challenges ─── */}
                         <div className="bg-gray-100/90 dark:bg-surface-dark2 rounded-2xl p-6 lg:p-7 border border-gray-200 dark:border-white/10 shadow-sm">
-                            <div className="flex items-center justify-between gap-2 mb-5">
-                                <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-between gap-3 mb-5">
+                                <div className="flex items-center gap-3 min-w-0">
                                     <Trophy size={22} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                                    <div>
-                                        <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-gray-900 dark:text-white text-base truncate">
                                             {t('challenges_title')}
                                         </h3>
-                                        <p className="text-xs text-gray-400 font-medium">
+                                        <p className="text-xs text-gray-400 font-medium truncate">
                                             Weekly habit builder
                                         </p>
                                     </div>
                                 </div>
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 font-bold text-xs">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gray-200/60 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-gray-700 dark:text-gray-300 font-bold text-xs whitespace-nowrap shrink-0">
                                     <Clock size={12} className="shrink-0" />
-                                    {t('challenge_days_left').replace('{days}', daysLeftInWeek)}
+                                    {daysLeftInWeek === 1
+                                        ? (t('challenge_day_left') || '1 μέρα').replace('{days}', '1')
+                                        : (t('challenge_days_left') || '{days} μέρες').replace('{days}', daysLeftInWeek)}
                                 </span>
                             </div>
 

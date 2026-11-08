@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
-import { X, Hourglass, Check } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Hourglass } from 'lucide-react';
 import { DURATION_OPTIONS, DEFAULT_COOLING_OFF_HOURS, createCoolingOffItem } from '../utils/coolingOff';
+import { useSettings } from '../contexts/SettingsContext';
+import { getCategoryTranslation } from '../utils/categoryTranslations';
+import CategoryIcon from './CategoryIcon';
+import CustomSelect from './CustomSelect';
 
-const CATEGORIES = ['Διασκέδαση', 'Σπίτι', 'Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Βενζίνη', 'Υγεία', 'Άλλο'];
+const BASE_EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 
-const CoolingOffModal = ({ isOpen, onClose, onAdd, language = 'el' }) => {
+const CoolingOffModal = ({ isOpen, onClose, onAdd }) => {
+    const { t, language, customCategories } = useSettings();
     const isEL = language === 'el';
+
+    const allExpenseCategories = useMemo(() => {
+        const custom = customCategories?.expense || [];
+        return [...BASE_EXPENSE_CATEGORIES, ...custom];
+    }, [customCategories]);
+
     const [title, setTitle] = useState('');
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('Διασκέδαση');
@@ -36,7 +47,7 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd, language = 'el' }) => {
 
     return (
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-            <div className="w-full max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl p-5 sm:p-6 space-y-4">
+            <div className="w-full max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl p-5 sm:p-6 space-y-4 animate-pop">
                 {/* Header */}
                 <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-white/10">
                     <div>
@@ -57,7 +68,7 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd, language = 'el' }) => {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3.5">
                     <div>
                         <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
                             {isEL ? 'Τι θέλεις να αγοράσεις;' : 'What do you want to buy?'}
@@ -72,35 +83,37 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd, language = 'el' }) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
-                                {isEL ? 'Ποσό (€)' : 'Amount (€)'}
-                            </label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                min="0.01"
-                                required
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                placeholder="0.00"
-                                className="w-full py-2.5 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all tabular-nums"
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                            {isEL ? 'Ποσό (€)' : 'Amount (€)'}
+                        </label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            required
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="w-full py-2.5 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all tabular-nums"
+                        />
+                    </div>
 
-                        <div>
-                            <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
-                                {isEL ? 'Κατηγορία' : 'Category'}
-                            </label>
-                            <select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="w-full py-2.5 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all"
-                            >
-                                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                            </select>
-                        </div>
+                    <div>
+                        <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+                            {t('category') || (isEL ? 'Κατηγορία' : 'Category')}
+                        </label>
+                        <CustomSelect
+                            value={category}
+                            onChange={setCategory}
+                            searchable={allExpenseCategories.length > 6}
+                            placeholder={t('select_category') || (isEL ? '— Επίλεξε κατηγορία —' : '— Select category —')}
+                            options={allExpenseCategories.map(c => ({
+                                value: c,
+                                label: getCategoryTranslation(c, t),
+                                icon: <CategoryIcon category={c} type="expense" size={16} />
+                            }))}
+                        />
                     </div>
 
                     {/* Duration chips */}
@@ -150,4 +163,3 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd, language = 'el' }) => {
 };
 
 export default CoolingOffModal;
-

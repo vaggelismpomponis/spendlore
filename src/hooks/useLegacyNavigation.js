@@ -32,6 +32,7 @@ export function useLegacyNavigation() {
         if (path.startsWith('/goals')) return 'goals';
         if (path.startsWith('/budgets')) return 'budgets';
         if (path.startsWith('/advisor')) return 'advisor';
+        if (path.startsWith('/cooling-off')) return 'cooling-off';
         if (path.startsWith('/upgrade')) return 'upgrade';
         return 'home';
     }, [location.pathname]);
@@ -57,6 +58,7 @@ export function useLegacyNavigation() {
             'goals': '/goals',
             'budgets': '/budgets',
             'advisor': '/advisor',
+            'cooling-off': '/cooling-off',
             'upgrade': '/upgrade',
         };
         const targetPath = paths[tab] || '/';

@@ -12,6 +12,7 @@ import {
     ChevronDown,
     Save
 } from 'lucide-react';
+import CustomSelect from '../CustomSelect';
 
 const getTypeMeta = (type, message = '') => {
     if (type === 'support' || (message && message.includes('[Support]'))) {
@@ -116,31 +117,32 @@ const AdminTicketCard = ({
 
                 <div className="flex items-center gap-2 shrink-0">
                     {/* Status Dropdown */}
-                    <div className="relative">
-                        <select
+                    <div className="w-32">
+                        <CustomSelect
+                            size="sm"
                             value={status}
-                            onChange={(e) => onStatusChange(item.id, e.target.value)}
-                            aria-label="Ticket Status"
-                            className={`text-xs font-bold py-1.5 pl-2.5 pr-7 rounded-xl appearance-none cursor-pointer focus:outline-none transition-all ${statusMeta.className}`}
-                        >
-                            <option value="open">Open</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                        </select>
-                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
+                            onChange={(val) => onStatusChange(item.id, val)}
+                            options={[
+                                { value: 'open', label: 'Open', icon: <AlertCircle size={13} className="text-amber-500" /> },
+                                { value: 'in_progress', label: 'In Progress', icon: <Clock size={13} className="text-blue-500" /> },
+                                { value: 'resolved', label: 'Resolved', icon: <CheckCircle2 size={13} className="text-emerald-500" /> },
+                            ]}
+                        />
                     </div>
 
                     {/* Priority Selector */}
-                    <select
-                        value={priority}
-                        onChange={(e) => onPriorityChange(item.id, e.target.value)}
-                        aria-label="Ticket Priority"
-                        className="text-[11px] font-bold py-1.5 px-2 bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl cursor-pointer focus:outline-none"
-                    >
-                        <option value="normal">Normal</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                    </select>
+                    <div className="w-24">
+                        <CustomSelect
+                            size="sm"
+                            value={priority}
+                            onChange={(val) => onPriorityChange(item.id, val)}
+                            options={[
+                                { value: 'normal', label: 'Normal' },
+                                { value: 'high', label: 'High' },
+                                { value: 'urgent', label: 'Urgent' },
+                            ]}
+                        />
+                    </div>
 
                     {/* Delete Action */}
                     <button

@@ -22,6 +22,7 @@ import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmationModal from '../components/ConfirmationModal';
+import CustomSelect from '../components/CustomSelect';
 
 /* ─────────────────────────────────────────────────────────────
    Small helpers
@@ -51,29 +52,18 @@ const Field = ({ label, ...props }) => {
 };
 
 /* ── Styled select ── */
-const SelectField = ({ label, value, onChange, children }) => {
-    const id = React.useId();
+const SelectField = ({ label, value, onChange, options, placeholder }) => {
     return (
         <div>
-            <label htmlFor={id} className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
+            <label className="block text-[11px] font-bold text-gray-400 dark:text-white/60 mb-1.5 uppercase tracking-widest">
                 {label}
             </label>
-            <div className="relative">
-                <select
-                    id={id}
-                    value={value}
-                    onChange={onChange}
-                    className="w-full p-3.5 bg-white dark:bg-white/5
-                               border border-slate-200/60 dark:border-transparent
-                               rounded-2xl text-sm font-medium text-gray-900 dark:text-white
-                               focus:outline-none focus:ring-2 focus:ring-violet-500
-                               dark:focus:ring-violet-400 transition-all
-                               appearance-none pr-8 cursor-pointer shadow-premium"
-                >
-                    {children}
-                </select>
-                <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-gray-400 dark:text-white/50 pointer-events-none" />
-            </div>
+            <CustomSelect
+                value={value}
+                onChange={onChange}
+                options={options}
+                placeholder={placeholder}
+            />
         </div>
     );
 };
@@ -419,7 +409,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
-                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl animate-pop border border-gray-300 dark:border-white/10">
 
                         {/* Accent stripe */}
 
@@ -505,20 +495,18 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                     <SelectField
                                         label={translate('frequency') || 'Frequency'}
                                         value={frequency}
-                                        onChange={e => setFrequency(e.target.value)}
-                                    >
-                                        <option value="monthly">{translate('monthly') || 'Monthly'}</option>
-                                        <option value="weekly" disabled>{translate('weekly') || 'Weekly'} (Soon)</option>
-                                    </SelectField>
+                                        onChange={setFrequency}
+                                        options={[
+                                            { value: 'monthly', label: translate('monthly') || 'Monthly' },
+                                            { value: 'weekly', label: `${translate('weekly') || 'Weekly'} (Soon)`, disabled: true }
+                                        ]}
+                                    />
                                     <SelectField
                                         label={translate('day_of_month') || 'Day of month'}
                                         value={day}
-                                        onChange={e => setDay(e.target.value)}
-                                    >
-                                        {[...Array(31)].map((_, i) => (
-                                            <option key={i + 1} value={i + 1}>{i + 1}</option>
-                                        ))}
-                                    </SelectField>
+                                        onChange={setDay}
+                                        options={[...Array(31)].map((_, i) => ({ value: i + 1, label: String(i + 1) }))}
+                                    />
                                 </div>
 
                                 {/* Buttons */}

@@ -1086,6 +1086,7 @@ export const translations = {
         // Advisor Redesign — Challenges
         challenges_title: 'Εβδομαδιαίες Προκλήσεις',
         challenge_days_left: '{days} μέρες',
+        challenge_day_left: '{days} μέρα',
         challenge_completed: 'Ολοκληρώθηκε! 🎉',
         challenge_no_spend_title: 'Ημέρα Χωρίς Δαπάνες',
         challenge_no_spend_desc: 'Πέρασε 1 μέρα χωρίς μη-απαραίτητες δαπάνες.',
@@ -2318,6 +2319,7 @@ export const translations = {
         // Advisor Redesign — Challenges
         challenges_title: 'Weekly Challenges',
         challenge_days_left: '{days} days',
+        challenge_day_left: '{days} day',
         challenge_completed: 'Completed! 🎉',
         challenge_no_spend_title: 'No-Spend Day',
         challenge_no_spend_desc: 'Go 1 day without non-essential spending.',

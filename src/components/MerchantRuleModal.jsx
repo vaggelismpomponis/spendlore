@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
+import CategoryIcon from './CategoryIcon';
+import CustomSelect from './CustomSelect';
 
 const BASE_EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 const BASE_INCOME_CATEGORIES = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλα Έσοδα'];
@@ -79,11 +81,15 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
 
                     <div>
                         <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">{translate('target_category_label') || 'Κατηγορία Στόχος'}</label>
-                        <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full py-2.5 px-3.5 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all cursor-pointer">
-                            {availableCategories.map((cat) => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
+                        <CustomSelect
+                            value={category}
+                            onChange={setCategory}
+                            options={availableCategories.map(cat => ({
+                                value: cat,
+                                label: cat,
+                                icon: <CategoryIcon category={cat} type={type} size={16} />
+                            }))}
+                        />
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">

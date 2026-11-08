@@ -6,6 +6,7 @@ import {
     Shapes, TrendingUp, TrendingDown, ShieldCheck, Lightbulb, Flame
 } from 'lucide-react';
 import CategoryIcon, { getCategoryIcon } from '../components/CategoryIcon';
+import CustomSelect from '../components/CustomSelect';
 import { supabase } from '../supabase';
 import Amount from '../components/Amount';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
@@ -623,7 +624,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
             {showModal && createPortal(
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-5 animate-fade-in">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={closeModal} />
-                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl overflow-hidden animate-pop border border-gray-300 dark:border-white/10">
+                    <div className="bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl w-full max-w-sm relative z-10 shadow-2xl animate-pop border border-gray-300 dark:border-white/10">
                         {/* Gradient top accent */}
 
 
@@ -650,28 +651,21 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 {/* Category Select */}
                                 <div>
                                     <label htmlFor="budget-category" className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">{t('category_label')}</label>
-                                    <div className="relative">
-                                        <select
-                                            id="budget-category"
-                                            value={formCategory}
-                                            onChange={(e) => setFormCategory(e.target.value)}
-                                            disabled={!!editingBudget}
-                                            className={`w-full py-3 pr-3.5 ${formCategory ? 'pl-10' : 'pl-3.5'} bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white disabled:opacity-50 appearance-none text-sm font-medium`}
-                                            required
-                                        >
-                                            <option value="" disabled>{t('select_category')}</option>
-                                            {allExpenseCategories.filter(c => !budgets.find(b => b.category === c && (!editingBudget || editingBudget.category !== c))).map(c => (
-                                                <option key={c} value={c}>
-                                                    {getCategoryTranslation(c, t)}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {formCategory && (
-                                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                                                <CategoryIcon category={formCategory} type="expense" size={18} />
-                                            </div>
-                                        )}
-                                    </div>
+                                    <CustomSelect
+                                        id="budget-category"
+                                        value={formCategory}
+                                        onChange={setFormCategory}
+                                        disabled={!!editingBudget}
+                                        placeholder={t('select_category')}
+                                        searchable={true}
+                                        options={allExpenseCategories
+                                            .filter(c => !budgets.find(b => b.category === c && (!editingBudget || editingBudget.category !== c)))
+                                            .map(c => ({
+                                                value: c,
+                                                label: getCategoryTranslation(c, t),
+                                                icon: <CategoryIcon category={c} type="expense" size={16} />
+                                            }))}
+                                    />
                                     {editingBudget && (
                                         <p className="text-[10px] text-gray-400 mt-1.5"></p>
                                     )}

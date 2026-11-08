@@ -22,6 +22,7 @@ import { isBaseCategory } from '../utils/categoryTranslations';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import ConfirmationModal from '../components/ConfirmationModal';
+import CustomSelect from '../components/CustomSelect';
 import CategoryIcon, { CATEGORY_ACCENT } from '../components/CategoryIcon';
 import ProBadge from '../components/ProBadge';
 
@@ -593,17 +594,15 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
                                     <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
                                         {translate('reassign_to_label') || 'Μεταφορά συναλλαγών στην κατηγορία:'}
                                     </label>
-                                    <select
+                                    <CustomSelect
                                         value={deleteTarget.reassignTo}
-                                        onChange={(e) => setDeleteTarget({ ...deleteTarget, reassignTo: e.target.value })}
-                                        className="w-full px-3.5 py-2.5 rounded-xl text-sm border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-surface-dark3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                                    >
-                                        {availableReassignTargets.map(target => (
-                                            <option key={target} value={target}>
-                                                {target}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        onChange={(val) => setDeleteTarget({ ...deleteTarget, reassignTo: val })}
+                                        options={availableReassignTargets.map(target => ({
+                                            value: target,
+                                            label: target,
+                                            icon: <CategoryIcon category={target} type={deleteTarget.type || activeType} size={16} />
+                                        }))}
+                                    />
                                     <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed">
                                         {translate('reassign_desc') || 'Όλες οι υπάρχουσες συναλλαγές θα μεταφερθούν αυτόματα στην επιλεγμένη κατηγορία χωρίς απώλεια δεδομένων.'}
                                     </p>

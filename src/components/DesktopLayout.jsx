@@ -218,6 +218,7 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
         support: t('technical_support') || t('support') || 'Support',
         feedback: t('technical_support') || t('support') || 'Support',
         advisor: t('advisor_title'),
+        'cooling-off': t('cooling_off_title') || 'Αναμονή 72h',
         guide: t('guide'),
         'profile-details': t('nav_profile'),
         admin: t('admin_panel') || 'Admin Panel',
@@ -361,7 +362,7 @@ const DesktopLayout = ({
 
     // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
     const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'categories', 'security', 'backup',
-        'support', 'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade'].includes(activeTab);
+        'support', 'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade', 'cooling-off'].includes(activeTab);
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">

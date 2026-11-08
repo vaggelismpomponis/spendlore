@@ -1,11 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CoolingOffView from '../CoolingOffView';
 import { useAppStore } from '../../store/useAppStore';
 
 vi.mock('../../contexts/SettingsContext', () => ({
-    useSettings: () => ({ language: 'el', t: (k) => k })
+    useSettings: () => ({ language: 'el', t: (k) => k, customCategories: { expense: ['Gaming Gadgets'] } })
 }));
 
 vi.mock('../../contexts/ToastContext', () => ({
@@ -109,13 +109,19 @@ describe('CoolingOffView', () => {
         expect(state.coolingOffItems[0].status).toBe('bought');
     });
 
-    it('allows adding a new item through the modal', () => {
+    it('allows adding a new item through the modal with custom categories', () => {
         render(<CoolingOffView onBack={vi.fn()} onAddTransaction={vi.fn()} />);
 
-        const openBtn = screen.getByText('Νέα Επιθυμία (72h)');
+        const openBtn = screen.getByText(/Νέα Επιθυμία/i);
         fireEvent.click(openBtn);
 
         expect(screen.getByText('Προσθήκη σε Αναμονή 72 Ωρών')).toBeInTheDocument();
+
+        // Custom category should be available in dropdown options
+        const selectTrigger = screen.getByText('Διασκέδαση');
+        fireEvent.click(selectTrigger);
+        expect(screen.getByText('Gaming Gadgets')).toBeInTheDocument();
+        fireEvent.click(screen.getByText('Gaming Gadgets'));
 
         const titleInput = screen.getByPlaceholderText('π.χ. Ακουστικά Sony, Sneakers Nike');
         const amountInput = screen.getByPlaceholderText('0.00');
@@ -130,7 +136,41 @@ describe('CoolingOffView', () => {
         expect(state.coolingOffItems.length).toBe(1);
         expect(state.coolingOffItems[0].title).toBe('Espresso Machine');
         expect(state.coolingOffItems[0].amount).toBe(450);
+        expect(state.coolingOffItems[0].category).toBe('Gaming Gadgets');
         expect(state.coolingOffItems[0].status).toBe('active');
+    });
+
+    it('prompts confirmation modal on delete and removes item only upon confirmation', () => {
+        const mockItems = [
+            {
+                id: 'co_del',
+                title: 'Mechanical Keyboard',
+                amount: 150,
+                category: 'Διασκέδαση',
+                status: 'active',
+                expiresAt: new Date(Date.now() + 50000).toISOString()
+            }
+        ];
+        useAppStore.setState({ coolingOffItems: mockItems });
+
+        render(<CoolingOffView onBack={vi.fn()} onAddTransaction={vi.fn()} />);
+
+        expect(screen.getByText('Mechanical Keyboard')).toBeInTheDocument();
+
+        const deleteBtn = screen.getByTitle('Διαγραφή');
+        fireEvent.click(deleteBtn);
+
+        // Confirmation modal should appear
+        const dialog = screen.getByRole('dialog');
+        expect(within(dialog).getByText('Διαγραφή Επιθυμίας')).toBeInTheDocument();
+        expect(within(dialog).getByText(/Είστε σίγουροι ότι θέλετε να διαγράψετε το «Mechanical Keyboard»/i)).toBeInTheDocument();
+
+        // Confirm inside dialog
+        const confirmBtn = within(dialog).getByRole('button', { name: 'Διαγραφή' });
+        fireEvent.click(confirmBtn);
+
+        const state = useAppStore.getState();
+        expect(state.coolingOffItems.length).toBe(0);
     });
 });
 

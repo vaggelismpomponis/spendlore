@@ -9,6 +9,7 @@ import {
 import { supabase } from '../../supabase';
 import AdminTicketStats from './AdminTicketStats';
 import AdminTicketCard from './AdminTicketCard';
+import CustomSelect from '../CustomSelect';
 
 const AdminFeedback = ({
     feedback = [],
@@ -168,17 +169,20 @@ const AdminFeedback = ({
                     </div>
 
                     {/* Category Selector */}
-                    <select
-                        value={typeFilter}
-                        onChange={(e) => setTypeFilter(e.target.value)}
-                        className="text-xs font-bold py-2 px-3 bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-xl cursor-pointer focus:outline-none"
-                    >
-                        <option value="all">All Categories</option>
-                        <option value="support">Support Only</option>
-                        <option value="bug">Bugs Only</option>
-                        <option value="idea">Feature Ideas</option>
-                        <option value="other">General</option>
-                    </select>
+                    <div className="w-36">
+                        <CustomSelect
+                            size="sm"
+                            value={typeFilter}
+                            onChange={setTypeFilter}
+                            options={[
+                                { value: 'all', label: 'All Categories' },
+                                { value: 'support', label: 'Support Only' },
+                                { value: 'bug', label: 'Bugs Only' },
+                                { value: 'idea', label: 'Feature Ideas' },
+                                { value: 'other', label: 'General' },
+                            ]}
+                        />
+                    </div>
                 </div>
             </div>
 

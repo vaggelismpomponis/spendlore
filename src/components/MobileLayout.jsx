@@ -117,6 +117,7 @@ export default function MobileLayout({
                                     {activeTab === 'stats' && translate('nav_stats')}
                                     {activeTab === 'goals' && translate('goals')}
                                     {activeTab === 'budgets' && translate('budgets')}
+                                    {activeTab === 'cooling-off' && (translate('cooling_off_title') || 'Αναμονή 72h')}
                                     {(activeTab === 'support' || activeTab === 'feedback') && (translate('technical_support') || translate('support') || 'Support')}
                                     {activeTab === 'admin' && 'Admin Panel'}
                                 </h2>
@@ -165,7 +166,7 @@ export default function MobileLayout({
                 {overlays}
 
                 {/* Mobile Modals/FAB */}
-                {!['goals', 'budgets', 'profile', 'recurring', 'general', 'security', 'backup', 'support', 'feedback', 'admin', 'privacy', 'advisor', 'guide', 'upgrade'].includes(activeTab) && (
+                {!['goals', 'budgets', 'cooling-off', 'profile', 'recurring', 'general', 'security', 'backup', 'support', 'feedback', 'admin', 'privacy', 'advisor', 'guide', 'upgrade'].includes(activeTab) && (
                     <div className="absolute bottom-0 w-full z-[45] pointer-events-none">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto">
                             <div id="tour-add-button" className="relative">
