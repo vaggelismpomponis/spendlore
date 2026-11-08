@@ -4,7 +4,8 @@ import {
     ChevronRight, Lightbulb, ArrowUpRight, ArrowDownRight, TrendingUp,
     ArrowRight, TrendingDown, Minus, Eye, EyeOff,
     Plus, ShieldCheck, BarChart2, Bot, Calendar, PieChart, Search,
-    Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle, FileText
+    Flame, CheckCircle2, Clock, Plane, Home as HomeIcon, Car, Laptop, Heart, Gamepad2, AlertTriangle, FileText,
+    Hourglass
 } from 'lucide-react';
 import TransactionItem from '../components/TransactionItem';
 import Amount from '../components/Amount';
@@ -15,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../store/useAppStore';
 import SafeToBurnCard from '../components/SafeToBurnCard';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
+import CoolingOffHomeWidget from '../components/CoolingOffHomeWidget';
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
 ───────────────────────────────────────────── */
@@ -1040,6 +1042,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             </div>
                         )}
 
+                        {/* ── 72-Hour Cooling-Off Widget ── */}
+                        <CoolingOffHomeWidget onOpen={() => setActiveTab('cooling-off')} language={language} />
+
                         {/* ── Budgets Progress Widget ── */}
                         <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-5 space-y-3.5">
                             <div className="flex items-center justify-between">
@@ -1296,6 +1301,9 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     })}
                 </div>
             </div>
+
+            {/* ── 72-Hour Cooling-Off Widget ── */}
+            <CoolingOffHomeWidget onOpen={() => setActiveTab('cooling-off')} language={language} />
 
             {/* ── Recent Transactions ── */}
             {recentTransactions}

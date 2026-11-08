@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { get, set, del } from 'idb-keyval';
 import { calculateStb, getRemainingDaysInMonth, getDaysInMonth } from '../features/StbEngine';
-import { scheduleRegretCheckin } from '../services/NotificationService';
+import { scheduleRegretCheckin, scheduleCoolingOffNotification } from '../services/NotificationService';
 
 // In-memory fallback for environments without indexedDB (e.g. Node/SSR/Unit tests)
 const memoryStorage = new Map();
@@ -49,11 +49,31 @@ export const useAppStore = create(
             transactions: [],
             budgets: [],
             goals: [],
+            coolingOffItems: [],
             userSettings: {
                 income: 0,
                 fixedObligations: 0,
                 targetSavings: 0,
             },
+
+            // Cooling-off Wishlist Actions
+            addCoolingOffItem: (item) => {
+                scheduleCoolingOffNotification(item);
+                set((state) => ({
+                    coolingOffItems: [item, ...(state.coolingOffItems || [])]
+                }));
+            },
+            updateCoolingOffItem: (id, updates) => set((state) => ({
+                coolingOffItems: (state.coolingOffItems || []).map(item =>
+                    item.id === id ? { ...item, ...updates } : item
+                )
+            })),
+            removeCoolingOffItem: (id) => set((state) => ({
+                coolingOffItems: (state.coolingOffItems || []).filter(item => item.id !== id)
+            })),
+            setCoolingOffItems: (items) => set({
+                coolingOffItems: Array.isArray(items) ? items : []
+            }),
 
             // Onboarding tour
             tourSeen: false,

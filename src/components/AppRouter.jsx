@@ -21,6 +21,7 @@ const SecuritySettingsView = React.lazy(() => import('../views/SecuritySettingsV
 const CategoriesSettingsView = React.lazy(() => import('../views/CategoriesSettingsView'));
 const ProfileView = React.lazy(() => import('../views/ProfileView'));
 const RecurringView = React.lazy(() => import('../views/RecurringView'));
+const CoolingOffView = React.lazy(() => import('../views/CoolingOffView'));
 import HomeView from '../views/HomeView';
 
 const ProtectedAdvisorView = ({ transactions, goals, onBack, hideHeader }) => {
@@ -111,6 +112,7 @@ export default function AppRouter(props) {
                         {activeTab === 'goals' && <GoalsView user={user} onBack={() => setActiveTab('home')} />}
                         {activeTab === 'budgets' && <BudgetsView user={user} transactions={transactions} onBack={() => setActiveTab('home')} />}
                         {activeTab === 'advisor' && <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />}
+                        {activeTab === 'cooling-off' && <CoolingOffView onBack={() => setActiveTab('home')} onAddTransaction={props.onAddTransaction || (tx => props.openAddModal?.(tx))} />}
                     </React.Suspense>
                 </DesktopLayout>
             </React.Suspense>
@@ -216,6 +218,11 @@ export default function AppRouter(props) {
                         {activeTab === 'advisor' && (
                             <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
                                 <ProtectedAdvisorView transactions={transactions} goals={goals} onBack={() => setActiveTab('home')} />
+                            </div>
+                        )}
+                        {activeTab === 'cooling-off' && (
+                            <div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark flex flex-col">
+                                <CoolingOffView onBack={() => setActiveTab('home')} onAddTransaction={props.onAddTransaction || (tx => props.openAddModal?.(tx))} />
                             </div>
                         )}
                     </React.Suspense>

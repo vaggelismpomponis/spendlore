@@ -67,3 +67,51 @@ export const scheduleRegretCheckin = async (transaction) => {
         console.warn('Failed to schedule local notification:', e);
     }
 };
+
+/**
+ * Schedules a local reminder when the 72-hour cooling-off countdown expires.
+ */
+export const scheduleCoolingOffNotification = async (item) => {
+    if (!item || !item.expiresAt) return;
+    if (!Capacitor.isNativePlatform()) return;
+
+    const hasPermission = await requestNotificationPermissions();
+    if (!hasPermission) return;
+
+    const scheduleDate = new Date(item.expiresAt);
+    if (scheduleDate.getTime() <= Date.now()) return;
+
+    const currency = typeof localStorage !== 'undefined' ? (localStorage.getItem('currency') || '€') : '€';
+    const language = typeof localStorage !== 'undefined' ? (localStorage.getItem('language') || 'el') : 'el';
+    const isGreek = language === 'el' || (!language && typeof navigator !== 'undefined' && navigator.language?.startsWith('el'));
+    const formattedAmount = (Number(item.amount) || 0).toFixed(2);
+
+    const title = isGreek ? '72 Ώρες Αναμονής Ολοκληρώθηκαν!' : '72-Hour Cooling-Off Complete!';
+    const body = isGreek
+        ? `Το αντικείμενο "${item.title}" (${currency}${formattedAmount}) πέρασε την περίοδο ψυχραιμίας. Το χρειάζεσαι ακόμα;`
+        : `"${item.title}" (${currency}${formattedAmount}) finished cooling off. Do you still need it?`;
+
+    const notificationId = Math.abs((item.id || '').split('').reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0)) % 1000000;
+
+    try {
+        await LocalNotifications.schedule({
+            notifications: [
+                {
+                    title,
+                    body,
+                    id: notificationId,
+                    schedule: { at: scheduleDate },
+                    smallIcon: 'ic_stat_spendlore',
+                    largeIcon: 'ic_spendlore_logo',
+                    iconColor: '#7C3AED',
+                    extra: {
+                        coolingOffId: item.id,
+                        action: 'cooling_off_decision'
+                    }
+                }
+            ]
+        });
+    } catch (e) {
+        console.warn('Failed to schedule cooling-off notification:', e);
+    }
+};

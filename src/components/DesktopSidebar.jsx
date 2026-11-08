@@ -3,7 +3,7 @@ import {
     Home, BarChart3, History, Settings, Target,
     RefreshCw, Lightbulb, LogOut, Moon, Sun, Monitor, Eye, EyeOff,
     PiggyBank, User, ShieldCheck, ArrowRight, LayoutDashboard,
-    Languages
+    Languages, Hourglass
 } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -144,6 +144,7 @@ const DesktopSidebar = ({
 
                 <NavItem icon={Target} label={t('goals')} active={activeTab === 'goals'} onClick={() => navTo('goals')} />
                 <NavItem icon={PiggyBank} label={t('budgets')} active={activeTab === 'budgets'} onClick={() => navTo('budgets')} />
+                <NavItem icon={Hourglass} label={t('cooling_off_title') || 'Αναμονή 72h'} active={activeTab === 'cooling-off'} onClick={() => navTo('cooling-off')} />
                 <NavItem id="nav-recurring" icon={RefreshCw} label={t('recurring')} active={activeTab === 'recurring'} onClick={() => { setPreviousTab?.('home'); navTo('recurring'); }} showCrown={!isPro} />
                 <NavItem id="nav-advisor" icon={Lightbulb} label={t('advisor_title')} active={activeTab === 'advisor'} onClick={() => navTo('advisor')} showCrown={!isPro} />
 
