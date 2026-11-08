@@ -13,7 +13,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'play-store-icon-512.png', 'spendlore-logo.png', 'spendlore-mark.png', 'spendlore-full-logo.png', 'spendwise-logo.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['favicon.png', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'play-store-icon-512.png', 'spendlore-logo.png', 'spendlore-mark.png', 'spendlore-mark.svg', 'spendlore-full-logo.png', 'spendlore-full-logo-dark.png', 'spendlore-full-logo.svg', 'spendlore-full-logo-dark.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Spendlore',
         short_name: 'Spendlore',

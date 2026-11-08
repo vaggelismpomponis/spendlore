@@ -111,7 +111,7 @@
   <style>
     body { 
       margin: 0; 
-      background-color: #0B0B0F; 
+      background-color: #08070D; 
       color: white;
     }
   </style>
@@ -128,7 +128,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 50% 38%, rgba(124,58,237,0.18) 0%, rgba(15,14,26,0.96) 55%, #08070D 100%);
+      background-color: #08070D;
       font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: white;
       overflow: hidden;
@@ -136,42 +136,38 @@
       -webkit-user-select: none;
     ">
 
+      <!-- Micro Dot Matrix Grid (matching LoginView) -->
+      <div style="
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px);
+        background-size: 24px 24px;
+      "></div>
+
       <!-- Center Branding Container -->
       <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;">
 
-        <!-- Official App Logo (Squircle Container) -->
-        <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 22px;">
-          <!-- Ambient Glow Disk -->
-          <div style="
-            position: absolute;
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(124,58,237,0.35) 0%, rgba(99,102,241,0.12) 50%, transparent 70%);
-            filter: blur(20px);
-            pointer-events: none;
-            animation: sw-pulse 3s ease-in-out infinite;
-          "></div>
-
-          <!-- White Squircle matching LoginView roundness -->
+        <!-- Official App Logo (Squircle Container matching LoginView) -->
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
           <div class="sw-logo-img" style="
             position: relative;
             width: 80px;
             height: 80px;
-            border-radius: 24px;
-            background: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            padding: 13px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 16px 36px rgba(0,0,0,0.45), 0 0 24px rgba(124,58,237,0.3);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
           ">
-            <img src="/spendlore-mark.png" alt="Spendlore" width="54" height="54" style="
+            <img src="/spendlore-mark.png" alt="Spendlore" width="52" height="52" style="
               width: 100%;
               height: 100%;
               object-fit: contain;
-              filter: drop-shadow(0 4px 10px rgba(124,58,237,0.35));
             " />
           </div>
         </div>
@@ -191,7 +187,7 @@
             font-size: 13px;
             font-weight: 500;
             letter-spacing: 0.01em;
-            color: rgba(255,255,255,0.46);
+            color: #9CA3AF;
           ">Έξυπνη Διαχείριση Οικονομικών</p>
         </div>
 
@@ -201,7 +197,7 @@
           width: 140px;
           height: 3.5px;
           border-radius: 999px;
-          background: rgba(255,255,255,0.08);
+          background: rgba(255, 255, 255, 0.08);
           overflow: hidden;
           position: relative;
         ">
@@ -220,7 +216,7 @@
           font-size: 11px;
           font-weight: 500;
           letter-spacing: 0.04em;
-          color: rgba(255,255,255,0.32);
+          color: rgba(255, 255, 255, 0.35);
         ">Φόρτωση...</p>
       </div>
 
@@ -233,14 +229,14 @@
         align-items: center;
         gap: 5px;
       ">
-        <div style="display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.38);">
+        <div style="display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.4);">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
           <span style="font-size: 11px; font-weight: 500; letter-spacing: 0.02em;">Ασφαλής κρυπτογράφηση</span>
         </div>
-        <span style="font-size: 9px; font-weight: 600; letter-spacing: 0.08em; color: rgba(255,255,255,0.18); text-transform: uppercase;">Spendlore</span>
+        <span style="font-size: 9px; font-weight: 600; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.2); text-transform: uppercase;">Spendlore</span>
       </div>
     </div>
 

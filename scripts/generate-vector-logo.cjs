@@ -101,16 +101,22 @@ function getEmblemSvg({ isDark = false, bg = null } = {}) {
 </svg>`;
 }
 
-// 2. Full Horizontal Master Logo (1200 x 360 / 1200 x 500)
+// 2. Full Horizontal Master Logo (1200 x 400)
 function getFullLogoSvg({ isDark = false } = {}) {
-  const textColor = isDark ? '#FFFFFF' : '#0F172A';
-  const subColor = isDark ? '#94A3B8' : '#64748B';
-  const proBadgeBg = isDark ? '#1E1B4B' : '#EEF2FF';
-  const proBadgeBorder = isDark ? '#4338CA' : '#C7D2FE';
-  const proBadgeText = isDark ? '#A5B4FC' : '#4F46E5';
+  const textColor = isDark ? '#FFFFFF' : '#04142D';
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="100%" height="100%">
   <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700&amp;display=swap');
+      .brand-wordmark {
+        font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 700;
+        font-size: 136px;
+        letter-spacing: -2.5px;
+        fill: ${textColor};
+      }
+    </style>
     <linearGradient id="fullPrimaryRibbon" x1="0.1" y1="0.05" x2="0.9" y2="0.95">
       <stop offset="0%" stop-color="#A855F7"/>
       <stop offset="30%" stop-color="#8B5CF6"/>
@@ -122,12 +128,7 @@ function getFullLogoSvg({ isDark = false } = {}) {
       <stop offset="0%" stop-color="#C084FC"/>
       <stop offset="35%" stop-color="#9333EA"/>
       <stop offset="75%" stop-color="#6D28D9"/>
-      <stop offset="100%" stop-color="#4338CA"/>
-    </linearGradient>
-
-    <linearGradient id="fullEmeraldAccent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#34D399"/>
-      <stop offset="100%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
 
     <filter id="fullShadow" x="-15%" y="-15%" width="130%" height="130%">
@@ -140,8 +141,8 @@ function getFullLogoSvg({ isDark = false } = {}) {
     </linearGradient>
   </defs>
 
-  <!-- ── EMBLEM (Left: x=60..360, y=50..350) ── -->
-  <g transform="translate(60, 50) scale(0.60)">
+  <!-- ── EMBLEM (Left: x=70..360, y=50..350) ── -->
+  <g transform="translate(70, 50) scale(0.60)">
     <!-- Back loop -->
     <path
       d="M 256 256
@@ -189,29 +190,12 @@ function getFullLogoSvg({ isDark = false } = {}) {
       stroke-linecap="round"
       opacity="0.75"
     />
-
-    <!-- Emerald Growth Dot -->
-    <circle cx="340" cy="115" r="13" fill="url(#fullEmeraldAccent)" />
-    <circle cx="340" cy="115" r="17" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6"/>
   </g>
 
   <!-- ── TYPOGRAPHY WORDMARK ── -->
-  <g transform="translate(400, 215)">
-    <!-- Brand Title: Spendlore -->
-    <text font-family="'Outfit', 'Inter', system-ui, -apple-system, sans-serif" font-size="112" font-weight="900" letter-spacing="-3" fill="${textColor}">
-      Spend<tspan fill="url(#fullPrimaryRibbon)">lore</tspan>
-    </text>
-
-    <!-- Optional Pro Badge -->
-    <g transform="translate(540, -78)">
-      <rect width="68" height="34" rx="10" fill="${proBadgeBg}" stroke="${proBadgeBorder}" stroke-width="1.5"/>
-      <text x="34" y="22" font-family="'Inter', sans-serif" font-size="14" font-weight="900" letter-spacing="1.5" fill="${proBadgeText}" text-anchor="middle">PRO</text>
-    </g>
-
-    <!-- Subtitle: Single Source of Truth Personal Finance -->
-    <text y="58" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" letter-spacing="3.5" fill="${subColor}" text-transform="uppercase">
-      MASTER YOUR MONEY WITH ABSOLUTE CLARITY
-    </text>
+  <g transform="translate(400, 246)">
+    <!-- Master Brand Title: Spendlore -->
+    <text class="brand-wordmark">Spendlore</text>
   </g>
 </svg>`;
 }
@@ -220,4 +204,3 @@ module.exports = {
   getEmblemSvg,
   getFullLogoSvg
 };
-

@@ -14,6 +14,12 @@ const docsScreenshotsDir = path.resolve(__dirname, '../docs/google-play-screensh
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
+// Load the authentic 3D ribbon mark
+const emblemMarkBase64 = fs.existsSync(path.join(publicDir, 'spendlore-mark.png'))
+  ? fs.readFileSync(path.join(publicDir, 'spendlore-mark.png')).toString('base64')
+  : '';
+const emblemImgSrc = `data:image/png;base64,${emblemMarkBase64}`;
+
 // Common Lucide SVG icons for the mockups
 const ICONS = {
   wallet: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>`,
@@ -163,9 +169,13 @@ function getFeatureGraphicHtml() {
       width: 52px;
       height: 52px;
       border-radius: 16px;
-      background: #FFFFFF;
-      padding: 6px;
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .brand-name {
       font-size: 38px;
@@ -248,7 +258,7 @@ function getFeatureGraphicHtml() {
   <div class="fg-container">
     <div class="left-col">
       <div class="brand-row">
-        <div class="brand-logo">${emblemSvg}</div>
+        <div class="brand-logo"><img src="${emblemImgSrc}" style="width:100%; height:100%; object-fit:contain;" alt="Spendlore" /></div>
         <div class="brand-name">Spendlore</div>
         <div class="pro-badge">PRO</div>
       </div>
@@ -421,15 +431,16 @@ function getScreenshotHtml({ overline, title, subtitle, screenContent, bottomCar
 
 // Screen 1: Executive Financial Dashboard
 function getDashboardScreenContent() {
-  const emblemSvg = getEmblemSvg();
   return `
     <!-- Top App Bar -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:28px;">
       <div style="display:flex; align-items:center; gap:14px;">
-        <div style="width:46px; height:46px; border-radius:14px; background:#FFFFFF; padding:5px; box-shadow:0 4px 16px rgba(124,58,237,0.3);">${emblemSvg}</div>
+        <div style="width:48px; height:48px; border-radius:14px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.15); padding:7px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,0.35);">
+          <img src="${emblemImgSrc}" style="width:100%; height:100%; object-fit:contain;" alt="Spendlore" />
+        </div>
         <div>
-          <div style="font-size:22px; font-weight:900; font-family:'Outfit';">Spendlore</div>
-          <div style="font-size:12px; color:#64748B; font-weight:600;">Executive Finance</div>
+          <div style="font-size:22px; font-weight:800; font-family:'Outfit'; letter-spacing:-0.5px; color:#FFFFFF;">Spendlore</div>
+          <div style="font-size:12px; color:#94A3B8; font-weight:600;">Executive Finance</div>
         </div>
       </div>
       <div style="display:flex; gap:10px;">
@@ -496,7 +507,7 @@ function getDashboardScreenContent() {
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:16px 20px;">
         <div style="display:flex; align-items:center; gap:14px;">
-          <div style="width:42px; height:42px; border-radius:12px; background:rgba(124,58,237,0.2); display:flex; align-items:center; justify-content:center; font-size:18px;">🛒</div>
+          <div style="width:42px; height:42px; border-radius:12px; background:rgba(124,58,237,0.2); display:flex; align-items:center; justify-content:center; color:#A78BFA;">${ICONS.wallet}</div>
           <div>
             <div style="font-size:16px; font-weight:800; color:#FFFFFF;">Σκλαβενίτης Supermarket</div>
             <div style="font-size:12px; color:#64748B; font-weight:600;">Groceries • OCR Scanned</div>
@@ -507,7 +518,7 @@ function getDashboardScreenContent() {
 
       <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:16px 20px;">
         <div style="display:flex; align-items:center; gap:14px;">
-          <div style="width:42px; height:42px; border-radius:12px; background:rgba(245,158,11,0.2); display:flex; align-items:center; justify-content:center; font-size:18px;">☕</div>
+          <div style="width:42px; height:42px; border-radius:12px; background:rgba(245,158,11,0.2); display:flex; align-items:center; justify-content:center; color:#F59E0B;">${ICONS.clock}</div>
           <div>
             <div style="font-size:16px; font-weight:800; color:#FFFFFF;">Coffee Island</div>
             <div style="font-size:12px; color:#64748B; font-weight:600;">Daily Cafe • Voice Log</div>
@@ -737,7 +748,6 @@ function getAnalyticsBudgetsScreenContent() {
 
 // Screen 5: Bank-Grade Security & Privacy Shield
 function getSecurityScreenContent() {
-  const emblemSvg = getEmblemSvg();
   return `
     <div style="text-align:center; margin-bottom:28px;">
       <div style="font-size:13px; font-weight:800; color:#A78BFA; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">
@@ -748,11 +758,11 @@ function getSecurityScreenContent() {
 
     <!-- Obsidian Vault Lockscreen Card -->
     <div class="fin-card" style="display:flex; flex-direction:column; align-items:center; padding:36px 24px; margin-bottom:24px; text-align:center; background:linear-gradient(180deg, rgba(124,58,237,0.15) 0%, rgba(0,0,0,0.4) 100%);">
-      <div style="width:68px; height:68px; border-radius:20px; background:#FFFFFF; padding:8px; box-shadow:0 8px 30px rgba(124,58,237,0.4); margin-bottom:18px;">
-        ${emblemSvg}
+      <div style="width:72px; height:72px; border-radius:20px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.15); padding:10px; box-shadow:0 8px 24px rgba(0,0,0,0.35); margin-bottom:18px; display:flex; align-items:center; justify-content:center;">
+        <img src="${emblemImgSrc}" style="width:100%; height:100%; object-fit:contain;" alt="Spendlore" />
       </div>
 
-      <div style="font-size:24px; font-weight:900; font-family:'Outfit'; margin-bottom:6px;">Spendlore Vault</div>
+      <div style="font-size:24px; font-weight:800; font-family:'Outfit'; letter-spacing:-0.5px; margin-bottom:6px; color:#FFFFFF;">Spendlore Vault</div>
       <div style="font-size:13px; color:#94A3B8; font-weight:600; margin-bottom:24px;">Biometric Authentication Required</div>
 
       <!-- PIN Code Dots -->
@@ -782,15 +792,15 @@ function getSecurityScreenContent() {
       </div>
       <div style="display:flex; flex-direction:column; gap:14px; font-size:14px; font-weight:700;">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-          <span style="color:#CBD5E1;">🛡️ App Switcher Privacy Screen</span>
+          <span style="display:flex; align-items:center; gap:8px; color:#CBD5E1;"><span style="color:#A78BFA; display:flex; align-items:center;">${ICONS.shieldCheck}</span> App Switcher Privacy Screen</span>
           <span style="color:#34D399;">Active</span>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between;">
-          <span style="color:#CBD5E1;">👁️ One-Click Amount Blur Mask</span>
+          <span style="display:flex; align-items:center; gap:8px; color:#CBD5E1;"><span style="color:#A78BFA; display:flex; align-items:center;">${ICONS.eye}</span> One-Click Amount Blur Mask</span>
           <span style="color:#34D399;">Active</span>
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between;">
-          <span style="color:#CBD5E1;">🔐 Row-Level PostgreSQL Security</span>
+          <span style="display:flex; align-items:center; gap:8px; color:#CBD5E1;"><span style="color:#A78BFA; display:flex; align-items:center;">${ICONS.lock}</span> Row-Level PostgreSQL Security</span>
           <span style="color:#34D399;">Enforced</span>
         </div>
       </div>
@@ -802,72 +812,14 @@ function getSecurityScreenContent() {
 async function buildAllAssets() {
   console.log('=== Starting Professional Spendlore Logo & Google Play Suite Generation ===');
 
-  // 1. Output Master SVG Vectors
+  // 1. Output Master SVG Vectors (if needed)
   console.log('Writing Master SVG Vector Files...');
-  fs.writeFileSync(path.join(publicDir, 'spendlore-mark.svg'), getEmblemSvg(), 'utf-8');
-  fs.writeFileSync(path.join(publicDir, 'spendlore-full-logo.svg'), getFullLogoSvg({ isDark: false }), 'utf-8');
-  fs.writeFileSync(path.join(publicDir, 'spendlore-full-logo-dark.svg'), getFullLogoSvg({ isDark: true }), 'utf-8');
   fs.writeFileSync(path.join(assetsDir, 'logo.svg'), getEmblemSvg(), 'utf-8');
 
   // Launch Playwright Chromium
   const browser = await chromium.launch();
 
-  // 2. Render Google Play Store Icon (512x512 solid white background)
-  console.log('Rendering 512x512 Google Play Store Icon...');
-  const iconPage = await browser.newPage({ viewport: { width: 512, height: 512, deviceScaleFactor: 2 } });
-  await iconPage.setContent(`
-    <!DOCTYPE html><html><body style="margin:0;padding:0;background:#FFFFFF;display:flex;align-items:center;justify-content:center;width:512px;height:512px;">
-      <div style="width:360px;height:360px;">${getEmblemSvg()}</div>
-    </body></html>
-  `);
-  const iconBuf = await iconPage.screenshot();
-  fs.writeFileSync(path.join(publicDir, 'play-store-icon-512.png'), iconBuf);
-  fs.writeFileSync(path.join(assetsDir, 'play-store-icon-512.png'), iconBuf);
-  fs.writeFileSync(path.join(playStoreDir, 'play-store-icon-512.png'), iconBuf);
-  fs.writeFileSync(path.join(publicDir, 'pwa-512x512.png'), iconBuf);
-  fs.writeFileSync(path.join(publicDir, 'favicon.png'), iconBuf);
-  await iconPage.close();
-
-  // 3. Render 1024x1024 App Icon & Splash for Android Native
-  console.log('Rendering 1024x1024 Android Assets...');
-  const logo1024Page = await browser.newPage({ viewport: { width: 1024, height: 1024, deviceScaleFactor: 1 } });
-  await logo1024Page.setContent(`
-    <!DOCTYPE html><html><body style="margin:0;padding:0;background:#FFFFFF;display:flex;align-items:center;justify-content:center;width:1024px;height:1024px;">
-      <div style="width:720px;height:720px;">${getEmblemSvg()}</div>
-    </body></html>
-  `);
-  const logo1024Buf = await logo1024Page.screenshot();
-  fs.writeFileSync(path.join(assetsDir, 'icon.png'), logo1024Buf);
-  fs.writeFileSync(path.join(assetsDir, 'logo.png'), logo1024Buf);
-  fs.writeFileSync(path.join(assetsDir, 'splash.png'), logo1024Buf);
-  fs.writeFileSync(path.join(publicDir, 'spendlore-logo.png'), logo1024Buf);
-  await logo1024Page.close();
-
-  // 4. Render 512x512 Transparent Mark
-  console.log('Rendering 512x512 Transparent Mark...');
-  const markPage = await browser.newPage({ viewport: { width: 512, height: 512, deviceScaleFactor: 2 } });
-  await markPage.setContent(`
-    <!DOCTYPE html><html><body style="margin:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;width:512px;height:512px;">
-      <div style="width:420px;height:420px;">${getEmblemSvg()}</div>
-    </body></html>
-  `);
-  const markBuf = await markPage.screenshot({ omitBackground: true });
-  fs.writeFileSync(path.join(publicDir, 'spendlore-mark.png'), markBuf);
-  await markPage.close();
-
-  // 5. Render 1200x500 Transparent Horizontal Full Logo
-  console.log('Rendering 1200x500 Full Logo...');
-  const fullLogoPage = await browser.newPage({ viewport: { width: 1200, height: 400, deviceScaleFactor: 2 } });
-  await fullLogoPage.setContent(`
-    <!DOCTYPE html><html><body style="margin:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;width:1200px;height:400px;">
-      <div style="width:1200px;height:400px;">${getFullLogoSvg({ isDark: false })}</div>
-    </body></html>
-  `);
-  const fullLogoBuf = await fullLogoPage.screenshot({ omitBackground: true });
-  fs.writeFileSync(path.join(publicDir, 'spendlore-full-logo.png'), fullLogoBuf);
-  await fullLogoPage.close();
-
-  // 6. Render Google Play Feature Graphic (1024 x 500 px)
+  // 1. Render Google Play Feature Graphic (1024 x 500 px)
   console.log('Rendering Google Play Feature Graphic (1024 x 500 px)...');
   const fgPage = await browser.newPage({ viewport: { width: 1024, height: 500, deviceScaleFactor: 1 } });
   await fgPage.setContent(getFeatureGraphicHtml());

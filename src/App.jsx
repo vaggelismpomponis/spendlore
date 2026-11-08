@@ -1649,7 +1649,7 @@ function MainContent() {
                 // Keep the inline HTML loader visible — don't render a React loading screen.
                 // This prevents a second LCP event from being triggered at ~4.5s.
                 // The inline-loader in index.html is already showing the premium loading experience.
-                <div key="app-loader" className="fixed inset-0 z-[9998]" />
+                <div key="app-loader" className="fixed inset-0 z-[9998] bg-[#08070D]" />
             ) : (
                 <motion.div
                     key="app-content"

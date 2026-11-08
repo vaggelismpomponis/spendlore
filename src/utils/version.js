@@ -2,8 +2,8 @@
  * Application Single Source of Truth for Versioning
  * Aligned across package.json, android/app/build.gradle, and all frontend views.
  */
-export const APP_VERSION = '1.1.41';
-export const APP_BUILD_NUMBER = 53;
+export const APP_VERSION = '1.1.42';
+export const APP_BUILD_NUMBER = 54;
 export const APP_RELEASE_YEAR = '2026';
 
 export const getAppVersionString = (language = 'el') => {
