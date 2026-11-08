@@ -15,6 +15,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'play-store-icon-512.png', 'spendlore-logo.png', 'spendlore-mark.png', 'spendlore-mark.svg', 'spendlore-full-logo.png', 'spendlore-full-logo-dark.png', 'spendlore-full-logo.svg', 'spendlore-full-logo-dark.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
+        id: '/',
+        scope: '/',
         name: 'Spendlore',
         short_name: 'Spendlore',
         description: 'Track your income and expenses easily.',
@@ -71,6 +73,11 @@ export default defineConfig({
             ]
           }
         ]
+      },
+      workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
       },
       devOptions: {
         enabled: false

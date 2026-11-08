@@ -137,25 +137,34 @@ if (isNative()) {
     });
 } else if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     // 3. Web PWA production service worker registration
-    // Manually register to catch unhandled promise rejections on unsupported browsers/crawlers
+    // Automatically reload when a new service worker takes over an already-controlled page
+    let refreshing = false;
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (hadController && !refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
+
     const updateSW = registerSW({
         immediate: true,
-        onNeedRefresh() {
-            updateSW(true);
-        },
         onRegisteredSW(swUrl, r) {
             if (r) {
-                window.addEventListener('focus', () => {
+                const checkUpdate = () => {
                     r.update().catch(() => {});
-                });
+                };
+
+                // iOS WebKit PWA resume / unfreeze from BFCache
+                window.addEventListener('pageshow', checkUpdate);
+                window.addEventListener('focus', checkUpdate);
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'visible') {
-                        r.update().catch(() => {});
+                        checkUpdate();
                     }
                 });
-                setInterval(() => {
-                    r.update().catch(() => {});
-                }, 30 * 60 * 1000);
+                // Check periodically every 15 minutes
+                setInterval(checkUpdate, 15 * 60 * 1000);
             }
         },
         onRegisterError(error) {
