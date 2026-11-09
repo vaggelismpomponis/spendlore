@@ -11,6 +11,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.service.notification.NotificationListenerService;
 import android.os.Build;
 import android.util.Log;
 
@@ -23,6 +25,7 @@ public class TransactionPlugin extends Plugin {
     public void load() {
         super.load();
         try {
+            ensureListenerConnected(getContext());
             confirmedReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -54,10 +57,28 @@ public class TransactionPlugin extends Plugin {
         super.handleOnDestroy();
     }
 
+    public static void ensureListenerConnected(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && context != null) {
+            try {
+                String packageName = context.getPackageName();
+                String enabledListeners = android.provider.Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
+                boolean isGranted = enabledListeners != null && enabledListeners.contains(packageName);
+                if (isGranted) {
+                    ComponentName componentName = new ComponentName(context, SMSNotificationListenerService.class);
+                    NotificationListenerService.requestRebind(componentName);
+                    Log.d(TAG, "Requested rebind for SMSNotificationListenerService");
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Failed to requestRebind for SMSNotificationListenerService: " + e.getMessage());
+            }
+        }
+    }
+
     @PluginMethod
     public void getPendingTransactions(PluginCall call) {
         try {
             Context context = getContext();
+            ensureListenerConnected(context);
             SharedPreferences prefs = context.getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
             
             String pendingStr = prefs.getString("pending", "[]");
@@ -123,12 +144,41 @@ public class TransactionPlugin extends Plugin {
             String packageName = context.getPackageName();
             String enabledListeners = android.provider.Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
             boolean isGranted = enabledListeners != null && enabledListeners.contains(packageName);
+            if (isGranted) {
+                ensureListenerConnected(context);
+            }
             
             JSObject result = new JSObject();
             result.put("granted", isGranted);
             call.resolve(result);
         } catch (Exception e) {
             call.reject("Failed to check permission", e);
+        }
+    }
+
+    @PluginMethod
+    public void updateWidget(PluginCall call) {
+        try {
+            Context context = getContext();
+            String amount = call.getString("amount", "—");
+            String label = call.getString("label", "Safe today");
+            boolean isOver = call.getBoolean("isOver", false);
+            boolean hasIncome = call.getBoolean("hasIncome", true);
+
+            SharedPreferences prefs = context.getSharedPreferences(SafeToBurnWidgetProvider.PREFS_NAME, Context.MODE_PRIVATE);
+            prefs.edit()
+                .putString(SafeToBurnWidgetProvider.KEY_AMOUNT, amount)
+                .putString(SafeToBurnWidgetProvider.KEY_LABEL, label)
+                .putBoolean(SafeToBurnWidgetProvider.KEY_IS_OVER, isOver)
+                .putBoolean(SafeToBurnWidgetProvider.KEY_HAS_INCOME, hasIncome)
+                .apply();
+
+            SafeToBurnWidgetProvider.updateAllWidgets(context);
+
+            call.resolve();
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to update widget", e);
+            call.reject("Failed to update widget: " + e.getMessage(), e);
         }
     }
 }

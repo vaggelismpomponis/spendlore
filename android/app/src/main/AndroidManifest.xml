@@ -48,7 +48,7 @@
 
         <service
             android:name=".SMSNotificationListenerService"
-            android:label="MyFinances Notification Listener"
+            android:label="Spendlore Notification Listener"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
             android:exported="true">
             <intent-filter>
@@ -59,6 +59,19 @@
         <receiver
             android:name=".NotificationActionReceiver"
             android:exported="false" />
+
+        <!-- Home Screen Safe-to-Burn AppWidget -->
+        <receiver
+            android:name=".SafeToBurnWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_safe_to_burn_info" />
+        </receiver>
+
         <!-- Default Notification Icon and Color -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

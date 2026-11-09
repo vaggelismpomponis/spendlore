@@ -13,7 +13,9 @@ import {
     Tag,
     FileText,
     Vibrate,
-    RefreshCw
+    RefreshCw,
+    Smartphone,
+    Info
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -23,6 +25,7 @@ import { useToast } from '../contexts/ToastContext';
 import { openNotificationSettings, checkNotificationPermission } from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ProBadge from '../components/ProBadge';
 import Toggle from '../components/Toggle';
@@ -81,11 +84,26 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
         };
     }, []);
 
-    const handleToggleSms = () => {
+    const [showDeviceTip, setShowDeviceTip] = useState(false);
+
+    const handleToggleSms = async () => {
         if (!isPro) {
             openUpgradeModal('sms_reading');
             return;
         }
+
+        // On Android native, request POST_NOTIFICATIONS first so quick action buttons function
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const status = await LocalNotifications.checkPermissions();
+                if (status.display !== 'granted') {
+                    await LocalNotifications.requestPermissions();
+                }
+            } catch (err) {
+                console.warn('Could not request notification permissions:', err);
+            }
+        }
+
         openNotificationSettings();
     };
 
@@ -293,6 +311,47 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                         </div>
                                         <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
                                     </div>
+
+                                    {/* Xiaomi / Battery Optimization Tip for Android Users */}
+                                    {isNative && (
+                                        <div className="px-3.5 py-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200/50 dark:border-white/[0.05]">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDeviceTip(prev => !prev)}
+                                                className="w-full flex items-center justify-between text-left text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <Smartphone size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
+                                                    {isEL ? 'Οδηγός συσκευών Xiaomi / Redmi / POCO' : 'Xiaomi / Redmi / POCO Setup Guide'}
+                                                </span>
+                                                <span className="text-[11px] text-violet-600 dark:text-violet-400 font-bold">
+                                                    {showDeviceTip ? (isEL ? 'Απόκρυψη' : 'Hide') : (isEL ? 'Προβολή' : 'View')}
+                                                </span>
+                                            </button>
+
+                                            {showDeviceTip && (
+                                                <div className="mt-2.5 pt-2.5 border-t border-gray-200/50 dark:border-white/[0.05] space-y-2 text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                    <p>
+                                                        {isEL
+                                                            ? 'Τα λειτουργικά Xiaomi (MIUI / HyperOS) απενεργοποιούν τις υπηρεσίες παρασκηνίου εκτός αν ρυθμιστούν:'
+                                                            : 'Xiaomi devices (MIUI / HyperOS) pause background listener services unless configured:'}
+                                                    </p>
+                                                    <ol className="list-decimal pl-4 space-y-1 font-medium text-gray-700 dark:text-gray-300">
+                                                        <li>
+                                                            {isEL
+                                                                ? 'Κρατήστε πατημένο το εικονίδιο Spendlore ➔ Πληροφορίες εφαρμογής ➔ Ενεργοποιήστε την "Αυτόματη έναρξη" (Autostart).'
+                                                                : 'Long-press Spendlore app icon ➔ App info ➔ Enable "Autostart".'}
+                                                        </li>
+                                                        <li>
+                                                            {isEL
+                                                                ? 'Στην ίδια οθόνη ➔ "Εξοικονόμηση μπαταρίας" ➔ Επιλέξτε "Χωρίς περιορισμούς" (No restrictions).'
+                                                                : 'In the same screen ➔ "Battery saver" ➔ Select "No restrictions".'}
+                                                        </li>
+                                                    </ol>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
 
                                     {/* Haptic Feedback */}
                                     <div

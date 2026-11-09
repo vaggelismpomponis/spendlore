@@ -52,6 +52,16 @@ describe('Transaction Notification Parser', () => {
     });
 
     describe('Marketing & Non-Transaction Alert Filtering (Must Reject)', () => {
+        it('rejects food delivery order progress updates without amounts or payment verbs', () => {
+            const data = {
+                title: 'Your order will be delivered soon • now',
+                text: 'Your order from Kiss the Frog is ready! Our driver is on the way.',
+                packageName: 'com.wolt.android'
+            };
+            expect(isTransactionNotification(data)).toBe(false);
+            expect(parseNotificationTransaction(data).isValidTransaction).toBe(false);
+        });
+
         it('rejects Revolut referral marketing alerts', () => {
             const data = {
                 title: 'Revolut',
@@ -109,6 +119,35 @@ describe('Transaction Notification Parser', () => {
     });
 
     describe('Valid Transaction Parsing (Must Accept & Parse Correctly)', () => {
+        it('parses real-world Wolt purchase with elapsed time suffix and Ticket Restaurant card', () => {
+            const data = {
+                title: 'Wolt • 7m',
+                text: '€6.23 with Ticket Restaurant® ••2331',
+                packageName: 'com.google.android.gms'
+            };
+            const parsed = parseNotificationTransaction(data);
+            expect(parsed.isValidTransaction).toBe(true);
+            expect(parsed.amount).toBe(6.23);
+            expect(parsed.currency).toBe('EUR');
+            expect(parsed.type).toBe('expense');
+            expect(parsed.category).toBe('Φαγητό');
+            expect(parsed.merchant).toBe('Wolt');
+            expect(parsed.sourceName).toBe('Google Pay');
+        });
+
+        it('parses real-world Wolt purchase posted directly by Wolt app', () => {
+            const data = {
+                title: 'Wolt • now',
+                text: '€6.23 with Ticket Restaurant® ••2331',
+                packageName: 'com.wolt.android'
+            };
+            const parsed = parseNotificationTransaction(data);
+            expect(parsed.isValidTransaction).toBe(true);
+            expect(parsed.amount).toBe(6.23);
+            expect(parsed.category).toBe('Φαγητό');
+            expect(parsed.merchant).toBe('Wolt');
+        });
+
         it('parses Google Wallet real-world Wolt purchase with Ticket Restaurant', () => {
             const data = {
                 title: 'Wolt',

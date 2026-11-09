@@ -3,14 +3,16 @@ import { ArrowLeft, Hourglass, Plus } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { calculateCoolingOffStats } from '../utils/coolingOff';
+import { calculateCoolingOffStats, denormalizeCoolingOffItem } from '../utils/coolingOff';
+import { supabase } from '../supabase';
+import { isNetworkError } from '../services/SyncService';
 import CoolingOffStats from '../components/CoolingOffStats';
 import CoolingOffItem from '../components/CoolingOffItem';
 import CoolingOffModal from '../components/CoolingOffModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { hapticSaveSuccess, hapticImpactLight } from '../utils/haptics';
 
-const CoolingOffView = ({ onBack, onAddTransaction, hideHeader = false }) => {
+const CoolingOffView = ({ user, onBack, onAddTransaction, hideHeader = false }) => {
     const { t, language } = useSettings();
     const isEL = language === 'el';
     const { showToast } = useToast();
@@ -28,36 +30,128 @@ const CoolingOffView = ({ onBack, onAddTransaction, hideHeader = false }) => {
     const activeList = items.filter(i => i.status === 'active');
     const historyList = items.filter(i => i.status === 'passed' || i.status === 'bought');
 
-    const handlePass = (id) => {
-        const target = items.find(i => i.id === id);
-        updateItem(id, { status: 'passed', decidedAt: new Date().toISOString(), savedAmount: target?.amount || 0 });
-        hapticSaveSuccess();
-        showToast(isEL ? '🎉 Γλίτωσες τα χρήματα από μία παρορμητική αγορά!' : '🎉 You saved money from an impulse purchase!', 'success');
+    const handleAddItem = async (item) => {
+        addItem(item);
+        try {
+            const uid = user?.id || (await supabase.auth.getUser())?.data?.user?.id;
+            if (uid) {
+                const dbPayload = denormalizeCoolingOffItem(item, uid);
+                const { error } = await supabase.from('cooling_off_items').insert(dbPayload);
+                if (error && isNetworkError(error)) {
+                    useAppStore.getState().addToSyncQueue({
+                        action: 'insert',
+                        entity: 'cooling_off_items',
+                        payload: dbPayload,
+                        localId: item.id
+                    });
+                }
+            }
+        } catch {
+            // keep optimistic
+        }
     };
 
-    const handleBuy = (item) => {
-        updateItem(item.id, { status: 'bought', decidedAt: new Date().toISOString() });
+    const handlePass = async (id) => {
+        const target = items.find(i => i.id === id);
+        const decidedAt = new Date().toISOString();
+        const savedAmount = target?.amount || 0;
+        updateItem(id, { status: 'passed', decidedAt, savedAmount });
+        hapticSaveSuccess();
+        showToast(isEL ? '🎉 Γλίτωσες τα χρήματα από μία παρορμητική αγορά!' : '🎉 You saved money from an impulse purchase!', 'success');
+
+        try {
+            const { error } = await supabase
+                .from('cooling_off_items')
+                .update({ status: 'passed', decided_at: decidedAt, saved_amount: savedAmount })
+                .eq('id', id);
+            if (error && isNetworkError(error)) {
+                useAppStore.getState().addToSyncQueue({
+                    action: 'update',
+                    entity: 'cooling_off_items',
+                    targetId: id,
+                    payload: { status: 'passed', decided_at: decidedAt, saved_amount: savedAmount }
+                });
+            }
+        } catch {
+            // keep optimistic
+        }
+    };
+
+    const handleBuy = async (item) => {
+        const decidedAt = new Date().toISOString();
+        updateItem(item.id, { status: 'bought', decidedAt });
         if (typeof onAddTransaction === 'function') {
             onAddTransaction({ type: 'expense', amount: item.amount, category: item.category || 'Άλλο', note: `${item.note || ''} (72h Rule)`.trim() });
         }
         hapticSaveSuccess();
         showToast(isEL ? 'Η συναλλαγή καταχωρήθηκε στα έξοδά σας.' : 'Transaction added to your expenses.', 'info');
+
+        try {
+            const { error } = await supabase
+                .from('cooling_off_items')
+                .update({ status: 'bought', decided_at: decidedAt })
+                .eq('id', item.id);
+            if (error && isNetworkError(error)) {
+                useAppStore.getState().addToSyncQueue({
+                    action: 'update',
+                    entity: 'cooling_off_items',
+                    targetId: item.id,
+                    payload: { status: 'bought', decided_at: decidedAt }
+                });
+            }
+        } catch {
+            // keep optimistic
+        }
     };
 
-    const handleExtend = (id, extraHours = 24) => {
+    const handleExtend = async (id, extraHours = 24) => {
         const target = items.find(i => i.id === id);
         if (!target) return;
         const newExp = new Date(Math.max(Date.now(), new Date(target.expiresAt).getTime()) + extraHours * 3600 * 1000).toISOString();
         updateItem(id, { expiresAt: newExp });
         hapticImpactLight();
         showToast(isEL ? `Παράταση αναμονής +${extraHours} ώρες!` : `Cooling-off extended by +${extraHours}h!`, 'info');
+
+        try {
+            const { error } = await supabase
+                .from('cooling_off_items')
+                .update({ expires_at: newExp })
+                .eq('id', id);
+            if (error && isNetworkError(error)) {
+                useAppStore.getState().addToSyncQueue({
+                    action: 'update',
+                    entity: 'cooling_off_items',
+                    targetId: id,
+                    payload: { expires_at: newExp }
+                });
+            }
+        } catch {
+            // keep optimistic
+        }
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (!itemToDelete) return;
-        removeItem(itemToDelete.id);
+        const targetId = itemToDelete.id;
+        removeItem(targetId);
         showToast(isEL ? 'Η επιθυμία διαγράφηκε.' : 'Item removed.', 'info');
         setItemToDelete(null);
+
+        try {
+            const { error } = await supabase
+                .from('cooling_off_items')
+                .delete()
+                .eq('id', targetId);
+            if (error && isNetworkError(error)) {
+                useAppStore.getState().addToSyncQueue({
+                    action: 'delete',
+                    entity: 'cooling_off_items',
+                    targetId
+                });
+            }
+        } catch {
+            // keep optimistic
+        }
     };
 
     const currentList = activeTab === 'active' ? activeList : historyList;
@@ -137,7 +231,7 @@ const CoolingOffView = ({ onBack, onAddTransaction, hideHeader = false }) => {
                 </div>
             </div>
 
-            <CoolingOffModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={addItem} />
+            <CoolingOffModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddItem} />
 
             <ConfirmationModal
                 isOpen={Boolean(itemToDelete)}

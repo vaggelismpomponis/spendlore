@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Build;
 import android.content.SharedPreferences;
 import android.content.Context;
+import android.content.ComponentName;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import org.json.JSONArray;
@@ -62,8 +63,11 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     // Whitelisted banking, digital wallet & SMS packages
     private static final String[] ALLOWED_PACKAGES = {
         // Digital Wallets & Fintech
+        "com.google.android.gms",
         "com.google.android.apps.walletnfcrel",
         "com.google.android.apps.wallet",
+        "com.google.android.apps.gpay",
+        "com.google.android.apps.nfc.payment",
         "com.samsung.android.spay",
         "com.samsung.android.raja.spay",
         "com.revolut.revolut",
@@ -76,16 +80,49 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         "co.starlingbank.android",
         "com.bunq.android",
 
+        // Food Delivery & Mobility
+        "com.wolt.android",
+        "gr.efood",
+        "com.efood",
+        "gr.cosmote.box",
+        "com.cosmote.box",
+        "com.ubercab",
+        "taxi.android.client",
+        "ee.mtakso.client",
+
+        // Voucher, Meal & Benefit Cards
+        "fr.edenred.myedenred",
+        "com.edenred.ticketrestaurant",
+        "com.edenred.gr",
+        "com.edenred.greece",
+        "com.edenred",
+        "com.ticketrestaurant",
+        "com.sodexo",
+        "com.pluxee",
+        "com.pluxee.gr",
+        "com.pluxee.greece",
+        "com.uphellas",
+        "gr.uphellas",
+        "com.up.chequedejeuner",
+
         // Greek Banks & Fintech
         "gr.winbank.mobile",
         "com.winbank.mobile",
+        "gr.winbank.pay",
         "gr.alphabank.myalphamobile",
         "gr.alphabank.alpha",
+        "gr.alphabank.wallet",
         "gr.eurobank.ebanking",
+        "gr.eurobank.mobile",
         "gr.nbg.mobilebanking",
+        "gr.nbg.nbgmobilebanking",
         "com.vivawallet.consumer",
         "com.vivawallet",
         "com.vivawallet.wallet",
+        "com.vivawallet.merchant",
+        "gr.payzy.app",
+        "gr.payzy",
+        "com.cosmote.payzy",
         "gr.optimabank.mobile",
         "gr.atticabank.mobile",
 
@@ -172,6 +209,26 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+    }
+
+    @Override
+    public void onListenerConnected() {
+        super.onListenerConnected();
+        Log.i(TAG, "SMSNotificationListenerService connected successfully");
+    }
+
+    @Override
+    public void onListenerDisconnected() {
+        super.onListenerDisconnected();
+        Log.w(TAG, "SMSNotificationListenerService disconnected! Requesting rebind...");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                requestRebind(new ComponentName(this, SMSNotificationListenerService.class));
+                Log.i(TAG, "Rebind requested for SMSNotificationListenerService");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to requestRebind onListenerDisconnected", e);
+            }
+        }
     }
 
     private void createNotificationChannel() {
@@ -299,8 +356,10 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             }
         }
 
-        // 3. Generic financial heuristic
-        if (p.contains("bank") || p.contains("wallet") || p.contains("fintech") || p.contains("card")) {
+        // 3. Generic financial, food delivery, vouchers & payment heuristic
+        if (p.contains("bank") || p.contains("wallet") || p.contains("fintech") || p.contains("card") ||
+            p.contains("wolt") || p.contains("efood") || p.contains("edenred") || p.contains("ticketrestaurant") ||
+            p.contains("payzy") || p.contains("pluxee") || p.contains("sodexo") || p.contains("uphellas")) {
             return true;
         }
         if (p.contains("pay") && !p.contains("play") && !p.contains("player") && !p.contains("game")) {
@@ -313,7 +372,9 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     private boolean isWalletPackage(String pkg) {
         if (pkg == null) return false;
         String p = pkg.toLowerCase();
-        return p.contains("wallet") || p.contains("gpay") || p.contains("spay") || (p.contains("pay") && !p.contains("play"));
+        return p.contains("wallet") || p.contains("gpay") || p.contains("spay") || p.contains("gms") ||
+               p.contains("wolt") || p.contains("edenred") || p.contains("ticketrestaurant") ||
+               p.contains("payzy") || (p.contains("pay") && !p.contains("play"));
     }
 
     private boolean isSmsPackage(String pkg) {
@@ -495,11 +556,15 @@ public class SMSNotificationListenerService extends NotificationListenerService 
 
     private String extractMerchantName(String title, String combined, String packageName) {
         String cleanTitle = (title != null) ? title.trim() : "";
+        // Strip elapsed time suffixes e.g. " • 7m", " · 2h", " • now", " · τώρα"
+        cleanTitle = cleanTitle.replaceAll("\\s*[•·-]\\s*\\d+\\s*(?:m|min|h|s|sec|τώρα|now|πριν)\\b.*$", "").trim();
+        cleanTitle = cleanTitle.replaceAll("\\s*[•·-]\\s*(?:now|τώρα)\\b.*$", "").trim();
         String lowerTitle = cleanTitle.toLowerCase();
 
         // 1. If title is a known merchant (not just the bank or system app)
         if (!cleanTitle.isEmpty() && !lowerTitle.contains("wallet") && !lowerTitle.contains("bank") &&
-            !lowerTitle.contains("revolut") && !lowerTitle.contains("messages") && !lowerTitle.contains("sms")) {
+            !lowerTitle.contains("revolut") && !lowerTitle.contains("messages") && !lowerTitle.contains("sms") &&
+            !lowerTitle.contains("google play") && !lowerTitle.contains("google services")) {
             return cleanTitle;
         }
 

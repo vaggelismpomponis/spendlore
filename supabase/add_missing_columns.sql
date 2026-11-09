@@ -29,3 +29,34 @@ BEGIN
         ALTER TABLE public.transactions ADD COLUMN splits JSONB;
     END IF;
 END $$;
+
+-- Ensure cooling_off_items table exists with RLS for personal 72-hour rules
+CREATE TABLE IF NOT EXISTS public.cooling_off_items (
+    id TEXT PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    title TEXT NOT NULL,
+    amount NUMERIC NOT NULL,
+    category TEXT DEFAULT 'Άλλο',
+    note TEXT DEFAULT '',
+    duration_hours INT DEFAULT 72,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    expires_at TIMESTAMPTZ NOT NULL,
+    status TEXT DEFAULT 'active' CHECK (status IN ('active', 'passed', 'bought')),
+    decided_at TIMESTAMPTZ,
+    saved_amount NUMERIC DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_cooling_off_items_user_id ON public.cooling_off_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_cooling_off_items_status ON public.cooling_off_items(status);
+CREATE INDEX IF NOT EXISTS idx_cooling_off_items_expires_at ON public.cooling_off_items(expires_at);
+
+ALTER TABLE public.cooling_off_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can manage own cooling_off_items" ON public.cooling_off_items;
+CREATE POLICY "Users can manage own cooling_off_items"
+    ON public.cooling_off_items
+    FOR ALL
+    TO authenticated
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+

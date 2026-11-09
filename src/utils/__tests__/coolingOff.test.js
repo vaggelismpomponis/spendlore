@@ -3,7 +3,9 @@ import {
     DEFAULT_COOLING_OFF_HOURS,
     createCoolingOffItem,
     getTimeRemaining,
-    calculateCoolingOffStats
+    calculateCoolingOffStats,
+    normalizeCoolingOffItem,
+    denormalizeCoolingOffItem
 } from '../coolingOff';
 
 describe('coolingOff utility', () => {
@@ -102,6 +104,57 @@ describe('coolingOff utility', () => {
         expect(stats.totalSaved).toBe(0);
         expect(stats.activeCount).toBe(0);
         expect(stats.successRate).toBe(0);
+    });
+
+    it('normalizes database snake_case row to frontend camelCase object', () => {
+        const dbRow = {
+            id: 'co_123',
+            user_id: 'user_abc_456',
+            title: 'Mechanical Keyboard',
+            amount: '129.50',
+            category: 'Τεχνολογία',
+            note: 'Brown switches',
+            duration_hours: 48,
+            created_at: '2026-11-09T00:00:00.000Z',
+            expires_at: '2026-11-11T00:00:00.000Z',
+            status: 'active',
+            decided_at: null,
+            saved_amount: 0
+        };
+
+        const item = normalizeCoolingOffItem(dbRow);
+        expect(item.id).toBe('co_123');
+        expect(item.user_id).toBe('user_abc_456');
+        expect(item.amount).toBe(129.5);
+        expect(item.durationHours).toBe(48);
+        expect(item.createdAt).toBe('2026-11-09T00:00:00.000Z');
+        expect(item.expiresAt).toBe('2026-11-11T00:00:00.000Z');
+        expect(item.savedAmount).toBe(0);
+    });
+
+    it('denormalizes frontend camelCase item to Supabase snake_case row with user_id', () => {
+        const item = {
+            id: 'co_789',
+            title: 'Wireless Earbuds',
+            amount: 89.9,
+            category: 'Μουσική',
+            note: 'Sale ends tomorrow',
+            durationHours: 72,
+            createdAt: '2026-11-09T01:00:00.000Z',
+            expiresAt: '2026-11-12T01:00:00.000Z',
+            status: 'passed',
+            decidedAt: '2026-11-12T01:05:00.000Z',
+            savedAmount: 89.9
+        };
+
+        const row = denormalizeCoolingOffItem(item, 'user_target_999');
+        expect(row.id).toBe('co_789');
+        expect(row.user_id).toBe('user_target_999');
+        expect(row.duration_hours).toBe(72);
+        expect(row.created_at).toBe('2026-11-09T01:00:00.000Z');
+        expect(row.expires_at).toBe('2026-11-12T01:00:00.000Z');
+        expect(row.saved_amount).toBe(89.9);
+        expect(row.decided_at).toBe('2026-11-12T01:05:00.000Z');
     });
 });
 

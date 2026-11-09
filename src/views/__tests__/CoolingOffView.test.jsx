@@ -3,6 +3,7 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CoolingOffView from '../CoolingOffView';
 import { useAppStore } from '../../store/useAppStore';
+import { supabase } from '../../supabase';
 
 vi.mock('../../contexts/SettingsContext', () => ({
     useSettings: () => ({ language: 'el', t: (k) => k, customCategories: { expense: ['Gaming Gadgets'] } })
@@ -171,6 +172,32 @@ describe('CoolingOffView', () => {
 
         const state = useAppStore.getState();
         expect(state.coolingOffItems.length).toBe(0);
+    });
+
+    it('persists item deletion and updates to Supabase cooling_off_items table', () => {
+        const mockUser = { id: 'user-777', email: 'test@spendlore.app' };
+        const mockItems = [
+            {
+                id: 'co_sync',
+                title: 'Bose Headphones',
+                amount: 320,
+                category: 'Διασκέδαση',
+                status: 'active',
+                expiresAt: new Date(Date.now() + 100000).toISOString()
+            }
+        ];
+        useAppStore.setState({ coolingOffItems: mockItems });
+
+        render(<CoolingOffView user={mockUser} onBack={vi.fn()} onAddTransaction={vi.fn()} />);
+
+        const deleteBtn = screen.getByTitle('Διαγραφή');
+        fireEvent.click(deleteBtn);
+
+        const dialog = screen.getByRole('dialog');
+        const confirmBtn = within(dialog).getByRole('button', { name: 'Διαγραφή' });
+        fireEvent.click(confirmBtn);
+
+        expect(supabase.from).toHaveBeenCalledWith('cooling_off_items');
     });
 });
 

@@ -42,6 +42,48 @@ export const createCoolingOffItem = ({
 };
 
 /**
+ * Normalizes a database row from Supabase (snake_case) into frontend camelCase format.
+ */
+export const normalizeCoolingOffItem = (row = {}) => {
+    if (!row) return null;
+    return {
+        id: row.id,
+        user_id: row.user_id,
+        title: row.title || '',
+        amount: Math.max(0, Number(row.amount) || 0),
+        category: row.category || 'Άλλο',
+        note: row.note || '',
+        durationHours: Number(row.duration_hours ?? row.durationHours ?? DEFAULT_COOLING_OFF_HOURS),
+        createdAt: row.created_at ?? row.createdAt ?? new Date().toISOString(),
+        expiresAt: row.expires_at ?? row.expiresAt ?? new Date().toISOString(),
+        status: row.status || 'active',
+        decidedAt: row.decided_at ?? row.decidedAt ?? null,
+        savedAmount: Math.max(0, Number(row.saved_amount ?? row.savedAmount ?? 0))
+    };
+};
+
+/**
+ * Denormalizes a frontend cooling-off item into a Supabase database row (snake_case).
+ */
+export const denormalizeCoolingOffItem = (item = {}, userId) => {
+    if (!item) return null;
+    return {
+        id: item.id,
+        user_id: userId || item.user_id,
+        title: (item.title || '').trim(),
+        amount: Math.max(0, Number(item.amount) || 0),
+        category: item.category || 'Άλλο',
+        note: (item.note || '').trim(),
+        duration_hours: Number(item.durationHours ?? item.duration_hours ?? DEFAULT_COOLING_OFF_HOURS),
+        created_at: item.createdAt ?? item.created_at ?? new Date().toISOString(),
+        expires_at: item.expiresAt ?? item.expires_at ?? new Date().toISOString(),
+        status: item.status || 'active',
+        decided_at: item.decidedAt ?? item.decided_at ?? null,
+        saved_amount: Math.max(0, Number(item.savedAmount ?? item.saved_amount ?? 0))
+    };
+};
+
+/**
  * Calculates time remaining until cooling-off expires.
  */
 export const getTimeRemaining = (expiresAt, nowMs = Date.now()) => {
@@ -90,14 +132,18 @@ export const calculateCoolingOffStats = (items = []) => {
 
         if (item.status === 'passed') {
             passedCount += 1;
-            totalSaved += (item.savedAmount !== undefined && item.savedAmount !== null ? Number(item.savedAmount) : amt);
+            const saved = item.savedAmount !== undefined && item.savedAmount !== null
+                ? Number(item.savedAmount)
+                : (item.saved_amount !== undefined && item.saved_amount !== null ? Number(item.saved_amount) : amt);
+            totalSaved += saved;
         } else if (item.status === 'bought') {
             boughtCount += 1;
         } else if (item.status === 'active') {
             activeCount += 1;
             activeTotalAmount += amt;
 
-            if (item.expiresAt && new Date(item.expiresAt).getTime() <= now) {
+            const exp = item.expiresAt || item.expires_at;
+            if (exp && new Date(exp).getTime() <= now) {
                 readyForDecisionCount += 1;
             }
         }

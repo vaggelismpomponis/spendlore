@@ -114,6 +114,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onResume() {
         super.onResume();
+        TransactionPlugin.ensureListenerConnected(this);
         if (appUpdateManager != null) {
             appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
                 if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {

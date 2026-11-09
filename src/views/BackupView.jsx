@@ -89,12 +89,14 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                 { data: transactions },
                 { data: goals },
                 { data: budgets },
-                { data: recurring }
+                { data: recurring },
+                { data: coolingOff }
             ] = await Promise.all([
                 supabase.from('transactions').select('*').eq('user_id', user.id),
                 supabase.from('goals').select('*').eq('user_id', user.id),
                 supabase.from('budgets').select('*').eq('user_id', user.id),
                 supabase.from('recurring_transactions').select('*').eq('user_id', user.id),
+                supabase.from('cooling_off_items').select('*').eq('user_id', user.id),
             ]);
 
             const backup = {
@@ -108,6 +110,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                     goalsCount: (goals || []).length,
                     budgetsCount: (budgets || []).length,
                     recurringCount: (recurring || []).length,
+                    coolingOffCount: (coolingOff || []).length,
                 },
                 settings: {
                     currency,
@@ -119,6 +122,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                 goals: goals || [],
                 budgets: budgets || [],
                 recurringTransactions: recurring || [],
+                coolingOffItems: coolingOff || [],
             };
 
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
@@ -179,7 +183,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
 
         try {
             const uid = user.id;
-            const { transactions = [], goals = [], budgets = [], recurringTransactions = [] } = parsedBackup;
+            const { transactions = [], goals = [], budgets = [], recurringTransactions = [], coolingOffItems = [] } = parsedBackup;
 
             /* Strip IDs and old user_id, assign current user */
             const strip = (items) =>
@@ -192,6 +196,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
                     supabase.from('goals').delete().eq('user_id', uid),
                     supabase.from('budgets').delete().eq('user_id', uid),
                     supabase.from('recurring_transactions').delete().eq('user_id', uid),
+                    supabase.from('cooling_off_items').delete().eq('user_id', uid),
                 ]);
             }
 
@@ -209,6 +214,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
             await batchInsert('goals', strip(goals));
             await batchInsert('budgets', strip(budgets));
             await batchInsert('recurring_transactions', strip(recurringTransactions));
+            await batchInsert('cooling_off_items', strip(coolingOffItems));
 
             // Restore custom categories if present in backup settings
             const importedCats = parsedBackup.settings?.customCategories;

@@ -33,6 +33,8 @@ import { isLandingDomain } from './utils/platform';
 import { getCategoryTranslation } from './utils/categoryTranslations';
 import { useAppStore } from './store/useAppStore';
 import { isNetworkError, processSyncQueue, initSyncListeners } from './services/SyncService';
+import { updateNativeWidget } from './services/widgetService';
+import { normalizeCoolingOffItem, denormalizeCoolingOffItem } from './utils/coolingOff';
 
 // Components
 import LoginView from './views/LoginView';
@@ -1254,6 +1256,72 @@ function MainContent() {
         return () => supabase.removeChannel(channel);
     }, [user]);
 
+    // 2.7 Fetch & Sync Cooling-off Wishlist Items from Supabase (Personal per Account)
+    useEffect(() => {
+        if (!user) {
+            useAppStore.getState().setCoolingOffItems([]);
+            return;
+        }
+
+        const fetchCoolingOff = async (retries = 3) => {
+            try {
+                const { data, error } = await supabase
+                    .from('cooling_off_items')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    if (error.code === '42P01' || error.message?.includes('does not exist')) {
+                        return;
+                    }
+                    if (retries > 0 && (error.name === 'AbortError' || error.message?.includes('Lock broken'))) {
+                        setTimeout(() => fetchCoolingOff(retries - 1), 300);
+                        return;
+                    }
+                    logger.error('Failed to fetch cooling off items', error, 'App');
+                } else if (Array.isArray(data)) {
+                    if (data.length > 0) {
+                        const normalized = data.map(normalizeCoolingOffItem);
+                        useAppStore.getState().setCoolingOffItems(normalized);
+                    } else {
+                        // If cloud has 0 items but local store has pre-existing unassigned items, sync them to user's cloud
+                        const currentLocal = useAppStore.getState().coolingOffItems || [];
+                        const unassigned = currentLocal.filter(item => !item.user_id || item.user_id === user.id);
+                        if (unassigned.length > 0) {
+                            const payloads = unassigned.map(item => denormalizeCoolingOffItem(item, user.id));
+                            supabase.from('cooling_off_items').insert(payloads).then(({ error: insertErr }) => {
+                                if (!insertErr) {
+                                    useAppStore.getState().setCoolingOffItems(unassigned.map(i => ({ ...i, user_id: user.id })));
+                                }
+                            });
+                        } else {
+                            useAppStore.getState().setCoolingOffItems([]);
+                        }
+                    }
+                }
+            } catch (err) {
+                logger.error('Failed to fetch cooling off items', err, 'App');
+            }
+        };
+
+        fetchCoolingOff();
+
+        const channel = supabase
+            .channel(`cooling-off-changes-${user.id}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'cooling_off_items',
+                filter: `user_id=eq.${user.id}`
+            }, () => {
+                fetchCoolingOff();
+            })
+            .subscribe();
+
+        return () => supabase.removeChannel(channel);
+    }, [user]);
+
     // 3. Process Recurring Transactions
     useEffect(() => {
         if (!user) return;
@@ -1346,6 +1414,23 @@ function MainContent() {
 
     const totalIncome = useMemo(() => transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0), [transactions]);
     const totalExpense = useMemo(() => transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0), [transactions]);
+
+    // Sync latest Safe-to-Burn calculation with native Android Home Screen Widget
+    useEffect(() => {
+        if (!Capacitor.isNativePlatform()) return;
+        try {
+            const stb = useAppStore.getState().getSafeToBurn({ transactions, balance });
+            updateNativeWidget({
+                stb: stb?.stb,
+                todayStartingBudget: stb?.todayStartingBudget,
+                todaySpend: stb?.todaySpend,
+                currency,
+                language
+            });
+        } catch {
+            // ignore widget sync errors
+        }
+    }, [transactions, balance, currency, language]);
 
     const checkBudgetThresholds = async (transaction) => {
         if (transaction.type !== 'expense') return;

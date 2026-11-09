@@ -16,11 +16,13 @@ import { matchMerchantRule } from './merchantRules';
 // Known financial source identifiers
 const SOURCE_PATTERNS = [
     { key: 'revolut', name: 'Revolut', regex: /revolut/i },
-    { key: 'google_pay', name: 'Google Pay', regex: /google\s*(?:pay|wallet)|gpay|walletnfcrel/i },
+    { key: 'google_pay', name: 'Google Pay', regex: /google\s*(?:pay|wallet)|gpay|walletnfcrel|android\.gms/i },
     { key: 'apple_pay', name: 'Apple Pay', regex: /apple\s*pay/i },
     { key: 'samsung_pay', name: 'Samsung Pay', regex: /samsung\s*(?:pay|wallet)|spay/i },
     { key: 'paypal', name: 'PayPal', regex: /paypal/i },
     { key: 'wise', name: 'Wise', regex: /transferwise|wise/i },
+    { key: 'ticket_restaurant', name: 'Ticket Restaurant', regex: /ticket\s*restaurant|edenred/i },
+    { key: 'payzy', name: 'Payzy', regex: /payzy/i },
     { key: 'winbank', name: 'Winbank', regex: /winbank|piraeus|πειραιως|πειραιώς/i },
     { key: 'alpha_bank', name: 'Alpha Bank', regex: /alpha\s*bank|alphabank|άλφα\s*bank/i },
     { key: 'eurobank', name: 'Eurobank', regex: /eurobank|γιουρομπανκ/i },
@@ -195,11 +197,23 @@ export const extractTransactionType = (text = '') => {
 };
 
 /**
+ * Cleans elapsed notification time suffixes like " • 7m", " · 2h", " • now", " · τώρα"
+ */
+export const cleanElapsedSuffix = (str = '') => {
+    if (!str) return '';
+    return str
+        .replace(/\s*[•·-]\s*\d+\s*(?:m|min|h|s|sec|τώρα|now|πριν)\b.*$/i, '')
+        .replace(/\s*[•·-]\s*(?:now|τώρα)\b.*$/i, '')
+        .trim();
+};
+
+/**
  * Extracts clean merchant or counterparty name
  */
 export const extractMerchant = (rawText = '', title = '', sourceName = '') => {
-    const t = (title || '').trim();
-    const r = (rawText || '').trim();
+    const rawClean = (rawText || '').trim();
+    const t = cleanElapsedSuffix(title);
+    const r = rawClean;
 
     // Don't duplicate title if it's already in rawText or if title is the bank/wallet app name
     const isSourceTitle = SOURCE_PATTERNS.some(s => s.regex.test(t)) || /notification|messages|sms/i.test(t);
@@ -246,8 +260,8 @@ export const extractMerchant = (rawText = '', title = '', sourceName = '') => {
     }
 
     // Fallback: If title contains merchant name and title isn't just the bank
-    if (title && !SOURCE_PATTERNS.some(s => s.regex.test(title)) && !/notification|messages|sms/i.test(title)) {
-        return title.trim();
+    if (t && !SOURCE_PATTERNS.some(s => s.regex.test(t)) && !/notification|messages|sms/i.test(t)) {
+        return t;
     }
 
     return sourceName || 'Bank Transaction';
@@ -332,7 +346,7 @@ export const parseNotificationTransaction = (rawNotification = {}, userRules = [
         return { isValidTransaction: false, reason: 'Empty notification' };
     }
 
-    const title = (rawNotification.title || '').trim();
+    const title = cleanElapsedSuffix((rawNotification.title || '').trim());
     const text = (rawNotification.text || '').trim();
     const bigText = (rawNotification.bigText || '').trim();
     const subText = (rawNotification.subText || '').trim();

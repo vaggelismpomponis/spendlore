@@ -4,6 +4,20 @@ import { getBillingService } from '../services/billing';
 
 const SubscriptionContext = createContext(null);
 
+export const isAdminUser = (u) => {
+  if (!u) return false;
+  return (
+    u.id === '86177767-e1f2-4356-b98b-e43503cab0da' ||
+    u.role === 'admin' ||
+    u.app_metadata?.role === 'admin' ||
+    u.user_metadata?.role === 'admin' ||
+    u.email === 'vaggelisbobonhs@gmail.com' ||
+    u.email === 'spendwisegr@gmail.com' ||
+    u.email === 'ebomponis@gmail.com' ||
+    u.email === 'vaggelismpomponis@gmail.com'
+  );
+};
+
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {
@@ -25,7 +39,10 @@ export const useSubscription = () => {
 };
 
 export const SubscriptionProvider = ({ user, children }) => {
+  const isAdmin = isAdminUser(user);
+
   const [isPro, setIsPro] = useState(() => {
+    if (isAdmin) return true;
     if (user) {
       const cached = localStorage.getItem(`isPro_${user.id}`);
       return cached === 'true';
@@ -33,6 +50,7 @@ export const SubscriptionProvider = ({ user, children }) => {
     return false;
   });
   const [subscriptionStatus, setSubscriptionStatus] = useState(() => {
+    if (isAdmin) return 'pro';
     if (user) {
       return localStorage.getItem(`subStatus_${user.id}`) || 'free';
     }
@@ -54,6 +72,7 @@ export const SubscriptionProvider = ({ user, children }) => {
   };
 
   const checkProStatus = (status, expiry) => {
+    if (isAdmin) return true;
     if (status === 'pro') {
       if (!expiry) return true;
       return new Date(expiry) > new Date();
@@ -62,14 +81,15 @@ export const SubscriptionProvider = ({ user, children }) => {
   };
 
   const updateSubscriptionState = (status, expiry) => {
-    const pro = checkProStatus(status, expiry);
-    setSubscriptionStatus(status);
+    const pro = isAdmin || checkProStatus(status, expiry);
+    const finalStatus = isAdmin ? 'pro' : status;
+    setSubscriptionStatus(finalStatus);
     setSubscriptionExpiry(expiry);
     setIsPro(pro);
 
     if (user) {
       localStorage.setItem(`isPro_${user.id}`, pro.toString());
-      localStorage.setItem(`subStatus_${user.id}`, status || 'free');
+      localStorage.setItem(`subStatus_${user.id}`, finalStatus || 'free');
       if (expiry) localStorage.setItem(`subExpiry_${user.id}`, expiry);
       else localStorage.removeItem(`subExpiry_${user.id}`);
     }

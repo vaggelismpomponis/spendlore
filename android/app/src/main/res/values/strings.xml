@@ -10,4 +10,6 @@
     <string name="shortcut_add_expense_long">Add Expense</string>
     <string name="shortcut_add_income_short">Income</string>
     <string name="shortcut_add_income_long">Add Income</string>
+    <string name="widget_safe_to_burn_name">Safe-to-Burn</string>
+    <string name="widget_safe_to_burn_description">Displays your daily safe-to-burn spending allowance with a 1-second quick add button.</string>
 </resources>
