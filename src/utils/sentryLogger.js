@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import { isUserCancellationError } from './authErrors';
 
 const STORAGE_KEY = 'spendlore_sentry_errors';
 const MAX_LOCAL_LOGS = 150;
@@ -16,7 +17,13 @@ class SentryLogger {
             if (raw) {
                 const parsed = JSON.parse(raw);
                 if (Array.isArray(parsed)) {
-                    this.memoryLogs = parsed;
+                    // Filter out any user cancellations or non-actionable aborted errors
+                    this.memoryLogs = parsed.filter(item => 
+                        !isUserCancellationError(item) &&
+                        !isUserCancellationError(item?.message) &&
+                        !isUserCancellationError(item?.stack)
+                    );
+                    this.saveLocalLogs();
                 }
             }
         } catch (e) {
@@ -47,6 +54,15 @@ class SentryLogger {
         stack = null
     }) {
         try {
+            // Suppress user cancellation flows (e.g. Google Sign-In closed/backed out)
+            if (
+                isUserCancellationError(error) ||
+                isUserCancellationError(message) ||
+                isUserCancellationError(stack)
+            ) {
+                return null;
+            }
+
             const errStr = error
                 ? (error instanceof Error
                     ? (error.message || String(error))
@@ -57,6 +73,13 @@ class SentryLogger {
             const finalMessage = message 
                 ? (errStr && !message.includes(errStr) ? `${message}: ${errStr}` : message) 
                 : (errStr || 'Unknown Error');
+
+            if (
+                isUserCancellationError(finalMessage) ||
+                isUserCancellationError(errorStack)
+            ) {
+                return null;
+            }
 
             let userEmail = null;
             let userId = null;
@@ -146,19 +169,39 @@ class SentryLogger {
                     .limit(100);
 
                 if (!error && Array.isArray(data)) {
-                    cloudErrors = data.map(item => ({
-                        id: item.event_id || item.id,
-                        timestamp: item.created_at,
-                        message: item.message,
-                        level: item.level || 'error',
-                        context: item.context || 'General',
-                        stack: item.stack,
-                        url: item.url || '',
-                        userEmail: item.user_email || null,
-                        userId: item.user_id || null,
-                        extras: item.metadata || null,
-                        isCloudSynced: true
-                    }));
+                    cloudErrors = data
+                        .filter(item => 
+                            !isUserCancellationError(item) &&
+                            !isUserCancellationError(item.message) &&
+                            !isUserCancellationError(item.stack)
+                        )
+                        .map(item => ({
+                            id: item.event_id || item.id,
+                            timestamp: item.created_at,
+                            message: item.message,
+                            level: item.level || 'error',
+                            context: item.context || 'General',
+                            stack: item.stack,
+                            url: item.url || '',
+                            userEmail: item.user_email || null,
+                            userId: item.user_id || null,
+                            extras: item.metadata || null,
+                            isCloudSynced: true
+                        }));
+
+                    // Opportunistically delete old cancellation records from cloud table
+                    const hasCancellationInCloud = data.some(item => 
+                        isUserCancellationError(item) || 
+                        isUserCancellationError(item.message)
+                    );
+                    if (hasCancellationInCloud) {
+                        supabase
+                            .from('sentry_errors')
+                            .delete()
+                            .or('message.ilike.%cancelled by user%,message.ilike.%canceled by user%,message.ilike.%popup_closed_by_user%')
+                            .then(() => {})
+                            .catch(() => {});
+                    }
                 }
             } catch (e) {
                 // Table doesn't exist or offline — fallback to local logs
@@ -168,7 +211,14 @@ class SentryLogger {
         // Merge deduplicated by id or event_id
         const mergedMap = new Map();
         [...cloudErrors, ...this.memoryLogs].forEach(item => {
-            if (item && item.id && !mergedMap.has(item.id)) {
+            if (
+                item && 
+                item.id && 
+                !mergedMap.has(item.id) &&
+                !isUserCancellationError(item) &&
+                !isUserCancellationError(item.message) &&
+                !isUserCancellationError(item.stack)
+            ) {
                 mergedMap.set(item.id, item);
             }
         });

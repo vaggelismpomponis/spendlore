@@ -203,6 +203,8 @@ const LoginView = ({
         try {
             await onGoogleLogin();
         } catch (err) {
+            // Error handled upstream
+        } finally {
             setIsGoogleSubmitting(false);
         }
     };

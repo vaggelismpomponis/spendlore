@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import sentryLogger from './sentryLogger';
+import { isUserCancellationError } from './authErrors';
 
 const isDev = import.meta.env.DEV;
 
@@ -73,6 +74,14 @@ const logger = {
         if (isAbortError) {
             if (shouldLog('debug')) {
                 console.debug(formatMessage('debug', context, `Ignored AbortError: ${message}`));
+            }
+            return;
+        }
+
+        // Ignore user cancellation flows (e.g. Google Sign-In dismissed/backed out by user)
+        if (isUserCancellationError(error) || isUserCancellationError(message)) {
+            if (shouldLog('debug')) {
+                console.debug(formatMessage('debug', context, `Ignored user cancellation: ${message}`));
             }
             return;
         }
