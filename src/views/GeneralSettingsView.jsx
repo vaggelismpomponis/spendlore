@@ -18,7 +18,8 @@ import {
     Info,
     BatteryCharging,
     Power,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -37,7 +38,7 @@ import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import { getAppVersionString } from '../utils/version';
 import { isNative } from '../utils/platform';
-import { checkForAppUpdates } from '../utils/pwaUpdate';
+import { checkForAppUpdates, forceAppCachePurge } from '../utils/pwaUpdate';
 
 
 const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, hideHeader = false }) => {
@@ -64,6 +65,13 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
         } finally {
             setCheckingUpdate(false);
         }
+    };
+
+    const handleForcePurgeCache = async () => {
+        showToast(isEL ? 'Εκκαθάριση μνήμης & ανανέωση...' : 'Clearing cache & reloading...', 'info');
+        setTimeout(async () => {
+            await forceAppCachePurge();
+        }, 400);
     };
     
     // Notification Permission & Background Reliability State
@@ -581,15 +589,27 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                             Spendlore &bull; {isEL ? 'Διαμόρφωση Συστήματος' : 'System Configuration'} &bull; {getAppVersionString(language)}
                         </p>
                         {!isNative() && (
-                            <button
-                                type="button"
-                                onClick={handleCheckUpdate}
-                                disabled={checkingUpdate}
-                                className="mt-2 text-xs font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
-                            >
-                                <RefreshCw size={12} className={checkingUpdate ? 'animate-spin' : ''} />
-                                <span>{checkingUpdate ? (isEL ? 'Έλεγχος...' : 'Checking...') : (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}</span>
-                            </button>
+                            <div className="mt-2.5 flex items-center justify-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleCheckUpdate}
+                                    disabled={checkingUpdate}
+                                    className="text-xs font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
+                                >
+                                    <RefreshCw size={12} className={checkingUpdate ? 'animate-spin' : ''} />
+                                    <span>{checkingUpdate ? (isEL ? 'Έλεγχος...' : 'Checking...') : (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}</span>
+                                </button>
+                                <span className="text-gray-300 dark:text-white/20 text-xs">•</span>
+                                <button
+                                    type="button"
+                                    onClick={handleForcePurgeCache}
+                                    className="text-xs font-semibold text-gray-400 hover:text-rose-600 dark:text-gray-500 dark:hover:text-rose-400 transition-colors cursor-pointer inline-flex items-center justify-center gap-1 active:scale-95"
+                                    title={isEL ? 'Εκκαθάριση τοπικής προσωρινής μνήμης και άμεση επαναφόρτωση' : 'Clear local cache and reload'}
+                                >
+                                    <Trash2 size={11} />
+                                    <span>{isEL ? 'Εκκαθάριση Cache' : 'Purge Cache'}</span>
+                                </button>
+                            </div>
                         )}
                     </div>
 

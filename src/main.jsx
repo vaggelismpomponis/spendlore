@@ -149,13 +149,18 @@ if (isNative()) {
     // 3. Web PWA production service worker registration
     // Automatically reload when a new service worker takes over an already-controlled page
     let refreshing = false;
-    const hadController = Boolean(navigator.serviceWorker.controller);
+    const hadController = Boolean(navigator.serviceWorker.controller) || localStorage.getItem('spendlore_sw_active') === 'true';
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (hadController && !refreshing) {
             refreshing = true;
             window.location.reload();
         }
     });
+    if (navigator.serviceWorker.controller) {
+        try {
+            localStorage.setItem('spendlore_sw_active', 'true');
+        } catch (_) {}
+    }
 
     const updateSW = registerSW({
         immediate: true,
