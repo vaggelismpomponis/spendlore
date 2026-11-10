@@ -63,6 +63,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
     // Smooth transform for icon & label scaling and fading as swipe progresses
     const iconScale = useTransform(x, [-76, -30, 0], [1, 0.85, 0.6]);
     const iconOpacity = useTransform(x, [-76, -20, 0], [1, 0.9, 0]);
+    const trayOpacity = useTransform(x, [-76, -10, 0], [1, 0.5, 0]);
     // Smoothly morph right border radius from 16px to 0px so it flattens seamlessly against the delete tray
     const rightRadius = useTransform(x, [-36, 0], [0, 16]);
     const isDraggingRef = useRef(false);
@@ -209,8 +210,9 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
             className="relative overflow-hidden rounded-2xl mb-2.5 select-none bg-transparent"
         >
             {/* Background Delete Action Tray (Revealed on Swipe Left) */}
-            <div
-                className={`absolute inset-0 bg-rose-600 dark:bg-rose-600 flex justify-end z-0 rounded-2xl overflow-hidden ${
+            <motion.div
+                style={{ opacity: trayOpacity }}
+                className={`absolute inset-y-0 right-0 w-[84px] bg-rose-600 dark:bg-rose-600 flex items-center justify-center z-0 rounded-r-2xl overflow-hidden ${
                     isOpen ? "pointer-events-auto" : "pointer-events-none"
                 }`}
             >
@@ -220,7 +222,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
                         e.stopPropagation();
                         onDelete(notif.id);
                     }}
-                    className="w-[76px] h-full flex flex-col items-center justify-center gap-1.5 text-white active:scale-95 transition-transform cursor-pointer"
+                    className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-white active:scale-95 transition-transform cursor-pointer"
                     aria-label={t("delete") || "Διαγραφή"}
                     title={t("delete") || "Διαγραφή"}
                 >
@@ -234,7 +236,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
                         </span>
                     </motion.div>
                 </button>
-            </div>
+            </motion.div>
 
             {/* Foreground Swipeable Card */}
             <motion.div
@@ -256,7 +258,7 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
                             border transition-colors duration-150
                             ${!notif.read
                                 ? "bg-white dark:bg-surface-dark3 border-gray-200 dark:border-white/10 shadow-xs"
-                                : "bg-gray-100/75 dark:bg-surface-dark2 border-gray-200/50 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/[0.04]"
+                                : "bg-gray-100 dark:bg-surface-dark2 border-gray-200/50 dark:border-white/5 hover:bg-gray-200/60 dark:hover:bg-white/[0.04]"
                             }`}
             >
                 {/* Spendlore Brand Mark Badge (Klarna Circular Icon standard) */}
