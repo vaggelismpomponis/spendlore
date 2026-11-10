@@ -21,6 +21,7 @@ import { isNative } from '../utils/platform';
 import { APP_RELEASE_YEAR } from '../utils/version';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
+import ProBadge from '../components/ProBadge';
 
 
 
@@ -247,9 +248,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                     className="absolute -bottom-1 -right-2 select-none"
                                     title="Pro Member"
                                 >
-                                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/90 text-violet-600 dark:text-violet-400 border border-violet-200/80 dark:border-violet-800/60 shadow-sm shadow-violet-500/10">
-                                        PRO
-                                    </span>
+                                    <ProBadge />
                                 </div>
                             ) : (
                                 <div className="absolute bottom-1.5 right-1.5 w-4 h-4 rounded-full
@@ -466,9 +465,9 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     {/* ════ Footer ════ */}
                     <div className="flex flex-col items-center gap-1.5 pt-1 pb-2 mt-4">
                         <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] font-bold gradient-text">Spendlore</span>
+                            <span className="text-[11px] font-bold text-gray-950 dark:text-white tracking-wide">Spendlore</span>
                         </div>
-                        <p className="text-[10px] text-gray-300 dark:text-white/60 tracking-wide">
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 tracking-wide">
                             {translate('version')} · {APP_RELEASE_YEAR}
                         </p>
                     </div>

@@ -8,6 +8,7 @@ import {
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import ThemeSelectionModal from './ThemeSelectionModal';
+import ProBadge from './ProBadge';
 
 const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) => (
     <button
@@ -41,10 +42,7 @@ const NavItem = ({ icon: Icon, label, active, onClick, badge, showCrown, id }) =
             </span>
         )}
         {showCrown && !active && (
-            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
-                <ShieldCheck size={10} className="shrink-0" />
-                <span>PRO</span>
-            </span>
+            <ProBadge />
         )}
     </button>
 );
@@ -120,9 +118,7 @@ const DesktopSidebar = ({
                                 Spendlore
                             </h1>
                             {isPro && (
-                                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 border border-violet-200/50 dark:border-violet-800/30 shrink-0">
-                                    PRO
-                                </span>
+                                <ProBadge />
                             )}
                         </div>
                         <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 truncate -mt-0.5">
@@ -204,9 +200,7 @@ const DesktopSidebar = ({
                                     {t('become_pro') || t('go_pro') || 'Become Pro'}
                                 </span>
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 shrink-0">
-                                PRO
-                            </span>
+                            <ProBadge />
                         </div>
 
                         <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
@@ -248,9 +242,7 @@ const DesktopSidebar = ({
                                 {effectiveName}
                             </p>
                             {isPro && (
-                                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/50 dark:border-amber-800/30 shrink-0">
-                                    PRO
-                                </span>
+                                <ProBadge />
                             )}
                         </div>
                         <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate mt-0.5">

@@ -17,6 +17,7 @@ import { useAppStore } from '../store/useAppStore';
 import SafeToBurnCard from '../components/SafeToBurnCard';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 import CoolingOffHomeWidget from '../components/CoolingOffHomeWidget';
+import ProBadge from '../components/ProBadge';
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
 ───────────────────────────────────────────── */
@@ -755,10 +756,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                     {t('advisor_title') || 'Spendlore AI Σύμβουλος'}
                                 </span>
                                 {!isPro && (
-                                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
-                                        <ShieldCheck size={10} className="shrink-0" />
-                                        <span>PRO</span>
-                                    </span>
+                                    <ProBadge onClick={(e) => { e.stopPropagation(); openUpgradeModal('advisor'); }} />
                                 )}
                             </div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 font-medium truncate mt-0.5">
@@ -1265,10 +1263,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                             Spendlore AI
                         </span>
                         {!isPro && (
-                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 flex items-center gap-0.5 shrink-0">
-                                <ShieldCheck size={10} className="shrink-0" />
-                                <span>PRO</span>
-                            </span>
+                            <ProBadge onClick={(e) => { e.stopPropagation(); openUpgradeModal('advisor'); }} />
                         )}
                     </div>
                     <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-tight mt-0.5">{t('advisor_title')}</h4>

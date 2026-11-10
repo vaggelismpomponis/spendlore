@@ -5,6 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { supabase } from '../supabase';
 import ViewHeader from '../components/ViewHeader';
+import ProBadge from '../components/ProBadge';
 
 const AccountSettingsView = ({ user, onBack, hideHeader }) => {
     const { t: translate } = useSettings();
@@ -78,9 +79,7 @@ const AccountSettingsView = ({ user, onBack, hideHeader }) => {
                                 className="absolute -bottom-1 -right-2 select-none"
                                 title="Pro Member"
                             >
-                                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-gray-900 text-white dark:bg-white dark:text-gray-950 border border-gray-900 dark:border-white shadow-xs">
-                                    PRO
-                                </span>
+                                <ProBadge />
                             </div>
                         )}
                     </div>

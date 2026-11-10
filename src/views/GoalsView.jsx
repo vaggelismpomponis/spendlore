@@ -10,6 +10,7 @@ import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAppStore } from '../store/useAppStore';
+import ProBadge from '../components/ProBadge';
 
 /* ─────────────────────────────────────────────────────────────
    Goal icon / colour presets
@@ -276,10 +277,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                                     {!isPro ? (
                                         <span>
                                             {goals.length}/2 {t('active').toLowerCase()}
-                                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-0.5 shrink-0 align-middle ml-1">
-                                                <ShieldCheck size={10} className="shrink-0" />
-                                                <span>PRO</span>
-                                            </span>
+                                            <ProBadge className="ml-1 align-middle" onClick={() => openUpgradeModal('goals')} />
                                         </span>
                                     ) : `${goals.length} ` + t('active').toLowerCase()} · {completedCnt} {t('completed_short')}
                                 </p>
@@ -288,7 +286,7 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
                     </div>
                     <button
                         onClick={openAdd}
-                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30 transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-xs border border-black/10 dark:border-white/20 transition-all active:scale-95"
                     >
                         {(!isPro && goals.length >= 2) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_goal')}
                     </button>

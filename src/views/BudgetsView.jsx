@@ -12,6 +12,7 @@ import Amount from '../components/Amount';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import ProBadge from '../components/ProBadge';
 
 // These MUST match the categories in AddModal.jsx exactly
 const EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
@@ -425,10 +426,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                     {!isPro ? (
                                         <span>
                                             {budgets.length}/3 {t('active').toLowerCase()}
-                                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 inline-flex items-center gap-0.5 shrink-0 align-middle ml-1">
-                                                <ShieldCheck size={10} className="shrink-0" />
-                                                <span>PRO</span>
-                                            </span>
+                                            <ProBadge className="ml-1 align-middle" onClick={() => openUpgradeModal('budgets')} />
                                         </span>
                                     ) : `${budgets.length} ` + t('active').toLowerCase()} · {new Date().toLocaleString('el-GR', { month: 'long', year: 'numeric' })}
                                 </p>
@@ -437,7 +435,7 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                     </div>
                     <button
                         onClick={openAddModal}
-                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30 transition-all active:scale-95"
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 text-sm font-bold rounded-xl shadow-xs border border-black/10 dark:border-white/20 transition-all active:scale-95"
                     >
                         {(!isPro && budgets.length >= 3) ? <ShieldCheck size={15} className="inline-block text-amber-300 mr-1" /> : <Plus size={16} />} {t('add_budget')}
                     </button>

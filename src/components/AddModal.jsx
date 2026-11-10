@@ -891,9 +891,9 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                                                 <div className="flex items-center justify-center py-1 text-gray-500 dark:text-gray-400">
                                                     <Plus size={24} />
                                                 </div>
-                                                <span className="text-[11px] font-semibold text-center leading-tight text-gray-700 dark:text-gray-300">
+                                                <span className="text-[11px] font-semibold text-center leading-tight text-gray-700 dark:text-gray-300 inline-flex items-center gap-1 justify-center">
                                                     {t('new_category') || 'Νέα'}
-                                                    {!isPro && <ShieldCheck size={11} className="text-amber-500 ml-0.5 inline-block" />}
+                                                    {!isPro && <ProBadge />}
                                                 </span>
                                             </motion.button>
                                         ) : (
@@ -1078,7 +1078,7 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             >
                                 <Camera size={15} className="shrink-0" />
                                 <span>{t('scan')}</span>
-                                {!isPro && <ShieldCheck size={13} className="text-amber-500 shrink-0 ml-0.5 inline-block" />}
+                                {!isPro && <ProBadge />}
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
