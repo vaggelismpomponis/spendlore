@@ -19,6 +19,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { PrivacyScreen } from '@capacitor/privacy-screen';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import logger from './utils/logger';
+import { isUserCancellationError } from './utils/authErrors';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Context
@@ -759,6 +760,9 @@ function MainContent() {
                             });
                             if (error) throw error;
                         } catch (err) {
+                            if (isUserCancellationError(err)) {
+                                return;
+                            }
                             // Only show toast if it's not a background/automatic failure
                             if (err.message && !err.message.includes('aborted')) {
                                 logger.error('GSI login failed', err, 'App');
@@ -879,6 +883,10 @@ function MainContent() {
                 if (error) throw error;
             }
         } catch (error) {
+            if (isUserCancellationError(error)) {
+                console.log('[GoogleLogin] User cancelled or backed out of Google sign in. Ignoring.');
+                return;
+            }
             logger.error('Google auth failed', error, 'App');
             const errMsg = error?.message || error?.code || JSON.stringify(error) || 'Unknown error';
             showToast(`Σφάλμα σύνδεσης Google: ${errMsg}`, 'error');
@@ -1955,17 +1963,28 @@ function MainContent() {
 
     // --- Layout Render ---
 
-    // Hide the inline HTML loader when React is ready to show content
+    // Hide the inline HTML loader when React is ready to show content,
+    // enforcing a Play Store flagship minimum splash duration (~1.85s)
+    // so the branding, logo, and smooth animation are clearly seen and appreciated.
     React.useEffect(() => {
         if (!loading) {
-            const inlineLoader = document.getElementById('inline-loader');
-            if (inlineLoader) {
-                inlineLoader.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                inlineLoader.style.opacity = '0';
-                inlineLoader.style.transform = 'scale(1.02)';
-                inlineLoader.style.pointerEvents = 'none';
-                setTimeout(() => inlineLoader.remove(), 420);
-            }
+            const startTime = (typeof window !== 'undefined' && window.__spendloreStartTime) || Date.now();
+            const elapsed = Date.now() - startTime;
+            const MIN_SPLASH_MS = 1850;
+            const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+
+            const timer = setTimeout(() => {
+                const inlineLoader = document.getElementById('inline-loader');
+                if (inlineLoader) {
+                    inlineLoader.style.transition = 'opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1), transform 0.48s cubic-bezier(0.16, 1, 0.3, 1)';
+                    inlineLoader.style.opacity = '0';
+                    inlineLoader.style.transform = 'scale(1.04)';
+                    inlineLoader.style.pointerEvents = 'none';
+                    setTimeout(() => inlineLoader.remove(), 520);
+                }
+            }, remaining);
+
+            return () => clearTimeout(timer);
         }
     }, [loading]);
 

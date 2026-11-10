@@ -93,6 +93,7 @@
 
   <!-- Prevent flash of unstyled theme & align browser toolbars before render -->
   <script>
+    window.__spendloreStartTime = Date.now();
     (function () {
       try {
         var savedTheme = localStorage.getItem('theme');
@@ -117,9 +118,9 @@
   </style>
   <main>
   <!-- Inline Loading Screen — OUTSIDE #root so React doesn't remove it.
-       Modern Play Store FinTech splash screen featuring the official app logo,
-       Material You fluid progress indicator, and bank-grade security branding.
-       App.jsx fades it out when React is ready. -->
+       Flagship Play Store FinTech splash screen featuring the official app logo,
+       ambient luxury glow halo, specular glass shimmer, and bank-grade security branding.
+       App.jsx fades it out gracefully after ensuring minimum branded visibility. -->
   <div id="inline-loader" style="
       position: fixed;
       inset: 0;
@@ -147,59 +148,88 @@
       "></div>
 
       <!-- Center Branding Container -->
-      <div style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;">
+      <div class="sw-brand-wrapper" style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center;">
 
-        <!-- Official App Logo (Squircle Container matching LoginView) -->
-        <div style="position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-          <div class="sw-logo-img" style="
+        <!-- Ambient Luxury Radial Glow Halo -->
+        <div class="sw-ambient-glow" style="
+          position: absolute;
+          top: -24px;
+          width: 220px;
+          height: 220px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(124, 58, 237, 0.38) 0%, rgba(56, 189, 248, 0.16) 45%, transparent 70%);
+          filter: blur(28px);
+          pointer-events: none;
+          z-index: 0;
+        "></div>
+
+        <!-- Official App Logo (Elevated Glass Squircle Container) -->
+        <div class="sw-logo-box" style="
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 22px;
+        ">
+          <div class="sw-logo-card" style="
             position: relative;
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.10);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 14px;
+            width: 96px;
+            height: 96px;
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.65), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            overflow: hidden;
           ">
-            <img src="/spendlore-mark.png" alt="Spendlore" width="52" height="52" style="
+            <!-- Shimmer Light Sweep -->
+            <div class="sw-shimmer-sweep"></div>
+
+            <img src="/spendlore-mark.png" alt="Spendlore" width="64" height="64" style="
               width: 100%;
               height: 100%;
               object-fit: contain;
+              filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
             " />
           </div>
         </div>
 
         <!-- Brand Name & Clean FinTech Subtitle -->
-        <div style="text-align: center;">
+        <div class="sw-text-block" style="text-align: center;">
           <h1 style="
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 800;
             letter-spacing: -0.03em;
             margin: 0;
             color: #FFFFFF;
             font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
           ">Spendlore</h1>
           <p style="
-            margin: 6px 0 0 0;
+            margin: 7px 0 0 0;
             font-size: 13px;
             font-weight: 500;
-            letter-spacing: 0.01em;
+            letter-spacing: 0.02em;
             color: #9CA3AF;
           ">Έξυπνη Διαχείριση Οικονομικών</p>
         </div>
 
         <!-- Material You Fluid Indeterminate Progress Bar -->
-        <div style="
+        <div class="sw-progress-block" style="
           margin-top: 36px;
-          width: 140px;
+          width: 150px;
           height: 3.5px;
           border-radius: 999px;
           background: rgba(255, 255, 255, 0.08);
           overflow: hidden;
           position: relative;
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
         ">
           <div class="sw-indeterminate-bar" style="
             position: absolute;
@@ -207,21 +237,23 @@
             bottom: 0;
             border-radius: 999px;
             background: linear-gradient(90deg, #7c3aed, #a78bfa, #38bdf8);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.6);
           "></div>
         </div>
 
         <!-- Subtle Loading Cue -->
-        <p style="
+        <p class="sw-status-cue" style="
           margin-top: 14px;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.04em;
-          color: rgba(255, 255, 255, 0.35);
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.38);
         ">Φόρτωση...</p>
       </div>
 
       <!-- Play Store Style Security & Version Footnote -->
-      <div style="
+      <div class="sw-footnote" style="
         position: absolute;
         bottom: calc(26px + env(safe-area-inset-bottom, 0px));
         display: flex;
@@ -242,24 +274,95 @@
 
     <!-- Smooth GPU-accelerated Keyframes -->
     <style>
-      @keyframes sw-pulse {
-        0%, 100% { transform: scale(1); opacity: 0.8; }
-        50%      { transform: scale(1.1); opacity: 1; }
+      @keyframes sw-logo-reveal {
+        0% {
+          transform: scale(0.82);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
-      @keyframes sw-float {
-        0%, 100% { transform: translateY(0px); }
-        50%      { transform: translateY(-4px); }
+      @keyframes sw-logo-breathe {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.028);
+        }
+      }
+      @keyframes sw-glow-pulse {
+        0%, 100% {
+          transform: scale(0.95);
+          opacity: 0.6;
+        }
+        50% {
+          transform: scale(1.12);
+          opacity: 0.95;
+        }
+      }
+      @keyframes sw-shimmer {
+        0% {
+          transform: translateX(-120%) rotate(25deg);
+        }
+        25%, 100% {
+          transform: translateX(220%) rotate(25deg);
+        }
+      }
+      @keyframes sw-fade-up {
+        0% {
+          transform: translateY(8px);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
       }
       @keyframes sw-slide {
         0%   { left: -50%; width: 35%; }
         50%  { left: 25%;  width: 55%; }
         100% { left: 105%; width: 35%; }
       }
-      .sw-logo-img {
-        animation: sw-float 3s ease-in-out infinite;
+      .sw-ambient-glow {
+        animation: sw-glow-pulse 3.4s ease-in-out infinite;
+      }
+      .sw-logo-card {
+        animation: 
+          sw-logo-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+          sw-logo-breathe 3.6s ease-in-out infinite 0.75s;
+        will-change: transform, opacity;
+      }
+      .sw-shimmer-sweep {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.18) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        animation: sw-shimmer 3.2s ease-in-out infinite 0.3s;
+        pointer-events: none;
+      }
+      .sw-text-block {
+        animation: sw-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.18s backwards;
+      }
+      .sw-progress-block {
+        animation: sw-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.28s backwards;
+      }
+      .sw-status-cue {
+        animation: sw-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.36s backwards;
+      }
+      .sw-footnote {
+        animation: sw-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s backwards;
       }
       .sw-indeterminate-bar {
-        animation: sw-slide 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+        animation: sw-slide 1.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
       }
     </style>
   <script>
@@ -268,17 +371,17 @@
       var dismissLoader = function () {
         var loader = document.getElementById('inline-loader');
         if (loader) {
-          loader.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+          loader.style.transition = 'opacity 0.48s cubic-bezier(0.16, 1, 0.3, 1), transform 0.48s cubic-bezier(0.16, 1, 0.3, 1)';
           loader.style.opacity = '0';
-          loader.style.transform = 'scale(1.02)';
+          loader.style.transform = 'scale(1.04)';
           loader.style.pointerEvents = 'none';
           setTimeout(function () {
             if (loader && loader.parentNode) loader.parentNode.removeChild(loader);
-          }, 420);
+          }, 520);
         }
       };
-      // Auto-dismiss safety timer (6 seconds fallback)
-      setTimeout(dismissLoader, 6000);
+      // Auto-dismiss safety timer (6.5 seconds fallback)
+      setTimeout(dismissLoader, 6500);
       window.__dismissInlineLoader = dismissLoader;
     })();
   </script>
