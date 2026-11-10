@@ -99,20 +99,21 @@ export const isTransactionNotification = (data = {}) => {
         return false;
     }
 
-    // 4. Positive transaction action check:
-    // Recognizes explicit action verbs OR digital wallet card notifications
-    // (e.g. Google Wallet: "Wolt €6.39 with Ticket Restaurant® ••2331", "€14.20 with Visa ••1234", "6,39 € με κάρτα ••2331")
-    const isWalletNotification =
-        /wallet|gpay|spay/i.test(packageName) ||
-        WALLET_CARD_REGEX.test(combined);
-
-    const hasExpenseAction = EXPENSE_KEYWORDS_REGEX.test(combined) || isWalletNotification;
-    const hasIncomeAction = INCOME_KEYWORDS_REGEX.test(combined);
-    if (!hasExpenseAction && !hasIncomeAction) {
+    // 3.5. Filter out Pure Balance updates without transaction actions
+    if (PURE_BALANCE_REGEX.test(combined) && !EXPENSE_KEYWORDS_REGEX.test(combined) && !INCOME_KEYWORDS_REGEX.test(combined)) {
         return false;
     }
 
-    if (PURE_BALANCE_REGEX.test(combined) && !hasExpenseAction && !hasIncomeAction) {
+    // 4. Positive transaction action check:
+    // Recognizes explicit action verbs OR digital wallet/banking card notifications
+    // (e.g. Google Wallet: "Wolt €6.39 with Ticket Restaurant® ••2331", "€14.20 with Visa ••1234", "6,39 € με κάρτα ••2331")
+    const isWalletOrBankNotification =
+        /wallet|gpay|spay|gms|revolut|bank|eurobank|winbank|alphabank|nbg|viva|payzy|edenred|pluxee|sodexo|uphellas|wise|curve|monzo|n26|klarna/i.test(packageName) ||
+        WALLET_CARD_REGEX.test(combined);
+
+    const hasExpenseAction = EXPENSE_KEYWORDS_REGEX.test(combined) || isWalletOrBankNotification;
+    const hasIncomeAction = INCOME_KEYWORDS_REGEX.test(combined);
+    if (!hasExpenseAction && !hasIncomeAction) {
         return false;
     }
 

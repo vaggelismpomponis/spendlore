@@ -91,3 +91,73 @@ export const checkNotificationPermission = async () => {
         return false;
     }
 };
+
+export const isIgnoringBatteryOptimizations = async () => {
+    if (!Capacitor.isNativePlatform()) return true;
+    try {
+        const result = await TransactionReader.isIgnoringBatteryOptimizations();
+        return !!result?.isIgnoring;
+    } catch (e) {
+        logger.warn(`Failed to check battery optimization: ${e?.message || e}`, 'TransactionReader');
+        return true;
+    }
+};
+
+export const requestIgnoreBatteryOptimization = async () => {
+    if (!Capacitor.isNativePlatform()) return { alreadyGranted: true };
+    try {
+        const result = await TransactionReader.requestIgnoreBatteryOptimization();
+        return result || {};
+    } catch (e) {
+        logger.warn(`Failed to request ignore battery optimization: ${e?.message || e}`, 'TransactionReader');
+        return { error: e?.message || e };
+    }
+};
+
+export const openBatteryOptimizationSettings = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    try {
+        await TransactionReader.openBatteryOptimizationSettings();
+    } catch (e) {
+        logger.warn(`Failed to open battery optimization settings: ${e?.message || e}`, 'TransactionReader');
+    }
+};
+
+export const openAutostartSettings = async () => {
+    if (!Capacitor.isNativePlatform()) return { openedDirectly: false };
+    try {
+        const result = await TransactionReader.openAutostartSettings();
+        return result || {};
+    } catch (e) {
+        logger.warn(`Failed to open autostart settings: ${e?.message || e}`, 'TransactionReader');
+        return { openedDirectly: false, error: e?.message || e };
+    }
+};
+
+export const getBackgroundPermissionsStatus = async () => {
+    if (!Capacitor.isNativePlatform()) {
+        return {
+            notificationListener: true,
+            batteryNoRestrictions: true,
+            autostartSupported: false,
+            manufacturer: 'web'
+        };
+    }
+    try {
+        const result = await TransactionReader.getBackgroundPermissionsStatus();
+        return {
+            notificationListener: !!result?.notificationListener,
+            batteryNoRestrictions: !!result?.batteryNoRestrictions,
+            autostartSupported: !!result?.autostartSupported,
+            manufacturer: result?.manufacturer || 'unknown'
+        };
+    } catch (e) {
+        logger.warn(`Failed to get background permissions status: ${e?.message || e}`, 'TransactionReader');
+        return {
+            notificationListener: false,
+            batteryNoRestrictions: false,
+            autostartSupported: false,
+            manufacturer: 'unknown'
+        };
+    }
+};

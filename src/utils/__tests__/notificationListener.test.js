@@ -1,5 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { setupNotificationListener, setNativeProStatus, checkNotificationPermission, openNotificationSettings } from '../notificationListener';
+import {
+    setupNotificationListener,
+    setNativeProStatus,
+    checkNotificationPermission,
+    openNotificationSettings,
+    isIgnoringBatteryOptimizations,
+    requestIgnoreBatteryOptimization,
+    openBatteryOptimizationSettings,
+    openAutostartSettings,
+    getBackgroundPermissionsStatus
+} from '../notificationListener';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
 
@@ -10,6 +20,11 @@ vi.mock('@capacitor/core', () => {
         setProStatus: vi.fn(),
         checkPermission: vi.fn(),
         openNotificationSettings: vi.fn(),
+        isIgnoringBatteryOptimizations: vi.fn(),
+        requestIgnoreBatteryOptimization: vi.fn(),
+        openBatteryOptimizationSettings: vi.fn(),
+        openAutostartSettings: vi.fn(),
+        getBackgroundPermissionsStatus: vi.fn(),
         addListener: vi.fn(() => Promise.resolve({ remove: vi.fn() }))
     };
 
@@ -174,6 +189,46 @@ describe('Notification Listener with Quick Actions', () => {
     it('opens notification settings', async () => {
         await openNotificationSettings();
         expect(mockPlugin.openNotificationSettings).toHaveBeenCalled();
+    });
+
+    it('checks battery optimization status', async () => {
+        mockPlugin.isIgnoringBatteryOptimizations.mockResolvedValueOnce({ isIgnoring: true });
+        const isIgnoring = await isIgnoringBatteryOptimizations();
+        expect(isIgnoring).toBe(true);
+        expect(mockPlugin.isIgnoringBatteryOptimizations).toHaveBeenCalled();
+    });
+
+    it('requests ignore battery optimization', async () => {
+        mockPlugin.requestIgnoreBatteryOptimization.mockResolvedValueOnce({ requested: true, isIgnoring: false });
+        const res = await requestIgnoreBatteryOptimization();
+        expect(res.requested).toBe(true);
+        expect(mockPlugin.requestIgnoreBatteryOptimization).toHaveBeenCalled();
+    });
+
+    it('opens battery optimization settings', async () => {
+        await openBatteryOptimizationSettings();
+        expect(mockPlugin.openBatteryOptimizationSettings).toHaveBeenCalled();
+    });
+
+    it('opens autostart settings', async () => {
+        mockPlugin.openAutostartSettings.mockResolvedValueOnce({ openedDirectly: true });
+        const res = await openAutostartSettings();
+        expect(res.openedDirectly).toBe(true);
+        expect(mockPlugin.openAutostartSettings).toHaveBeenCalled();
+    });
+
+    it('fetches consolidated background permissions status', async () => {
+        mockPlugin.getBackgroundPermissionsStatus.mockResolvedValueOnce({
+            notificationListener: true,
+            batteryNoRestrictions: true,
+            autostartSupported: true,
+            manufacturer: 'xiaomi'
+        });
+        const status = await getBackgroundPermissionsStatus();
+        expect(status.notificationListener).toBe(true);
+        expect(status.batteryNoRestrictions).toBe(true);
+        expect(status.autostartSupported).toBe(true);
+        expect(status.manufacturer).toBe('xiaomi');
     });
 });
 

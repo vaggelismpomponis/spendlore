@@ -15,14 +15,18 @@ import {
     Vibrate,
     RefreshCw,
     Smartphone,
-    Info
+    Info,
+    BatteryCharging,
+    Power,
+    CheckCircle2
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import ConfirmationModal from '../components/ConfirmationModal';
+import BackgroundPermissionsModal from '../components/BackgroundPermissionsModal';
 import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { openNotificationSettings, checkNotificationPermission } from '../utils/notificationListener';
+import { openNotificationSettings, checkNotificationPermission, getBackgroundPermissionsStatus, openAutostartSettings } from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -62,20 +66,31 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
         }
     };
     
-    // Notification Permission State
+    // Notification Permission & Background Reliability State
     const [isSmsEnabled, setIsSmsEnabled] = useState(false);
+    const [bgPermissions, setBgPermissions] = useState({
+        notificationListener: false,
+        batteryNoRestrictions: false,
+        autostartSupported: false,
+        manufacturer: 'unknown'
+    });
+    const [showBgModal, setShowBgModal] = useState(false);
 
     useEffect(() => {
-        const checkPermission = async () => {
+        const updatePermissions = async () => {
             const hasPermission = await checkNotificationPermission();
             setIsSmsEnabled(hasPermission);
+            if (isNative) {
+                const status = await getBackgroundPermissionsStatus();
+                setBgPermissions(status);
+            }
         };
 
-        checkPermission();
+        updatePermissions();
 
         const listener = App.addListener('appStateChange', ({ isActive }) => {
             if (isActive) {
-                checkPermission();
+                updatePermissions();
             }
         });
 
@@ -92,7 +107,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
             return;
         }
 
-        // On Android native, request POST_NOTIFICATIONS first so quick action buttons function
+        // On Android native, request POST_NOTIFICATIONS and open the Background Reliability Setup Modal
         if (Capacitor.isNativePlatform()) {
             try {
                 const status = await LocalNotifications.checkPermissions();
@@ -102,6 +117,9 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
             } catch (err) {
                 console.warn('Could not request notification permissions:', err);
             }
+
+            setShowBgModal(true);
+            return;
         }
 
         openNotificationSettings();
@@ -191,7 +209,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
 
             {/* ─────── Main Scroll Container ─────── */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
+                <div className="w-full mx-auto px-4 sm:px-6 lg:px-0 py-5 md:py-8 lg:py-0 space-y-6">
 
                     {/* Desktop Navigation Breadcrumb Bar */}
                     <DesktopBreadcrumb
@@ -312,44 +330,102 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                         <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
                                     </div>
 
-                                    {/* Xiaomi / Battery Optimization Tip for Android Users */}
+                                    {/* Android Background Reliability Hub (Battery & Autostart) */}
                                     {isNative && (
-                                        <div className="px-3.5 py-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200/50 dark:border-white/[0.05]">
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowDeviceTip(prev => !prev)}
-                                                className="w-full flex items-center justify-between text-left text-xs font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                            >
-                                                <span className="flex items-center gap-2">
-                                                    <Smartphone size={14} className="text-gray-500 dark:text-gray-400 shrink-0" />
-                                                    {isEL ? 'Οδηγός συσκευών Xiaomi / Redmi / POCO' : 'Xiaomi / Redmi / POCO Setup Guide'}
-                                                </span>
-                                                <span className="text-[11px] text-violet-600 dark:text-violet-400 font-bold">
-                                                    {showDeviceTip ? (isEL ? 'Απόκρυψη' : 'Hide') : (isEL ? 'Προβολή' : 'View')}
-                                                </span>
-                                            </button>
-
-                                            {showDeviceTip && (
-                                                <div className="mt-2.5 pt-2.5 border-t border-gray-200/50 dark:border-white/[0.05] space-y-2 text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
-                                                    <p>
-                                                        {isEL
-                                                            ? 'Τα λειτουργικά Xiaomi (MIUI / HyperOS) απενεργοποιούν τις υπηρεσίες παρασκηνίου εκτός αν ρυθμιστούν:'
-                                                            : 'Xiaomi devices (MIUI / HyperOS) pause background listener services unless configured:'}
-                                                    </p>
-                                                    <ol className="list-decimal pl-4 space-y-1 font-medium text-gray-700 dark:text-gray-300">
-                                                        <li>
-                                                            {isEL
-                                                                ? 'Κρατήστε πατημένο το εικονίδιο Spendlore ➔ Πληροφορίες εφαρμογής ➔ Ενεργοποιήστε την "Αυτόματη έναρξη" (Autostart).'
-                                                                : 'Long-press Spendlore app icon ➔ App info ➔ Enable "Autostart".'}
-                                                        </li>
-                                                        <li>
-                                                            {isEL
-                                                                ? 'Στην ίδια οθόνη ➔ "Εξοικονόμηση μπαταρίας" ➔ Επιλέξτε "Χωρίς περιορισμούς" (No restrictions).'
-                                                                : 'In the same screen ➔ "Battery saver" ➔ Select "No restrictions".'}
-                                                        </li>
-                                                    </ol>
+                                        <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-3">
+                                            <div className="flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <Smartphone size={16} className="text-gray-700 dark:text-gray-300 shrink-0" strokeWidth={2.3} />
+                                                    <span className="text-xs font-bold text-gray-900 dark:text-white truncate">
+                                                        {isEL ? 'Αξιοπιστία Παρασκηνίου (Android)' : 'Background Reliability (Android)'}
+                                                    </span>
                                                 </div>
-                                            )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowBgModal(true)}
+                                                    className="text-xs font-bold text-violet-600 dark:text-violet-400 hover:underline shrink-0"
+                                                >
+                                                    {isEL ? 'Ρύθμιση Όλων' : 'Configure All'}
+                                                </button>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                                {/* Battery Saver Status */}
+                                                <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <BatteryCharging size={14} className="text-gray-600 dark:text-gray-400 shrink-0" />
+                                                        <span className="truncate font-semibold text-gray-700 dark:text-gray-300">
+                                                            {isEL ? 'Μπαταρία' : 'Battery'}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowBgModal(true)}
+                                                        className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 transition-opacity hover:opacity-80 ${
+                                                            bgPermissions.batteryNoRestrictions
+                                                                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                                                                : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                                                        }`}
+                                                    >
+                                                        {bgPermissions.batteryNoRestrictions
+                                                            ? (isEL ? 'Χωρίς Περιορισμούς ✓' : 'No Restrictions ✓')
+                                                            : (isEL ? 'Περιορισμένη ⚠️' : 'Restricted ⚠️')}
+                                                    </button>
+                                                </div>
+
+                                                {/* Background Autostart Status */}
+                                                <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-surface-dark3 border border-gray-200/80 dark:border-white/10">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <Power size={14} className="text-gray-600 dark:text-gray-400 shrink-0" />
+                                                        <span className="truncate font-semibold text-gray-700 dark:text-gray-300">
+                                                            {isEL ? 'Αυτόματη Έναρξη' : 'Autostart'}
+                                                        </span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openAutostartSettings()}
+                                                        className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline shrink-0"
+                                                    >
+                                                        {isEL ? 'Άνοιγμα ➔' : 'Open ➔'}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Expandable Xiaomi / HyperOS Guidance */}
+                                            <div className="pt-1 border-t border-gray-200/40 dark:border-white/[0.04]">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowDeviceTip(prev => !prev)}
+                                                    className="w-full flex items-center justify-between text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                                                >
+                                                    <span>{isEL ? 'Οδηγός συσκευών Xiaomi / Redmi / POCO' : 'Xiaomi / Redmi / POCO Setup Guide'}</span>
+                                                    <span className="text-violet-600 dark:text-violet-400 font-bold">
+                                                        {showDeviceTip ? (isEL ? 'Απόκρυψη' : 'Hide') : (isEL ? 'Προβολή' : 'View')}
+                                                    </span>
+                                                </button>
+
+                                                {showDeviceTip && (
+                                                    <div className="mt-2 space-y-1.5 text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                                                        <p>
+                                                            {isEL
+                                                                ? 'Τα λειτουργικά Xiaomi (MIUI / HyperOS) απαιτούν ρητή ενεργοποίηση ώστε να μην τερματίζεται η υπηρεσία:'
+                                                                : 'Xiaomi devices (MIUI / HyperOS) require explicit activation to prevent service termination:'}
+                                                        </p>
+                                                        <ol className="list-decimal pl-4 space-y-1 font-medium text-gray-700 dark:text-gray-300">
+                                                            <li>
+                                                                {isEL
+                                                                    ? 'Πατήστε "Άνοιγμα ➔" στην Αυτόματη Έναρξη και ενεργοποιήστε το διακόπτη για το Spendlore.'
+                                                                    : 'Tap "Open ➔" under Autostart and enable the toggle for Spendlore.'}
+                                                            </li>
+                                                            <li>
+                                                                {isEL
+                                                                    ? 'Στη διαχείριση μπαταρίας επιλέξτε "Χωρίς περιορισμούς" (No restrictions).'
+                                                                    : 'In battery details select "No restrictions".'}
+                                                            </li>
+                                                        </ol>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
 
@@ -596,6 +672,13 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                     </div>
                 </div>
             )}
+
+            {/* Background Reliability Permissions Modal */}
+            <BackgroundPermissionsModal
+                isOpen={showBgModal}
+                onClose={() => setShowBgModal(false)}
+                onPermissionsUpdated={setBgPermissions}
+            />
         </div>
     );
 };

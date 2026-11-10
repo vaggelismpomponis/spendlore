@@ -114,6 +114,7 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         "gr.alphabank.wallet",
         "gr.eurobank.ebanking",
         "gr.eurobank.mobile",
+        "gr.eurobank.smartapp",
         "gr.nbg.mobilebanking",
         "gr.nbg.nbgmobilebanking",
         "com.vivawallet.consumer",
@@ -202,7 +203,9 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     // Bank identification keywords for SMS messages
     private static final Pattern SMS_BANK_IDENTIFIER_PATTERN = Pattern.compile(
         "(?i)(?:winbank|piraeus|πειραιως|πειραιώς|alpha|αλφα|άλφα|eurobank|γιουρομπανκ|nbg|εθνικη|εθνική|revolut|viva|paypal|wise|optima|attica|" +
-        "\\bkarta\\b|\\bκάρτα\\b|\\bcard\\b|\\bpos\\b|\\biban\\b|λογαριασμ|\\bbank\\b|τραπεζ)"
+        "edenred|ticket|restaurant|payzy|pluxee|sodexo|uphellas|wolt|efood|curve|klarna|" +
+        "mastercard|visa|maestro|diners|amex|pos|\\bkarta\\b|\\bκάρτα\\b|\\bcard\\b|\\biban\\b|λογαριασμ|\\bbank\\b|τραπεζ|" +
+        "xreosi|agora|pliromi|synallagi|χρ[έε]ωσ[ηη]|αγορ[άα]|πληρωμ[ήη]|συναλλαγ[ήη])"
     );
 
     @Override
@@ -311,13 +314,13 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return;
         }
 
-        // 4. Positive Check: Transaction action keyword or digital wallet card indicator must be present
-        boolean isWalletApp = isWalletPackage(packageName);
+        // 4. Positive Check: Transaction action keyword or digital wallet/financial app indicator
+        boolean isFinancialApp = isFinancialPackage(packageName);
         boolean hasActionVerb = TRANSACTION_ACTION_PATTERN.matcher(combined).find();
         boolean hasWalletCard = WALLET_CARD_PATTERN.matcher(combined).find();
 
-        if (!hasActionVerb && !hasWalletCard && !isWalletApp) {
-            Log.d(TAG, "Rejected: No transaction action verb or wallet card pattern found");
+        if (!hasActionVerb && !hasWalletCard && !isFinancialApp) {
+            Log.d(TAG, "Rejected: No transaction action verb, wallet card pattern, or financial source");
             return;
         }
 
@@ -349,23 +352,36 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             }
         }
 
-        // 2. Whitelist match
+        // 2. Allow any SMS/MMS messaging app
+        if (isSmsPackage(p)) {
+            return true;
+        }
+
+        // 3. Whitelist match
         for (String allowed : ALLOWED_PACKAGES) {
             if (p.equals(allowed) || p.startsWith(allowed)) {
                 return true;
             }
         }
 
-        // 3. Generic financial, food delivery, vouchers & payment heuristic
+        // 4. Financial & payment heuristic
+        return isFinancialPackage(p);
+    }
+
+    private boolean isFinancialPackage(String pkg) {
+        if (pkg == null) return false;
+        String p = pkg.toLowerCase();
         if (p.contains("bank") || p.contains("wallet") || p.contains("fintech") || p.contains("card") ||
             p.contains("wolt") || p.contains("efood") || p.contains("edenred") || p.contains("ticketrestaurant") ||
-            p.contains("payzy") || p.contains("pluxee") || p.contains("sodexo") || p.contains("uphellas")) {
+            p.contains("payzy") || p.contains("pluxee") || p.contains("sodexo") || p.contains("uphellas") ||
+            p.contains("revolut") || p.contains("paypal") || p.contains("wise") || p.contains("curve") ||
+            p.contains("klarna") || p.contains("monzo") || p.contains("starling") || p.contains("bunq") ||
+            p.contains("n26") || p.contains("viva") || p.contains("gpay") || p.contains("spay") || p.contains("gms")) {
             return true;
         }
         if (p.contains("pay") && !p.contains("play") && !p.contains("player") && !p.contains("game")) {
             return true;
         }
-
         return false;
     }
 
@@ -380,7 +396,8 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     private boolean isSmsPackage(String pkg) {
         if (pkg == null) return false;
         String p = pkg.toLowerCase();
-        return p.contains("messaging") || p.contains("mms") || p.contains("sms");
+        return p.contains("messaging") || p.contains("mms") || p.contains("sms") ||
+               (p.contains("message") && !p.contains("messenger"));
     }
 
     private void saveAndPostTransaction(String packageName, String title, String text, String bigText, String subText, String combined) {
@@ -533,10 +550,11 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         try {
             // Remove dates and card numbers to avoid false matches
             String cleaned = text.replaceAll("\\b\\d{1,2}[/.-]\\d{1,2}[/.-]\\d{2,4}\\b", " ");
+            cleaned = cleaned.replaceAll("(?i)(?:στις|at|ώρα|time)\\s+\\d{1,2}[:.]\\d{2}", " ");
             cleaned = cleaned.replaceAll("(?i)(?:\\*+|\\.{2,}|κάρτα\\s*|card\\s*)\\d{4}\\b", " ");
 
-            // Pattern for currency prefix/postfix
-            Pattern p = Pattern.compile("(?i)(?:[€$£]|EUR|USD|GBP)\\s*(\\d+(?:[.,]\\d{1,2})?)|(\\d+(?:[.,]\\d{1,2})?)\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])|\\b(\\d+[.,]\\d{2})\\b");
+            // Pattern for currency prefix/postfix supporting European & US thousand separators
+            Pattern p = Pattern.compile("(?i)(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])\\s*(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{1,2})|\\d+(?:[.,]\\d{1,2})?)|(\\d{1,3}(?:[.,]\\d{3})*(?:[.,]\\d{1,2})|\\d+(?:[.,]\\d{1,2})?)\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])|\\b(\\d+[.,]\\d{2})\\b");
             Matcher m = p.matcher(cleaned);
             if (m.find()) {
                 String val = m.group(1);
@@ -544,7 +562,19 @@ public class SMSNotificationListenerService extends NotificationListenerService 
                 if (val == null) val = m.group(3);
 
                 if (val != null) {
-                    val = val.replace(',', '.');
+                    val = val.trim();
+                    // Handle European 1.250,50 vs US 1,250.50
+                    if (val.contains(".") && val.contains(",")) {
+                        if (val.lastIndexOf('.') > val.lastIndexOf(',')) {
+                            // US 1,250.50 -> remove commas
+                            val = val.replace(",", "");
+                        } else {
+                            // European 1.250,50 -> remove dots, replace comma with dot
+                            val = val.replace(".", "").replace(",", ".");
+                        }
+                    } else if (val.contains(",")) {
+                        val = val.replace(',', '.');
+                    }
                     return Double.parseDouble(val);
                 }
             }
