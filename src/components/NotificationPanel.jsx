@@ -9,14 +9,16 @@ import { useSettings } from "../contexts/SettingsContext";
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 import ConfirmationModal from './ConfirmationModal';
 import CategoryIcon from './CategoryIcon';
+import { hapticImpactLight } from '../utils/haptics';
 
 function formatNotificationTime(isoString, isGreek) {
     if (!isoString) return '';
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return '';
     return d.toLocaleTimeString(isGreek ? 'el-GR' : 'en-US', {
-        hour: 'numeric',
-        minute: '2-digit'
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
     });
 }
 
@@ -58,7 +60,11 @@ function getChannelIcon(channel) {
 const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, isGreek }) => {
     const controls = useAnimationControls();
     const x = useMotionValue(0);
-    const deleteOpacity = useTransform(x, [-50, -16], [1, 0]);
+    // Smooth transform for icon & label scaling and fading as swipe progresses
+    const iconScale = useTransform(x, [-76, -30, 0], [1, 0.85, 0.6]);
+    const iconOpacity = useTransform(x, [-76, -20, 0], [1, 0.9, 0]);
+    // Smoothly morph right border radius from 16px to 0px so it flattens seamlessly against the delete tray
+    const rightRadius = useTransform(x, [-36, 0], [0, 16]);
     const isDraggingRef = useRef(false);
     const hasMountedRef = useRef(false);
 
@@ -69,13 +75,13 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
         }
         if (isOpen) {
             controls.start({
-                x: -72,
-                transition: { type: "spring", stiffness: 450, damping: 32 }
+                x: -76,
+                transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
             });
         } else {
             controls.start({
                 x: 0,
-                transition: { type: "spring", stiffness: 450, damping: 32 }
+                transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
             });
         }
     }, [isOpen, controls]);
@@ -89,22 +95,35 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
             isDraggingRef.current = false;
         }, 80);
 
+        // Snap threshold: if swiped past -28px or fast flick to left
+        const shouldOpen = info.offset.x < -28 || info.velocity.x < -180;
+        const shouldClose = info.offset.x > 20 || info.velocity.x > 180;
+
         if (isOpen) {
-            if (info.offset.x > 20 || info.velocity.x > 200) {
+            if (shouldClose) {
                 onClose();
+                controls.start({
+                    x: 0,
+                    transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
+                });
             } else {
                 controls.start({
-                    x: -72,
-                    transition: { type: "spring", stiffness: 450, damping: 32 }
+                    x: -76,
+                    transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
                 });
             }
         } else {
-            if (info.offset.x < -30 || info.velocity.x < -200) {
+            if (shouldOpen) {
                 onOpen();
+                hapticImpactLight();
+                controls.start({
+                    x: -76,
+                    transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
+                });
             } else {
                 controls.start({
                     x: 0,
-                    transition: { type: "spring", stiffness: 450, damping: 32 }
+                    transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
                 });
             }
         }
@@ -115,6 +134,10 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
         if (isOpen) {
             e.stopPropagation();
             onClose();
+            controls.start({
+                x: 0,
+                transition: { type: "spring", stiffness: 400, damping: 32, mass: 0.8 }
+            });
         }
     };
 
@@ -185,10 +208,9 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
             transition={{ delay: idx * 0.02 }}
             className="relative overflow-hidden rounded-2xl mb-2.5 select-none bg-transparent"
         >
-            {/* Delete Action (Revealed on Swipe Left) */}
-            <motion.div
-                style={{ opacity: deleteOpacity }}
-                className={`absolute inset-y-0 right-0 w-[80px] bg-rose-600 dark:bg-rose-700 flex items-center justify-center z-0 transition-colors ${
+            {/* Background Delete Action Tray (Revealed on Swipe Left) */}
+            <div
+                className={`absolute inset-0 bg-rose-600 dark:bg-rose-600 flex justify-end z-0 rounded-2xl overflow-hidden ${
                     isOpen ? "pointer-events-auto" : "pointer-events-none"
                 }`}
             >
@@ -198,31 +220,40 @@ const NotificationItem = ({ notif, idx, isOpen, onOpen, onClose, onDelete, t, is
                         e.stopPropagation();
                         onDelete(notif.id);
                     }}
-                    className="w-full h-full flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-transform"
+                    className="w-[76px] h-full flex flex-col items-center justify-center gap-1.5 text-white active:scale-95 transition-transform cursor-pointer"
                     aria-label={t("delete") || "Διαγραφή"}
                     title={t("delete") || "Διαγραφή"}
                 >
-                    <Trash2 size={18} className="text-white stroke-[2.2]" />
-                    <span className="text-[10px] font-bold text-white tracking-tight">
-                        {t("delete") || "Διαγραφή"}
-                    </span>
+                    <motion.div
+                        style={{ scale: iconScale, opacity: iconOpacity }}
+                        className="flex flex-col items-center justify-center gap-1 text-white"
+                    >
+                        <Trash2 size={20} className="text-white stroke-[2.3]" />
+                        <span className="text-[11px] font-extrabold text-white tracking-tight">
+                            {t("delete") || "Διαγραφή"}
+                        </span>
+                    </motion.div>
                 </button>
-            </motion.div>
+            </div>
 
-            {/* Foreground Swipeable Klarna-Style Card */}
+            {/* Foreground Swipeable Card */}
             <motion.div
-                style={{ x }}
+                style={{
+                    x,
+                    borderTopRightRadius: rightRadius,
+                    borderBottomRightRadius: rightRadius
+                }}
                 drag="x"
                 dragDirectionLock
-                dragConstraints={{ left: -72, right: 0 }}
-                dragElastic={{ left: 0.08, right: 0 }}
+                dragConstraints={{ left: -76, right: 0 }}
+                dragElastic={{ left: 0.25, right: 0 }}
                 animate={controls}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onClick={handleCardClick}
                 className={`relative z-10 w-full flex items-start gap-3.5 p-3.5 sm:p-4 rounded-2xl
                             touch-pan-y cursor-grab active:cursor-grabbing
-                            border transition-all duration-150
+                            border transition-colors duration-150
                             ${!notif.read
                                 ? "bg-white dark:bg-surface-dark3 border-gray-200 dark:border-white/10 shadow-xs"
                                 : "bg-gray-100/75 dark:bg-surface-dark2 border-gray-200/50 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/[0.04]"
