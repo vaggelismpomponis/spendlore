@@ -598,7 +598,7 @@ const AdminView = ({ onBack, hideHeader }) => {
     const tabs = [
         { id: 'overview', icon: LayoutDashboard, label: translate('admin_tab_overview') || 'Overview', badge: null },
         { id: 'users', icon: Users, label: translate('admin_tab_users') || 'Users', badge: profiles.length || null },
-        { id: 'feedback', icon: LifeBuoy, label: translate('admin_tab_feedback') || 'Support & Tickets', badge: openTicketsCount > 0 ? `${openTicketsCount} open` : null },
+        { id: 'feedback', icon: LifeBuoy, label: translate('admin_tab_feedback') || 'Support & Tickets', badge: openTicketsCount > 0 ? `${openTicketsCount} ${translate('admin_open') || 'open'}` : null },
         { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') || 'Updates', badge: updates.length || null },
         { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') || 'Broadcast', badge: 'Live' },
         { id: 'sentry', icon: ShieldAlert, label: translate('admin_tab_sentry') || 'Sentry Errors', badge: sentryErrors.length || null },
@@ -613,7 +613,9 @@ const AdminView = ({ onBack, hideHeader }) => {
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white mb-1">
                         {translate('admin_loading') || 'Loading telemetry data...'}
                     </p>
-                    <p className="text-xs text-gray-400 font-medium">Fetching live database metrics from Supabase</p>
+                    <p className="text-xs text-gray-400 font-medium">
+                        {translate('admin_fetching_live_metrics') || 'Fetching live database metrics from Supabase'}
+                    </p>
                 </div>
             );
         }
@@ -740,11 +742,11 @@ const AdminView = ({ onBack, hideHeader }) => {
                             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/[0.1] text-xs font-bold text-gray-700 dark:text-gray-200 active:scale-95 transition-all shadow-sm"
                         >
                             <ArrowLeft size={14} strokeWidth={2.5} />
-                            <span>Back to App</span>
+                            <span>{translate('admin_back_to_app') || 'Back to App'}</span>
                         </button>
                         <div className="h-4 w-px bg-gray-200 dark:bg-white/10 hidden sm:block" />
                         <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            <span>Admin Console</span>
+                            <span>{translate('admin_console') || 'Admin Console'}</span>
                             <span className="text-gray-300 dark:text-white/20">/</span>
                             <span className="font-extrabold text-gray-900 dark:text-white capitalize">
                                 {tabs.find(t => t.id === activeSection)?.label}
@@ -755,17 +757,17 @@ const AdminView = ({ onBack, hideHeader }) => {
                     <div className="flex items-center gap-3">
                         <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/60 dark:border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Cloud Telemetry Online</span>
+                            <span>{translate('admin_telemetry_online') || 'Cloud Telemetry Online'}</span>
                         </div>
 
                         <button
                             onClick={fetchAllData}
                             disabled={loading}
                             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 border border-gray-200/80 dark:border-white/10 text-xs font-bold text-gray-800 dark:text-gray-200 active:scale-95 transition-all"
-                            title="Refresh Data"
+                            title={translate('admin_refresh') || 'Refresh Data'}
                         >
                             <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-                            <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+                            <span>{loading ? (translate('admin_refreshing') || 'Refreshing...') : (translate('admin_refresh') || 'Refresh')}</span>
                         </button>
                     </div>
                 </div>
@@ -774,7 +776,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                 <ViewHeader
                     onBack={onBack}
                     title={translate('admin_dashboard_title') || 'Admin Panel'}
-                    subtitle="Operations & Telemetry"
+                    subtitle={translate('admin_operations_telemetry') || 'Operations & Telemetry'}
                     contentClassName="mb-3"
                     rightAction={
                         <button
@@ -824,9 +826,9 @@ const AdminView = ({ onBack, hideHeader }) => {
                     <div className="px-3 pt-2 pb-1 flex items-center justify-between">
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                             <SlidersHorizontal size={12} />
-                            <span>Operations Hub</span>
+                            <span>{translate('admin_operations_hub') || 'Operations Hub'}</span>
                         </p>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="System Operational" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title={translate('admin_system_operational') || 'System Operational'} />
                     </div>
 
                     <div className="space-y-1">
@@ -846,15 +848,15 @@ const AdminView = ({ onBack, hideHeader }) => {
                             <div className="flex items-center justify-between text-[11px]">
                                 <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                                     <ShieldCheck size={13} className="text-emerald-500" />
-                                    Security Role
+                                    {translate('admin_security_role') || 'Security Role'}
                                 </span>
                                 <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white border border-gray-300/40 dark:border-white/10">
-                                    Master Admin
+                                    {translate('admin_master_admin') || 'Master Admin'}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between text-[11px]">
-                                <span className="font-bold text-gray-500 dark:text-gray-400">Database Engine</span>
-                                <span className="font-black text-gray-800 dark:text-white">Supabase Live</span>
+                                <span className="font-bold text-gray-500 dark:text-gray-400">{translate('admin_database_engine') || 'Database Engine'}</span>
+                                <span className="font-black text-gray-800 dark:text-white">{translate('admin_supabase_live') || 'Supabase Live'}</span>
                             </div>
                         </div>
 
@@ -864,14 +866,14 @@ const AdminView = ({ onBack, hideHeader }) => {
                             className="w-full flex items-center justify-center gap-2.5 px-4 py-3 rounded-2xl bg-gray-100/80 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.1] text-gray-700 dark:text-white/80 active:scale-[0.98] transition-all text-xs font-bold border border-gray-200/50 dark:border-white/5"
                         >
                             <RefreshCw size={14} className={loading ? 'animate-spin text-violet-600' : 'text-gray-400'} />
-                            <span>{loading ? 'Syncing Engine...' : 'Sync Telemetry'}</span>
+                            <span>{loading ? (translate('admin_syncing_engine') || 'Syncing Engine...') : (translate('admin_sync_telemetry') || 'Sync Telemetry')}</span>
                         </button>
                     </div>
                 </aside>
 
                 {/* ─────── Main Content Scrollable Area ─────── */}
                 <main className="flex-1 overflow-y-auto custom-scrollbar">
-                    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto pb-16">
+                    <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1680px] mx-auto pb-16">
 
                         {/* Section Header */}
                         <div className="flex items-center justify-between">
@@ -882,7 +884,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                                 {activeSection === 'users' && selectedProfile ? (
                                     <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
                                         <button onClick={() => setSelectedProfile(null)} className="text-violet-600 dark:text-violet-400 hover:underline font-bold">
-                                            Users List
+                                            {translate('admin_users_list') || 'Users List'}
                                         </button>
                                         <span>/</span>
                                         <span className="font-semibold text-gray-700 dark:text-gray-300">
@@ -951,7 +953,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                     translate('admin_delete_user_message', { email: userToDelete?.email || 'this user' }) ||
                     `Are you sure you want to permanently delete account "${userToDelete?.email}"? All associated data, transactions, sessions, and authentication records will be erased.`
                 }
-                confirmText={isDeletingUser ? 'Deleting...' : (translate('admin_delete_user_btn') || 'Delete User')}
+                confirmText={isDeletingUser ? (translate('admin_deleting') || 'Deleting...') : (translate('admin_delete_user_btn') || 'Delete User')}
                 type="danger"
             />
 
@@ -977,7 +979,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                                 value={editingNotes}
                                 onChange={e => setEditingNotes(e.target.value)}
                                 className="w-full p-3.5 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 text-sm min-h-[160px] focus:outline-none focus:ring-1 focus:ring-gray-950 dark:focus:ring-white transition-all resize-none font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                                placeholder="Write internal notes about this account..."
+                                placeholder={translate('admin_notes_placeholder') || 'Write internal notes about this account...'}
                             />
                             <div className="flex gap-3 pt-1">
                                 <button

@@ -102,10 +102,10 @@ const AdminFeedback = ({
                         <LifeBuoy size={22} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2} />
                         <div>
                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
-                                Support Desk & User Feedback
+                                {translate('admin_support_hub_title') || 'Support Desk & User Feedback'}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Customer support tickets, bug reports, and incoming inquiries
+                                {translate('admin_support_hub_subtitle') || 'Customer support tickets, bug reports, and incoming inquiries'}
                             </p>
                         </div>
                     </div>
@@ -119,14 +119,14 @@ const AdminFeedback = ({
                                 title="Export tickets JSON"
                             >
                                 <Download size={14} />
-                                <span>Export JSON</span>
+                                <span>{translate('admin_export_json') || 'Export JSON'}</span>
                             </button>
                         )}
                     </div>
                 </div>
 
                 {/* KPI Metrics */}
-                <AdminTicketStats tickets={localTickets} />
+                <AdminTicketStats tickets={localTickets} translate={translate} />
             </div>
 
             {/* ─────── Search & Action Controls Toolbar ─────── */}
@@ -136,7 +136,7 @@ const AdminFeedback = ({
                     <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        placeholder={translate('search_feedback') || 'Search tickets by message, email, or #TICK ID…'}
+                        placeholder={translate('admin_search_tickets_placeholder') || 'Search tickets by message, email, or #TICK ID…'}
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 rounded-xl text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white transition-all"
@@ -148,10 +148,10 @@ const AdminFeedback = ({
                     {/* Status Tabs */}
                     <div className="flex bg-gray-100 dark:bg-white/[0.06] p-1 rounded-xl gap-1">
                         {[
-                            { key: 'all', label: 'All Status' },
-                            { key: 'open', label: 'Open' },
-                            { key: 'in_progress', label: 'In Progress' },
-                            { key: 'resolved', label: 'Resolved' }
+                            { key: 'all', label: translate('admin_all_status') || 'All Status' },
+                            { key: 'open', label: translate('admin_open') || 'Open' },
+                            { key: 'in_progress', label: translate('admin_in_progress') || 'In Progress' },
+                            { key: 'resolved', label: translate('admin_resolved') || 'Resolved' }
                         ].map(tab => (
                             <button
                                 key={tab.key}
@@ -169,17 +169,17 @@ const AdminFeedback = ({
                     </div>
 
                     {/* Category Selector */}
-                    <div className="w-36">
+                    <div className="w-40">
                         <CustomSelect
                             size="sm"
                             value={typeFilter}
                             onChange={setTypeFilter}
                             options={[
-                                { value: 'all', label: 'All Categories' },
-                                { value: 'support', label: 'Support Only' },
-                                { value: 'bug', label: 'Bugs Only' },
-                                { value: 'idea', label: 'Feature Ideas' },
-                                { value: 'other', label: 'General' },
+                                { value: 'all', label: translate('admin_all_categories') || 'All Categories' },
+                                { value: 'support', label: translate('admin_support_only') || 'Support Only' },
+                                { value: 'bug', label: translate('admin_bugs_only') || 'Bugs Only' },
+                                { value: 'idea', label: translate('admin_ideas_only') || 'Feature Ideas' },
+                                { value: 'other', label: translate('admin_general_only') || 'General' },
                             ]}
                         />
                     </div>
@@ -193,10 +193,10 @@ const AdminFeedback = ({
                         <CheckCircle2 size={16} />
                     </div>
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white mb-1">
-                        No support tickets found
+                        {translate('admin_no_tickets_found') || 'No support tickets found'}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                        No submissions match the current status and search filters. All incoming customer support tickets and user feedback will appear here.
+                        {translate('admin_no_tickets_match') || 'No submissions match the current status and search filters. All incoming customer support tickets and user feedback will appear here.'}
                     </p>
                 </div>
             ) : (
@@ -209,6 +209,7 @@ const AdminFeedback = ({
                             onPriorityChange={handlePriorityChange}
                             onNotesSave={handleNotesSave}
                             onDelete={onDelete}
+                            translate={translate}
                         />
                     ))}
                 </div>

@@ -20,6 +20,14 @@ import {
 
 const SENTRY_PROJECT_URL = 'https://spendwise-mz.sentry.io/issues/?environment=production&project=4511308038013008&statsPeriod=14d';
 
+const resolveTranslation = (translateFn, key, fallback, params) => {
+    if (typeof translateFn === 'function') {
+        const val = translateFn(key, params);
+        if (val && val !== key) return val;
+    }
+    return fallback !== undefined ? fallback : key;
+};
+
 const AdminSentryErrors = ({
     errors = [],
     onClear,
@@ -28,6 +36,7 @@ const AdminSentryErrors = ({
     loading = false,
     translate = (k) => k
 }) => {
+    const t = (k, fb, p) => resolveTranslation(translate, k, fb, p);
     const [searchTerm, setSearchTerm] = useState('');
     const [levelFilter, setLevelFilter] = useState('all');
     const [expandedIds, setExpandedIds] = useState(new Set());
@@ -94,10 +103,10 @@ const AdminSentryErrors = ({
                         <ShieldAlert size={22} className="text-rose-600 dark:text-rose-400 shrink-0" strokeWidth={2.2} />
                         <div>
                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
-                                Sentry Telemetry & Error Logging
+                                {t('admin_sentry_title', 'Sentry Telemetry & Error Logging')}
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                Live crash monitoring, unhandled exceptions, and diagnostic traces
+                                {t('admin_sentry_subtitle', 'Live crash monitoring, unhandled exceptions, and diagnostic traces')}
                             </p>
                         </div>
                     </div>
@@ -110,7 +119,7 @@ const AdminSentryErrors = ({
                             title="Trigger a test exception to verify live capture"
                         >
                             <Bug size={14} className="text-rose-500" />
-                            <span>Test Error</span>
+                            <span>{t('admin_test_event', 'Test Error')}</span>
                         </button>
 
                         <a
@@ -119,7 +128,7 @@ const AdminSentryErrors = ({
                             rel="noopener noreferrer"
                             className="px-3.5 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
                         >
-                            <span>Sentry Dashboard</span>
+                            <span>{t('admin_open_sentry_dashboard', 'Sentry Dashboard')}</span>
                             <ExternalLink size={13} />
                         </a>
                     </div>
@@ -129,7 +138,7 @@ const AdminSentryErrors = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
                         <span className="block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-                            Total Events
+                            {t('admin_total_logged_events', 'Total Events')}
                         </span>
                         <span className="block text-xl font-extrabold text-gray-900 dark:text-white mt-1">
                             {errors.length}
@@ -138,7 +147,7 @@ const AdminSentryErrors = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
                         <span className="block text-[11px] font-bold text-rose-500 dark:text-rose-400 uppercase tracking-widest">
-                            Errors / Crashes
+                            {t('admin_critical_errors', 'Errors / Crashes')}
                         </span>
                         <span className="block text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">
                             {errorCount}
@@ -147,7 +156,7 @@ const AdminSentryErrors = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
                         <span className="block text-[11px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-widest">
-                            Warnings
+                            {t('admin_warnings', 'Warnings')}
                         </span>
                         <span className="block text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
                             {warningCount}
@@ -156,11 +165,11 @@ const AdminSentryErrors = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
                         <span className="block text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                            Ingest Status
+                            {t('admin_sdk_status', 'Ingest Status')}
                         </span>
                         <div className="flex items-center gap-1.5 mt-1 text-xs font-extrabold text-emerald-700 dark:text-emerald-400">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Active (spendwise-mz.sentry.io)</span>
+                            <span>{t('admin_sdk_initialized', 'Active (spendwise-mz.sentry.io)')}</span>
                         </div>
                     </div>
                 </div>
@@ -173,7 +182,7 @@ const AdminSentryErrors = ({
                     <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
-                        placeholder="Search errors by message, context, stack trace, or user email..."
+                        placeholder={t('admin_search_sentry_placeholder', 'Search errors by message, context, stack trace, or user email...')}
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 rounded-xl text-xs font-medium text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
@@ -185,9 +194,9 @@ const AdminSentryErrors = ({
                     {/* Level Tabs */}
                     <div className="flex bg-gray-100 dark:bg-white/[0.06] p-1 rounded-xl gap-1">
                         {[
-                            { key: 'all', label: 'All' },
-                            { key: 'error', label: 'Errors' },
-                            { key: 'warning', label: 'Warnings' }
+                            { key: 'all', label: t('admin_all_levels', 'All') },
+                            { key: 'error', label: t('admin_filter_errors', 'Errors') },
+                            { key: 'warning', label: t('admin_filter_warnings', 'Warnings') }
                         ].map(tab => (
                             <button
                                 key={tab.key}
@@ -247,7 +256,7 @@ const AdminSentryErrors = ({
                     <div className="flex items-center gap-3">
                         <AlertTriangle size={18} className="text-rose-600 dark:text-rose-400 shrink-0" />
                         <span className="text-xs font-bold text-rose-900 dark:text-rose-200">
-                            Clear all local & cloud error log records?
+                            {t('admin_clear_all_logs', 'Clear all local & cloud error log records?')}
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -256,7 +265,7 @@ const AdminSentryErrors = ({
                             onClick={() => setShowClearConfirm(false)}
                             className="px-3 py-1.5 rounded-lg bg-gray-200/80 dark:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-white/20 transition-all"
                         >
-                            Cancel
+                            {t('cancel', 'Cancel')}
                         </button>
                         <button
                             type="button"
@@ -266,7 +275,7 @@ const AdminSentryErrors = ({
                             }}
                             className="px-3 py-1.5 rounded-lg bg-rose-600 text-xs font-bold text-white hover:bg-rose-700 transition-all shadow-xs"
                         >
-                            Confirm Clear
+                            {t('admin_clear_all_logs', 'Confirm Clear')}
                         </button>
                     </div>
                 </div>
@@ -279,12 +288,10 @@ const AdminSentryErrors = ({
                         <Check size={24} strokeWidth={2.5} />
                     </div>
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white">
-                        {searchTerm ? 'No matching errors found' : 'No Sentry errors recorded'}
+                        {searchTerm ? t('admin_no_errors_found', 'No matching errors found') : t('admin_no_sentry_errors', 'No Sentry errors recorded')}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm">
-                        {searchTerm
-                            ? 'Try refining your search keyword or clearing the severity filter.'
-                            : 'All systems operational. Errors reported by users or runtime handlers will appear here in real time.'}
+                        {t('admin_no_errors_desc', 'All systems operational. Errors reported by users or runtime handlers will appear here in real time.')}
                     </p>
                 </div>
             ) : (
@@ -388,7 +395,7 @@ const AdminSentryErrors = ({
                                                     className="text-[11px] font-bold text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1"
                                                 >
                                                     {isCopied ? <Check size={12} /> : <Copy size={12} />}
-                                                    <span>{isCopied ? 'Copied' : 'Copy Stack'}</span>
+                                                    <span>{isCopied ? t('admin_copied', 'Copied') : t('admin_copy_stack', 'Copy Stack')}</span>
                                                 </button>
                                             </div>
                                             <pre className="font-mono text-[11px] p-3.5 rounded-xl bg-gray-900 text-gray-200 overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-60 custom-scrollbar">

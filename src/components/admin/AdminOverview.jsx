@@ -2,10 +2,11 @@ import React, { useState, useMemo } from 'react';
 import {
     Users, RefreshCw, MessageSquare, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
-    Crown, Trophy, ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
+    Trophy, ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
     MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert,
     LifeBuoy, Radio, CreditCard, Sparkles, AlertCircle, Check
 } from 'lucide-react';
+import ProBadge from '../ProBadge';
 
 /* ─── Donut Chart (SVG) ─── */
 const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
@@ -53,6 +54,14 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
     );
 };
 
+const resolveTranslation = (translateFn, key, fallback, params) => {
+    if (typeof translateFn === 'function') {
+        const val = translateFn(key, params);
+        if (val && val !== key) return val;
+    }
+    return fallback !== undefined ? fallback : key;
+};
+
 /* ─── Executive Stat Bento Card ─── */
 const StatCard = ({
     icon: Icon,
@@ -62,8 +71,11 @@ const StatCard = ({
     color = 'text-gray-900 dark:text-white',
     onClick,
     trend,
-    badge
-}) => (
+    badge,
+    translate = (k) => k
+}) => {
+    const t = (k, fb, p) => resolveTranslation(translate, k, fb, p);
+    return (
     <div
         onClick={onClick}
         className={`bg-white dark:bg-surface-dark2 p-5 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs
@@ -93,22 +105,23 @@ const StatCard = ({
                 {trend !== undefined ? (
                     <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                         <ArrowUpRight size={12} strokeWidth={2.5} />
-                        +{trend} this month
+                        +{trend} {t('admin_this_month', 'this month')}
                     </span>
                 ) : (
                     <span className="text-[11px] font-medium text-gray-400 dark:text-gray-500 truncate">
-                        {subtext || 'Telemetry active'}
+                        {subtext || t('admin_telemetry_active', 'Telemetry active')}
                     </span>
                 )}
                 {onClick && (
                     <span className="text-[10px] font-bold text-gray-900 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
-                        Inspect <ArrowRight size={10} />
+                        {t('admin_inspect', 'Inspect')} <ArrowRight size={10} />
                     </span>
                 )}
             </div>
         </div>
     </div>
-);
+    );
+};
 
 /* ─── Platform breakdown bar ─── */
 const PlatformBar = ({ label, count, total, color, icon: Icon }) => {
@@ -146,6 +159,7 @@ const UserLeaderboardRow = ({
     activeDropdown,
     setActiveDropdown
 }) => {
+    const t = (k, fb, p) => resolveTranslation(translate, k, fb, p);
     const rankColors = [
         'bg-gray-900 text-white dark:bg-white dark:text-gray-900',
         'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900',
@@ -172,9 +186,7 @@ const UserLeaderboardRow = ({
                         {user.display_name || user.email?.split('@')[0]}
                     </p>
                     {user.subscription_status === 'pro' && (
-                        <span className="px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 uppercase tracking-widest shrink-0 flex items-center gap-0.5">
-                            <Crown size={8} /> PRO
-                        </span>
+                        <ProBadge />
                     )}
                 </div>
                 <p className="text-[11px] text-gray-400 truncate mt-0.5 font-medium">{user.email}</p>
@@ -186,7 +198,7 @@ const UserLeaderboardRow = ({
                     <Activity size={12} className="text-gray-500 dark:text-gray-400" />
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white">{user.sessionCount}</p>
                 </div>
-                <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">sessions</p>
+                <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">{t('admin_sessions', 'sessions')}</p>
             </div>
 
             {/* Actions: Grant/Revoke Pro + 3-dots Menu */}
@@ -204,7 +216,7 @@ const UserLeaderboardRow = ({
                                 : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10 dark:text-emerald-400'
                             }`}
                     >
-                        {user.subscription_status === 'pro' ? (translate('admin_revoke_pro') || 'Revoke Pro') : (translate('admin_grant_pro') || 'Grant Pro')}
+                        {user.subscription_status === 'pro' ? t('admin_revoke_pro', 'Revoke Pro') : t('admin_grant_pro', 'Grant Pro')}
                     </button>
                 )}
 
@@ -250,12 +262,12 @@ const UserLeaderboardRow = ({
                                             {user.subscription_status === 'pro' ? (
                                                 <>
                                                     <ShieldAlert size={14} className="text-rose-500 shrink-0" />
-                                                    <span>{translate('admin_revoke_pro') || 'Revoke Pro'}</span>
+                                                    <span>{t('admin_revoke_pro', 'Revoke Pro')}</span>
                                                 </>
                                             ) : (
                                                 <>
                                                     <ShieldCheck size={14} className="text-emerald-500 shrink-0" />
-                                                    <span>{translate('admin_grant_pro') || 'Grant Pro'}</span>
+                                                    <span>{t('admin_grant_pro', 'Grant Pro')}</span>
                                                 </>
                                             )}
                                         </button>
@@ -271,7 +283,7 @@ const UserLeaderboardRow = ({
                                         className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
                                     >
                                         <ExternalLink size={14} className="text-gray-400 shrink-0" />
-                                        <span>{translate('admin_view_on_stripe') || 'View on Stripe'}</span>
+                                        <span>{t('admin_view_on_stripe', 'View on Stripe')}</span>
                                     </button>
 
                                     <a
@@ -283,7 +295,7 @@ const UserLeaderboardRow = ({
                                         className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
                                     >
                                         <Mail size={14} className="text-gray-400 shrink-0" />
-                                        <span>{translate('admin_send_email') || 'Send Email'}</span>
+                                        <span>{t('admin_send_email', 'Send Email')}</span>
                                     </a>
 
                                     <button
@@ -296,7 +308,7 @@ const UserLeaderboardRow = ({
                                         className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium"
                                     >
                                         <Copy size={14} className="text-gray-400 shrink-0" />
-                                        <span>{translate('admin_copy_user_id') || 'Copy User ID'}</span>
+                                        <span>{t('admin_copy_user_id', 'Copy User ID')}</span>
                                     </button>
 
                                     <button
@@ -309,7 +321,7 @@ const UserLeaderboardRow = ({
                                         className="w-full text-left px-4 py-2 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2.5 transition-colors font-medium border-t border-gray-100 dark:border-white/5"
                                     >
                                         <FileText size={14} className="text-gray-400 shrink-0" />
-                                        <span>{translate('admin_notes') || 'Notes'}</span>
+                                        <span>{t('admin_notes', 'Notes')}</span>
                                     </button>
 
                                     <button
@@ -322,7 +334,7 @@ const UserLeaderboardRow = ({
                                         className="w-full text-left px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 flex items-center gap-2.5 transition-colors font-bold border-t border-gray-100 dark:border-white/5"
                                     >
                                         <Trash2 size={14} className="text-rose-500 shrink-0" />
-                                        <span>{translate('admin_delete_user') || 'Delete User'}</span>
+                                        <span>{t('admin_delete_user', 'Delete User')}</span>
                                     </button>
                                 </div>
                             </>
@@ -355,6 +367,7 @@ const AdminOverview = ({
     loading = false,
     translate = (k) => k
 }) => {
+    const t = (k, fb, p) => resolveTranslation(translate, k, fb, p);
     const [activeDropdown, setActiveDropdown] = useState(null);
 
     // Platform breakdown from session data
@@ -412,14 +425,14 @@ const AdminOverview = ({
                     <div>
                         <div className="flex items-center gap-2 mb-1.5">
                             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                                Enterprise Telemetry &bull; Supabase Live Engine
+                                {t('admin_enterprise_telemetry', 'Enterprise Telemetry • Supabase Live Engine')}
                             </span>
                         </div>
                         <h2 className="text-xl sm:text-2xl font-black text-gray-950 dark:text-white tracking-tight">
-                            Operations & Telemetry Overview
+                            {t('admin_overview_title', 'Operations & Telemetry Overview')}
                         </h2>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
-                            Live user engagement, subscription conversion, ledger activity, and client distribution
+                            {t('admin_overview_subtitle', 'Live user engagement, subscription conversion, ledger activity, and client distribution')}
                         </p>
                     </div>
 
@@ -427,7 +440,7 @@ const AdminOverview = ({
                         {/* Live Telemetry Pill */}
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 text-xs font-bold text-emerald-800 dark:text-emerald-300">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Cloud Telemetry Online</span>
+                            <span>{t('admin_telemetry_online', 'Cloud Telemetry Online')}</span>
                         </div>
 
                         {onRefresh && (
@@ -436,10 +449,10 @@ const AdminOverview = ({
                                 onClick={onRefresh}
                                 disabled={loading}
                                 className="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 text-gray-700 dark:text-gray-200 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all border border-gray-200 dark:border-white/10"
-                                title="Refresh Telemetry"
+                                title={t('admin_refresh', 'Refresh')}
                             >
                                 <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
-                                <span>{loading ? 'Refreshing...' : 'Refresh'}</span>
+                                <span>{loading ? t('admin_refreshing', 'Refreshing...') : t('admin_refresh', 'Refresh')}</span>
                             </button>
                         )}
 
@@ -449,7 +462,7 @@ const AdminOverview = ({
                             className="px-3.5 py-2 rounded-xl bg-gray-950 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
                         >
                             <Users size={14} />
-                            <span>View All Accounts</span>
+                            <span>{t('admin_view_all_accounts', 'View All Accounts')}</span>
                         </button>
                     </div>
                 </div>
@@ -458,7 +471,7 @@ const AdminOverview = ({
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            Total Accounts
+                            {t('admin_total_accounts', 'Total Accounts')}
                         </span>
                         <div className="flex items-baseline gap-1.5 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
@@ -466,7 +479,7 @@ const AdminOverview = ({
                             </span>
                             {joinedThisMonth > 0 && (
                                 <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                                    +{joinedThisMonth} mo
+                                    +{joinedThisMonth} {t('admin_this_month', 'mo')}
                                 </span>
                             )}
                         </div>
@@ -474,7 +487,7 @@ const AdminOverview = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            Pro Conversion
+                            {t('admin_pro_conversion', 'Pro Conversion')}
                         </span>
                         <div className="flex items-baseline gap-1 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
@@ -488,7 +501,7 @@ const AdminOverview = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            Active (7 Days)
+                            {t('admin_active_7d', 'Active (7 Days)')}
                         </span>
                         <div className="flex items-baseline gap-1 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
@@ -502,14 +515,14 @@ const AdminOverview = ({
 
                     <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                            Client Sessions
+                            {t('admin_client_sessions', 'Client Sessions')}
                         </span>
                         <div className="flex items-center gap-1.5 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                                 {stats.activity}
                             </span>
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-gray-200/60 dark:bg-white/10 px-1.5 py-0.5 rounded">
-                                Syncing
+                                {t('admin_syncing', 'Syncing')}
                             </span>
                         </div>
                     </div>
@@ -520,37 +533,41 @@ const AdminOverview = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                     icon={Users}
-                    label="Total User Base"
+                    label={t('admin_total_user_base', 'Total User Base')}
                     value={stats.users}
                     color="text-gray-900 dark:text-white"
                     onClick={onNavigateUsers}
                     trend={joinedThisMonth > 0 ? joinedThisMonth : undefined}
                     badge={`${proConversionRate}% Pro`}
+                    translate={translate}
                 />
                 <StatCard
                     icon={RefreshCw}
-                    label="Recorded Transactions"
+                    label={t('admin_recorded_transactions', 'Recorded Transactions')}
                     value={stats.transactions.toLocaleString()}
-                    subtext={`~${avgTxPerUser} entries / user`}
+                    subtext={`~${avgTxPerUser} ${t('admin_entries_per_user', 'entries / user')}`}
                     color="text-gray-900 dark:text-white"
-                    badge="Ledger Live"
+                    badge={t('admin_ledger_live', 'Ledger Live')}
+                    translate={translate}
                 />
                 <StatCard
                     icon={LifeBuoy}
-                    label="User Feedback"
+                    label={t('admin_user_feedback', 'User Feedback')}
                     value={stats.feedback}
-                    subtext="Community & support tickets"
+                    subtext={t('admin_feedback_subtext', 'Community & support tickets')}
                     color="text-gray-900 dark:text-white"
                     onClick={onNavigateTab ? () => onNavigateTab('feedback') : undefined}
-                    badge={openTicketsCount > 0 ? `${openTicketsCount} Open` : 'Clean'}
+                    badge={openTicketsCount > 0 ? `${openTicketsCount} ${t('admin_open', 'Open')}` : t('admin_clean', 'Clean')}
+                    translate={translate}
                 />
                 <StatCard
                     icon={Activity}
-                    label="Total App Sessions"
+                    label={t('admin_total_app_sessions', 'Total App Sessions')}
                     value={stats.activity}
-                    subtext={`${metrics.active7Days} active in last 7d`}
+                    subtext={`${metrics.active7Days} ${t('admin_active_in_last_7d', 'active in last 7d')}`}
                     color="text-gray-900 dark:text-white"
-                    badge="Heartbeat Online"
+                    badge={t('admin_heartbeat_online', 'Heartbeat Online')}
+                    translate={translate}
                 />
             </div>
 
@@ -558,7 +575,7 @@ const AdminOverview = ({
             {onNavigateTab && (
                 <div className="bg-white dark:bg-surface-dark2 p-3 sm:p-4 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 pl-1 shrink-0">
-                        Operational Hub:
+                        {t('admin_operational_hub_label', 'Operational Hub:')}
                     </span>
                     <div className="flex items-center gap-2">
                         <button
@@ -567,7 +584,7 @@ const AdminOverview = ({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
                             <Users size={13} />
-                            <span>Accounts ({stats.users})</span>
+                            <span>{t('admin_tab_users', 'Accounts')} ({stats.users})</span>
                         </button>
                         <button
                             type="button"
@@ -575,7 +592,7 @@ const AdminOverview = ({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
                             <LifeBuoy size={13} className={openTicketsCount > 0 ? 'text-amber-500' : 'text-gray-400'} />
-                            <span>Support Desk ({openTicketsCount} Open)</span>
+                            <span>{t('admin_support_desk', 'Support Desk')} ({openTicketsCount} {t('admin_open', 'Open')})</span>
                         </button>
                         <button
                             type="button"
@@ -583,7 +600,7 @@ const AdminOverview = ({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
                             <RefreshCw size={13} />
-                            <span>App Releases</span>
+                            <span>{t('admin_app_releases', 'App Releases')}</span>
                         </button>
                         <button
                             type="button"
@@ -591,7 +608,7 @@ const AdminOverview = ({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
                             <Radio size={13} />
-                            <span>Broadcast</span>
+                            <span>{t('admin_broadcast', 'Broadcast')}</span>
                         </button>
                         <button
                             type="button"
@@ -599,7 +616,7 @@ const AdminOverview = ({
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
                             <ShieldAlert size={13} className={sentryErrors.length > 0 ? 'text-rose-500' : 'text-gray-400'} />
-                            <span>Sentry Logs ({sentryErrors.length})</span>
+                            <span>{t('admin_sentry_logs', 'Sentry Logs')} ({sentryErrors.length})</span>
                         </button>
                     </div>
                 </div>
@@ -615,8 +632,8 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2">
                                 <CreditCard size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Subscription Split</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Tier breakdown &amp; estimated MRR</p>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_subscription_split', 'Subscription Split')}</h3>
+                                    <p className="text-[11px] text-gray-400 font-medium">{t('admin_tier_breakdown_mrr', 'Tier breakdown & estimated MRR')}</p>
                                 </div>
                             </div>
                             <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20 tabular-nums">
@@ -629,7 +646,7 @@ const AdminOverview = ({
                                 <DonutChart segments={subSegments} size={100} strokeWidth={14} />
                                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                     <p className="text-lg font-black text-gray-900 dark:text-white leading-none tabular-nums">{stats.users}</p>
-                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Users</span>
+                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{t('admin_tab_users', 'Users')}</span>
                                 </div>
                             </div>
 
@@ -637,7 +654,7 @@ const AdminOverview = ({
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                                        <span className="font-bold text-gray-700 dark:text-gray-200">Pro Tier</span>
+                                        <span className="font-bold text-gray-700 dark:text-gray-200">{t('admin_pro_tier', 'Pro Tier')}</span>
                                     </div>
                                     <div className="text-right tabular-nums">
                                         <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.proUsers}</span>
@@ -648,7 +665,7 @@ const AdminOverview = ({
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500" />
-                                        <span className="font-bold text-gray-700 dark:text-gray-200">Free Tier</span>
+                                        <span className="font-bold text-gray-700 dark:text-gray-200">{t('admin_free_tier', 'Free Tier')}</span>
                                     </div>
                                     <div className="text-right tabular-nums">
                                         <span className="font-extrabold text-gray-900 dark:text-white">{metrics.freeUsers}</span>
@@ -660,7 +677,7 @@ const AdminOverview = ({
                                     <div className="flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                                            <span className="font-bold text-gray-700 dark:text-gray-200">Canceled</span>
+                                            <span className="font-bold text-gray-700 dark:text-gray-200">{t('admin_canceled', 'Canceled')}</span>
                                         </div>
                                         <span className="font-extrabold text-rose-600 dark:text-rose-400 tabular-nums">{metrics.canceledUsers}</span>
                                     </div>
@@ -670,7 +687,7 @@ const AdminOverview = ({
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
-                        <span>Annualized Run-Rate (ARR)</span>
+                        <span>{t('admin_arr_label', 'Annualized Run-Rate (ARR)')}</span>
                         <span className="font-extrabold text-gray-900 dark:text-white tabular-nums">€{estimatedArr}</span>
                     </div>
                 </div>
@@ -682,8 +699,8 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2">
                                 <Activity size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">User Engagement</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Active retention telemetry</p>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_user_engagement', 'User Engagement')}</h3>
+                                    <p className="text-[11px] text-gray-400 font-medium">{t('admin_active_retention_telemetry', 'Active retention telemetry')}</p>
                                 </div>
                             </div>
                             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-500/20">
@@ -697,11 +714,11 @@ const AdminOverview = ({
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-1.5">
                                         <Clock size={13} className="text-gray-600 dark:text-gray-400" />
-                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 7 Days (WAU)</span>
+                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{t('admin_last_7_days_wau', 'Last 7 Days (WAU)')}</span>
                                     </div>
                                     <div className="flex items-baseline gap-1 tabular-nums">
                                         <span className="text-base font-extrabold text-gray-900 dark:text-white">{metrics.active7Days}</span>
-                                        <span className="text-[10px] font-semibold text-gray-400">users</span>
+                                        <span className="text-[10px] font-semibold text-gray-400">{t('admin_tab_users', 'users').toLowerCase()}</span>
                                     </div>
                                 </div>
                                 <div className="h-1.5 bg-gray-200/70 dark:bg-white/10 rounded-full overflow-hidden">
@@ -711,7 +728,7 @@ const AdminOverview = ({
                                     />
                                 </div>
                                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium">
-                                    {active7DaysRate}% of registered user base
+                                    {active7DaysRate}% {t('admin_registered_user_base_pct', 'of registered user base')}
                                 </p>
                             </div>
 
@@ -720,11 +737,11 @@ const AdminOverview = ({
                                 <div className="flex items-center justify-between mb-1.5">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar size={13} className="text-gray-600 dark:text-gray-400" />
-                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Last 30 Days (MAU)</span>
+                                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">{t('admin_last_30_days_mau', 'Last 30 Days (MAU)')}</span>
                                     </div>
                                     <div className="flex items-baseline gap-1 tabular-nums">
                                         <span className="text-base font-extrabold text-gray-900 dark:text-white">{metrics.active30Days}</span>
-                                        <span className="text-[10px] font-semibold text-gray-400">users</span>
+                                        <span className="text-[10px] font-semibold text-gray-400">{t('admin_tab_users', 'users').toLowerCase()}</span>
                                     </div>
                                 </div>
                                 <div className="h-1.5 bg-gray-200/70 dark:bg-white/10 rounded-full overflow-hidden">
@@ -734,14 +751,14 @@ const AdminOverview = ({
                                     />
                                 </div>
                                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1.5 font-medium">
-                                    {active30DaysRate}% of registered user base
+                                    {active30DaysRate}% {t('admin_registered_user_base_pct', 'of registered user base')}
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
-                        <span>Stickiness (7d/30d)</span>
+                        <span>{t('admin_stickiness', 'Stickiness (7d/30d)')}</span>
                         <span className="font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
                             {stickiness}%
                         </span>
@@ -755,25 +772,25 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2">
                                 <Globe size={17} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Platform Split</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Client OS &amp; form factor telemetry</p>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_platform_split', 'Platform Split')}</h3>
+                                    <p className="text-[11px] text-gray-400 font-medium">{t('admin_client_os_telemetry', 'Client OS & form factor telemetry')}</p>
                                 </div>
                             </div>
                             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 border border-gray-200/80 dark:border-white/10 tabular-nums">
-                                {totalPlatform} Sessions
+                                {totalPlatform} {t('admin_sessions', 'Sessions')}
                             </span>
                         </div>
 
                         <div className="space-y-3.5">
                             <PlatformBar
-                                label="Mobile (iOS & Android Native)"
+                                label={t('admin_mobile_clients', 'Mobile (iOS & Android Native)')}
                                 count={platformCounts.mobile}
                                 total={totalPlatform}
                                 color="bg-gray-900 dark:bg-white"
                                 icon={Smartphone}
                             />
                             <PlatformBar
-                                label="Desktop Web & PWA"
+                                label={t('admin_desktop_clients', 'Desktop Web & PWA')}
                                 count={platformCounts.desktop}
                                 total={totalPlatform}
                                 color="bg-emerald-500"
@@ -781,7 +798,7 @@ const AdminOverview = ({
                             />
                             {platformCounts.other > 0 && (
                                 <PlatformBar
-                                    label="Other Clients"
+                                    label={t('admin_other_clients', 'Other Clients')}
                                     count={platformCounts.other}
                                     total={totalPlatform}
                                     color="bg-gray-400"
@@ -794,9 +811,9 @@ const AdminOverview = ({
                     <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/[0.06] flex items-center justify-between text-[11px] text-gray-400 font-medium">
                         <span className="flex items-center gap-1.5">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            Multi-client sync active
+                            {t('admin_multiclient_sync_active', 'Multi-client sync active')}
                         </span>
-                        <span className="font-bold text-gray-700 dark:text-gray-300 tabular-nums">{totalPlatform} recorded</span>
+                        <span className="font-bold text-gray-700 dark:text-gray-300 tabular-nums">{totalPlatform} {t('admin_recorded', 'recorded')}</span>
                     </div>
                 </div>
             </div>
@@ -811,8 +828,8 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2.5">
                                 <Trophy size={18} className="text-amber-500 shrink-0" strokeWidth={2.2} />
                                 <div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">Most Active Accounts</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">Top user engagement leaderboard by app sessions</p>
+                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_most_active_accounts', 'Most Active Accounts')}</h3>
+                                    <p className="text-[11px] text-gray-400 font-medium">{t('admin_most_active_sub', 'Top user engagement leaderboard by app sessions')}</p>
                                 </div>
                             </div>
                             <button
@@ -820,7 +837,7 @@ const AdminOverview = ({
                                 onClick={onNavigateUsers}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/15 text-xs font-bold transition-all border border-gray-200/60 dark:border-white/10"
                             >
-                                <span>View All Users</span>
+                                <span>{t('admin_view_all_users', 'View All Users')}</span>
                                 <ArrowRight size={13} />
                             </button>
                         </div>
@@ -843,16 +860,16 @@ const AdminOverview = ({
                             ) : (
                                 <div className="text-center py-12 rounded-b-2xl">
                                     <Activity size={24} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
-                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">No session telemetry recorded yet</p>
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">{t('admin_no_session_telemetry', 'No session telemetry recorded yet')}</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     <div className="p-3.5 bg-gray-50/70 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/[0.05] rounded-b-2xl flex items-center justify-between text-xs text-gray-400">
-                        <span>Telemetry updated in real time</span>
+                        <span>{t('admin_realtime_telemetry_updated', 'Telemetry updated in real time')}</span>
                         <span className="font-semibold text-gray-700 dark:text-gray-300 tabular-nums">
-                            {metrics.mostActiveUsers?.length || 0} top accounts
+                            {metrics.mostActiveUsers?.length || 0} {t('admin_top_accounts', 'top accounts')}
                         </span>
                     </div>
                 </div>
@@ -866,7 +883,7 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2">
                                 <LifeBuoy size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
-                                    Support &amp; Ticketing Queue
+                                    {t('admin_support_ticketing_queue', 'Support & Ticketing Queue')}
                                 </h3>
                             </div>
                             {onNavigateTab && (
@@ -875,7 +892,7 @@ const AdminOverview = ({
                                     onClick={() => onNavigateTab('feedback')}
                                     className="text-[11px] font-bold text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
                                 >
-                                    Open Desk &rarr;
+                                    {t('admin_open_desk', 'Open Desk')} &rarr;
                                 </button>
                             )}
                         </div>
@@ -890,14 +907,14 @@ const AdminOverview = ({
                                     >
                                         <div className="flex items-center justify-between text-xs mb-1">
                                             <span className="font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
-                                                {ticket.email || 'Anonymous User'}
+                                                {ticket.email || t('admin_anonymous_user', 'Anonymous User')}
                                             </span>
                                             <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300">
-                                                {ticket.priority || 'open'}
+                                                {ticket.priority || t('admin_open', 'open').toLowerCase()}
                                             </span>
                                         </div>
                                         <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1">
-                                            {ticket.message || 'No description provided'}
+                                            {ticket.message || t('admin_no_description_provided', 'No description provided')}
                                         </p>
                                     </div>
                                 ))}
@@ -905,8 +922,8 @@ const AdminOverview = ({
                         ) : (
                             <div className="py-6 text-center">
                                 <CheckCircle2 size={24} className="mx-auto text-emerald-500 mb-2" />
-                                <p className="text-xs font-bold text-gray-900 dark:text-white">All caught up!</p>
-                                <p className="text-[11px] text-gray-400 mt-0.5">No open support tickets requiring urgent attention.</p>
+                                <p className="text-xs font-bold text-gray-900 dark:text-white">{t('admin_all_caught_up', 'All caught up!')}</p>
+                                <p className="text-[11px] text-gray-400 mt-0.5">{t('admin_no_open_tickets', 'No open support tickets requiring urgent attention.')}</p>
                             </div>
                         )}
                     </div>
@@ -917,36 +934,36 @@ const AdminOverview = ({
                             <div className="flex items-center gap-2">
                                 <ShieldCheck size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
-                                    System Telemetry
+                                    {t('admin_system_telemetry', 'System Telemetry')}
                                 </h3>
                             </div>
                             <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                                99.98% HEALTH
+                                99.98% {t('admin_health_label', 'HEALTH')}
                             </span>
                         </div>
 
                         <div className="space-y-2 text-xs">
                             <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
-                                <span className="font-semibold text-gray-600 dark:text-gray-300">Database Engine</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">{t('admin_database_engine', 'Database Engine')}</span>
                                 <span className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Supabase Postgres (EU West)
+                                    {t('admin_supabase_eu_west', 'Supabase Postgres (EU West)')}
                                 </span>
                             </div>
 
                             <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
-                                <span className="font-semibold text-gray-600 dark:text-gray-300">In-App Updates</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">{t('admin_inapp_updates', 'In-App Updates')}</span>
                                 <span className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                    Google Play Flexible Live
+                                    {t('admin_google_play_flexible', 'Google Play Flexible Live')}
                                 </span>
                             </div>
 
                             <div className="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.04]">
-                                <span className="font-semibold text-gray-600 dark:text-gray-300">Sentry Crash Telemetry</span>
+                                <span className="font-semibold text-gray-600 dark:text-gray-300">{t('admin_sentry_crash_telemetry', 'Sentry Crash Telemetry')}</span>
                                 <span className={`font-bold flex items-center gap-1.5 ${sentryErrors.length > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                     <span className={`w-1.5 h-1.5 rounded-full ${sentryErrors.length > 0 ? 'bg-rose-500' : 'bg-emerald-500'}`} />
-                                    {sentryErrors.length > 0 ? `${sentryErrors.length} Exceptions` : '0 Errors Logged'}
+                                    {sentryErrors.length > 0 ? `${sentryErrors.length} ${t('admin_exceptions', 'Exceptions')}` : (t('admin_errors_logged', 'Errors Logged') ? `0 ${t('admin_errors_logged', 'Errors Logged')}` : '0 Errors Logged')}
                                 </span>
                             </div>
                         </div>

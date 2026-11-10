@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import {
     ChevronLeft, RefreshCw, Activity, Shield, FileText, ExternalLink, Mail,
     Copy, Smartphone, Monitor, Radio, MapPin, Clock, Calendar, User,
-    TrendingUp, Target, CreditCard, CheckCircle2, Crown, Globe, Trash2
+    TrendingUp, Target, CreditCard, CheckCircle2, Globe, Trash2
 } from 'lucide-react';
+import ProBadge from '../ProBadge';
 
 /* ─── Utility ─── */
-const timeAgo = (dateStr) => {
+const getTimeAgo = (dateStr, translate = (k) => k) => {
     if (!dateStr) return null;
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
     const hours = Math.floor(mins / 60);
     const days = Math.floor(hours / 24);
-    if (mins < 2) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    if (days < 30) return `${days}d ago`;
+    if (mins < 2) return translate('admin_just_now') || 'just now';
+    if (mins < 60) return translate('admin_mins_ago', { mins }) || `${mins}m ago`;
+    if (hours < 24) return translate('admin_hours_ago', { hours }) || `${hours}h ago`;
+    if (days < 30) return translate('admin_days_ago', { days }) || `${days}d ago`;
     return new Date(dateStr).toLocaleDateString();
 };
 
@@ -40,7 +41,7 @@ const StatBadge = ({ icon: Icon, label, value, color, loading }) => (
 );
 
 /* ─── Session Timeline Row ─── */
-const SessionRow = ({ session, isLatest, idx }) => {
+const SessionRow = ({ session, isLatest, idx, translate = (k) => k }) => {
     const deviceIcon = () => {
         const d = session.device || '';
         if (d.includes('iPhone') || d.includes('Android') || d.includes('Mobile')) return <Smartphone size={14} />;
@@ -76,7 +77,7 @@ const SessionRow = ({ session, isLatest, idx }) => {
                         </div>
                         {isLatest && (
                             <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[9px] font-black uppercase rounded-md shrink-0">
-                                Latest
+                                {translate('admin_latest') || 'Latest'}
                             </span>
                         )}
                     </div>
@@ -96,7 +97,7 @@ const SessionRow = ({ session, isLatest, idx }) => {
                         {session.last_active && (
                             <div className="flex items-center gap-1">
                                 <Clock size={10} />
-                                <span>{timeAgo(session.last_active)}</span>
+                                <span>{getTimeAgo(session.last_active, translate)}</span>
                             </div>
                         )}
                     </div>
@@ -107,7 +108,7 @@ const SessionRow = ({ session, isLatest, idx }) => {
 };
 
 /* ─── Inline Notes Editor ─── */
-const InlineNotes = ({ notes, onSave, isSaving, translate }) => {
+const InlineNotes = ({ notes, onSave, isSaving, translate = (k) => k }) => {
     const [editing, setEditing] = useState(false);
     const [value, setValue] = useState(notes || '');
 
@@ -125,7 +126,7 @@ const InlineNotes = ({ notes, onSave, isSaving, translate }) => {
                         value={value}
                         onChange={e => setValue(e.target.value)}
                         className="w-full p-3 bg-gray-50 dark:bg-white/[0.04] rounded-xl border border-gray-200 dark:border-white/10 text-xs text-gray-900 dark:text-white min-h-[90px] focus:outline-none focus:ring-1 focus:ring-violet-500 resize-none transition-all leading-relaxed"
-                        placeholder="Internal administrator notes..."
+                        placeholder={translate('admin_internal_notes_placeholder') || 'Internal administrator notes...'}
                     />
                     <div className="flex gap-2">
                         <button
@@ -142,7 +143,7 @@ const InlineNotes = ({ notes, onSave, isSaving, translate }) => {
                             onClick={() => { setValue(notes || ''); setEditing(false); }}
                             className="px-3 py-2 bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-300 text-xs font-bold rounded-xl transition-all"
                         >
-                            Cancel
+                            {translate('cancel') || 'Cancel'}
                         </button>
                     </div>
                 </div>
@@ -154,10 +155,10 @@ const InlineNotes = ({ notes, onSave, isSaving, translate }) => {
                     {notes ? (
                         <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{notes}</p>
                     ) : (
-                        <p className="text-xs text-gray-400 italic">Click here to add notes about this user…</p>
+                        <p className="text-xs text-gray-400 italic">{translate('admin_add_note') || 'Click here to add notes about this user…'}</p>
                     )}
                     <p className="text-[10px] text-violet-600 dark:text-violet-400 font-bold tracking-wider mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Click to edit notes
+                        {translate('admin_add_note') || 'Click to edit notes'}
                     </p>
                 </div>
             )}
@@ -206,7 +207,7 @@ const AdminUserDetail = ({
                     className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/[0.1] px-3.5 py-2 rounded-xl transition-all active:scale-95"
                 >
                     <ChevronLeft size={15} />
-                    <span>{translate('back') || 'Back to Users'}</span>
+                    <span>{translate('admin_back_to_users') || 'Back to Users'}</span>
                 </button>
 
                 <div className="flex items-center gap-2">
@@ -243,7 +244,7 @@ const AdminUserDetail = ({
                                 : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20'
                         }`}
                     >
-                        {profile.subscription_status === 'pro' ? 'Revoke Pro' : 'Grant Pro'}
+                        {profile.subscription_status === 'pro' ? (translate('admin_revoke_pro') || 'Revoke Pro') : (translate('admin_grant_pro') || 'Grant Pro')}
                     </button>
                 </div>
             </div>
@@ -257,13 +258,11 @@ const AdminUserDetail = ({
                                 {profile.display_name || profile.email?.split('@')[0]}
                             </h2>
                             {profile.subscription_status === 'pro' && (
-                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 uppercase tracking-widest flex items-center gap-0.5">
-                                    <Crown size={9} /> PRO
-                                </span>
+                                <ProBadge />
                             )}
                             {profile.subscription_status === 'canceled' && (
                                 <span className="px-2 py-0.5 rounded-md text-[9px] font-black bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 uppercase tracking-widest">
-                                    Canceled
+                                    {translate('admin_canceled') || 'Canceled'}
                                 </span>
                             )}
                         </div>
@@ -274,30 +273,30 @@ const AdminUserDetail = ({
                 {/* Identity Details Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">Joined</span>
+                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">{translate('admin_sort_joined') || 'Joined'}</span>
                         <span className="block text-xs font-bold text-gray-900 dark:text-white mt-1">
                             {formatDate(profile.created_at)}
                         </span>
                     </div>
 
                     <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">Last Sign In</span>
+                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">{translate('last_login') || 'Last Sign In'}</span>
                         <span className="block text-xs font-bold text-gray-900 dark:text-white mt-1">
-                            {timeAgo(profile.last_sign_in_at) || '—'}
+                            {getTimeAgo(profile.last_sign_in_at, translate) || '—'}
                         </span>
                     </div>
 
                     <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
-                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">Sessions</span>
+                        <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">{translate('admin_sort_sessions') || 'Sessions'}</span>
                         <span className="block text-xs font-bold text-gray-900 dark:text-white mt-1">
-                            {totalSessions} recorded
+                            {totalSessions} {translate('admin_recorded') || 'recorded'}
                         </span>
                     </div>
 
                     <div className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06]">
                         <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest">Customer ID</span>
                         <span className="block text-xs font-bold text-gray-900 dark:text-white mt-1 font-mono truncate">
-                            {profile.stripe_customer_id ? `${profile.stripe_customer_id.slice(0, 10)}…` : 'None'}
+                            {profile.stripe_customer_id ? `${profile.stripe_customer_id.slice(0, 10)}…` : (translate('admin_none') || 'None')}
                         </span>
                     </div>
                 </div>
@@ -305,11 +304,11 @@ const AdminUserDetail = ({
 
             {/* Usage Telemetry Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <StatBadge icon={TrendingUp} label="Ledger Transactions" value={profileStats.transactions}
+                <StatBadge icon={TrendingUp} label={translate('admin_recorded_transactions') || 'Ledger Transactions'} value={profileStats.transactions}
                     color="text-violet-500" loading={loadingProfileData} />
-                <StatBadge icon={Target} label="Budgets Configured" value={profileStats.budgets}
+                <StatBadge icon={Target} label={translate('admin_active_budgets') || 'Budgets Configured'} value={profileStats.budgets}
                     color="text-blue-500" loading={loadingProfileData} />
-                <StatBadge icon={TrendingUp} label="Savings Goals" value={profileStats.goals}
+                <StatBadge icon={TrendingUp} label={translate('admin_savings_goals') || 'Savings Goals'} value={profileStats.goals}
                     color="text-emerald-500" loading={loadingProfileData} />
             </div>
 
@@ -322,7 +321,7 @@ const AdminUserDetail = ({
                         <div className="flex items-center gap-2">
                             <Activity size={17} className="text-violet-600 dark:text-violet-400" />
                             <h3 className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">
-                                Session History
+                                {translate('admin_recent_sessions') || 'Session History'}
                             </h3>
                         </div>
                         {firstSeen && (
@@ -333,22 +332,22 @@ const AdminUserDetail = ({
                         {loadingProfileData ? (
                             <div className="flex flex-col items-center py-10 opacity-50">
                                 <RefreshCw size={22} className="animate-spin text-violet-500 mb-2" />
-                                <p className="text-xs font-bold text-gray-400">Loading session telemetry…</p>
+                                <p className="text-xs font-bold text-gray-400">{translate('admin_loading') || 'Loading session telemetry…'}</p>
                             </div>
                         ) : allSessions.length > 0 ? (
                             <>
                                 {allSessions.slice(0, 10).map((sess, idx) => (
-                                    <SessionRow key={idx} session={sess} isLatest={idx === 0} idx={idx} />
+                                    <SessionRow key={idx} session={sess} isLatest={idx === 0} idx={idx} translate={translate} />
                                 ))}
                                 {allSessions.length > 10 && (
                                     <p className="text-[10px] font-bold text-gray-400 uppercase text-center mt-2 pt-3 border-t border-gray-100 dark:border-white/[0.06]">
-                                        Showing latest 10 of {allSessions.length} sessions
+                                        {allSessions.length} {translate('admin_sessions') || 'sessions'}
                                     </p>
                                 )}
                             </>
                         ) : (
                             <div className="text-center py-10 text-gray-400 text-xs italic">
-                                No session telemetry recorded yet
+                                {translate('admin_no_session_telemetry') || 'No session telemetry recorded yet'}
                             </div>
                         )}
                     </div>
@@ -372,7 +371,7 @@ const AdminUserDetail = ({
                             >
                                 <div className="flex items-center gap-2.5">
                                     <ExternalLink size={14} className="text-gray-400 group-hover:text-violet-500 transition-colors" />
-                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Stripe Customer</span>
+                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{translate('admin_view_on_stripe') || 'Stripe Customer'}</span>
                                 </div>
                                 <ChevronLeft size={12} className="rotate-180 text-gray-400" />
                             </button>
@@ -382,7 +381,7 @@ const AdminUserDetail = ({
                             >
                                 <div className="flex items-center gap-2.5">
                                     <Mail size={14} className="text-gray-400 group-hover:text-violet-500 transition-colors" />
-                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Send Direct Email</span>
+                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{translate('admin_send_email') || 'Send Direct Email'}</span>
                                 </div>
                                 <ChevronLeft size={12} className="rotate-180 text-gray-400" />
                             </a>
@@ -393,7 +392,7 @@ const AdminUserDetail = ({
                             >
                                 <div className="flex items-center gap-2.5">
                                     <Copy size={14} className="text-gray-400 group-hover:text-violet-500 transition-colors" />
-                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Copy User ID</span>
+                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">{translate('admin_copy_user_id') || 'Copy User ID'}</span>
                                 </div>
                             </button>
                             <button
@@ -415,7 +414,7 @@ const AdminUserDetail = ({
                         <div className="flex items-center gap-2 pb-2 border-b border-gray-100 dark:border-white/[0.06]">
                             <FileText size={16} className="text-amber-500" />
                             <h3 className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">
-                                Admin Notes
+                                {translate('admin_user_notes') || 'Admin Notes'}
                             </h3>
                         </div>
                         <InlineNotes

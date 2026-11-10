@@ -108,4 +108,33 @@ describe('AdminUpdates Component', () => {
         fireEvent.click(publishBtn);
         expect(onPublish).toHaveBeenCalled();
     });
+
+    it('renders translated empty state when there are no updates', () => {
+        render(
+            <AdminUpdates
+                updates={[]}
+                showUpdateModal={false}
+                setShowUpdateModal={vi.fn()}
+                newUpdate={mockNewUpdate}
+                setNewUpdate={vi.fn()}
+                addFeature={vi.fn()}
+                removeFeature={vi.fn()}
+                updateFeature={vi.fn()}
+                onPublish={vi.fn()}
+                onDelete={vi.fn()}
+                translate={(k) => {
+                    const dict = {
+                        admin_no_releases_title: 'Δεν έχουν δημοσιευτεί εκδόσεις ακόμα',
+                        admin_no_releases_desc: 'Δημιουργήστε και μεταδώστε την πρώτη σας ενημέρωση έκδοσης',
+                        admin_publish_first_release: 'Δημοσίευση Πρώτης Έκδοσης'
+                    };
+                    return dict[k] || k;
+                }}
+            />
+        );
+
+        expect(screen.getByText('Δεν έχουν δημοσιευτεί εκδόσεις ακόμα')).toBeInTheDocument();
+        expect(screen.getByText('Δημιουργήστε και μεταδώστε την πρώτη σας ενημέρωση έκδοσης')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Δημοσίευση Πρώτης Έκδοσης' })).toBeInTheDocument();
+    });
 });
