@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import sentryLogger from './utils/sentryLogger'
+import { isUserCancellationError } from './utils/authErrors'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary'
 import { registerSW } from 'virtual:pwa-register'
@@ -94,6 +95,15 @@ if (import.meta.env.VITE_SENTRY_DSN) {
                     const stack = ex?.stacktrace?.frames
                         ? ex.stacktrace.frames.map(f => `at ${f.function || '?'} (${f.filename || '?'}:${f.lineno || '?'})`).reverse().join('\n')
                         : (hint?.originalException instanceof Error ? hint.originalException.stack : null);
+
+                    // Suppress user cancellation flows (e.g. Google Sign-In dismissed/backed out by user)
+                    if (
+                        isUserCancellationError(hint?.originalException) ||
+                        isUserCancellationError(message) ||
+                        isUserCancellationError(stack)
+                    ) {
+                        return null; // Drop event completely from Sentry
+                    }
 
                     sentryLogger.recordError({
                         message,

@@ -179,8 +179,8 @@ const CoolingOffView = ({ user, onBack, onAddTransaction, hideHeader = false }) 
             )}
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 py-5 space-y-5">
-                <div className="max-w-4xl mx-auto space-y-5">
+            <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-0 py-5 lg:py-0 space-y-5">
+                <div className="w-full mx-auto space-y-5">
                     {hideHeader && (
                         <div className="flex items-center justify-between gap-4 pb-1">
                             <div>

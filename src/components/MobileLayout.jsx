@@ -167,8 +167,12 @@ export default function MobileLayout({
 
                 {/* Mobile Modals/FAB */}
                 {!['goals', 'budgets', 'cooling-off', 'profile', 'recurring', 'general', 'security', 'backup', 'support', 'feedback', 'admin', 'privacy', 'advisor', 'guide', 'upgrade'].includes(activeTab) && (
-                    <div className="absolute bottom-0 w-full z-[45] pointer-events-none">
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto">
+                    <div
+                        className="absolute bottom-0 left-0 right-0 w-full z-[45] pointer-events-none px-3"
+                        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.75rem)' }}
+                    >
+                        {/* Quick Add Button positioned at the bottom-right corner, directly above the navbar pill */}
+                        <div className="flex justify-end pr-1 mb-2 pointer-events-auto">
                             <div id="tour-add-button" className="relative">
                                 {/* Long-press context menu */}
                                 <AnimatePresence>
@@ -185,7 +189,7 @@ export default function MobileLayout({
                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.85, y: 8 }}
                                             transition={{ type: 'spring', damping: 20, stiffness: 350, mass: 0.6 }}
-                                            className="absolute bottom-[calc(100%+14px)] left-1/2 -translate-x-1/2 z-[46] flex flex-col gap-2 items-center"
+                                            className="absolute bottom-[calc(100%+12px)] right-0 z-[46] flex flex-col gap-2 items-end"
                                         >
                                             {/* Income pill */}
                                             <motion.button
@@ -206,7 +210,7 @@ export default function MobileLayout({
                                                 <span>Έξοδο</span>
                                             </motion.button>
                                             {/* Connector dot */}
-                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 opacity-60" />
+                                            <div className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 opacity-60 mr-5" />
                                         </motion.div>
                                     ]}
                                 </AnimatePresence>
@@ -236,7 +240,7 @@ export default function MobileLayout({
                                         clearTimeout(fabLongPressRef.current);
                                     }}
                                     aria-label="Add transaction"
-                                    className="relative w-12 h-12 rounded-2xl bg-violet-500 hover:bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-500/25 border border-violet-400/40 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
+                                    className="relative w-12 h-12 rounded-2xl bg-gray-950 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 flex items-center justify-center shadow-xl shadow-black/20 dark:shadow-black/50 border border-black/10 dark:border-white/20 outline-none focus:outline-none focus-visible:outline-none select-none active:scale-95 transition-all"
                                     style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
                                 >
                                     <motion.div
@@ -248,6 +252,8 @@ export default function MobileLayout({
                                 </motion.button>
                             </div>
                         </div>
+
+                        {/* Floating Pill Navbar */}
                         <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
                     </div>
                 )}

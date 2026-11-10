@@ -298,45 +298,27 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                         </button>
                     )
                 ) : (
-                    /* For non-settings pages: Notification Bell + Add Button */
-                    <>
-                        {/* Notification Bell */}
-                        <button
-                            onClick={onToggleNotifications}
-                            className="relative w-10 h-10 rounded-xl flex-shrink-0
-                                       bg-gray-100 dark:bg-white/[0.08]
-                                       flex items-center justify-center
-                                       text-gray-700 dark:text-gray-300
-                                       hover:bg-gray-200/70 dark:hover:bg-white/10
-                                       hover:scale-105 active:scale-95
-                                       transition-all duration-200"
-                            aria-label="Notifications"
-                        >
-                            <Bell size={18} />
-                            {unreadCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5
-                                                 w-4 h-4 rounded-full
-                                                 bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
-                                    {unreadCount > 9 ? '9+' : unreadCount}
-                                </span>
-                            )}
-                        </button>
-
-                        {/* Add Button (Personal finance entry - hidden on admin management view) */}
-                        {activeTab !== 'admin' && (
-                            <button
-                                id="tour-add-button"
-                                onClick={() => onAdd?.()}
-                                className="flex items-center gap-2 px-4 py-2.5
-                                           bg-violet-500 hover:bg-violet-600 text-white text-sm font-bold
-                                           rounded-xl shadow-sm shadow-violet-500/20 border border-violet-400/30
-                                           active:scale-95 transition-all duration-200"
-                            >
-                                <Plus size={16} strokeWidth={2.5} />
-                                {t('add_transaction') || t('add') || 'Προσθήκη'}
-                            </button>
+                    /* For non-settings pages: Notification Bell */
+                    <button
+                        onClick={onToggleNotifications}
+                        className="relative w-10 h-10 rounded-xl flex-shrink-0
+                                   bg-gray-100 dark:bg-white/[0.08]
+                                   flex items-center justify-center
+                                   text-gray-700 dark:text-gray-300
+                                   hover:bg-gray-200/70 dark:hover:bg-white/10
+                                   hover:scale-105 active:scale-95
+                                   transition-all duration-200"
+                        aria-label="Notifications"
+                    >
+                        <Bell size={18} />
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5
+                                             w-4 h-4 rounded-full
+                                             bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
+                                {unreadCount > 9 ? '9+' : unreadCount}
+                            </span>
                         )}
-                    </>
+                    </button>
                 )}
             </div>
         </div>
@@ -360,9 +342,12 @@ const DesktopLayout = ({
     const { t } = useSettings();
     const handleToggleNotifications = onToggleNotifications || (() => setShowNotificationPanel?.(prev => !prev));
 
-    // Tabs that should NOT show the right panel (full-width sub-pages and redesigned desktop homepage)
-    const hideRightPanel = ['home', 'advisor', 'profile', 'account', 'profile-details', 'general', 'categories', 'security', 'backup',
-        'support', 'feedback', 'guide', 'admin', 'privacy', 'terms', 'upgrade', 'cooling-off'].includes(activeTab);
+    // All desktop pages follow the unified full-width layout matching the home page
+    const hideRightPanel = true;
+
+    // Settings and administrative tabs that should not display the creation FAB
+    const isSettingsTab = ['profile', 'account', 'general', 'security', 'backup', 'support', 'feedback', 'guide', 'profile-details', 'categories', 'privacy', 'terms', 'upgrade'].includes(activeTab);
+    const showAddButton = !isSettingsTab && activeTab !== 'admin';
 
     return (
         <div className="h-full w-full flex bg-gray-50 dark:bg-surface-dark overflow-hidden">
@@ -401,7 +386,7 @@ const DesktopLayout = ({
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
                     <main className="flex-1 overflow-y-auto custom-scrollbar">
-                        <div className={`h-full ${activeTab === 'admin' ? 'p-0' : ['home', 'advisor'].includes(activeTab) ? 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto' : 'px-4 lg:px-6 xl:px-8 py-6'}`}>
+                        <div className={`h-full ${activeTab === 'admin' ? 'p-0' : 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto w-full'}`}>
                             {children}
                         </div>
                     </main>
@@ -417,6 +402,29 @@ const DesktopLayout = ({
                         />
                     )}
                 </div>
+
+                {/* ── FLOATING ADD BUTTON (Down Right Corner) ── */}
+                {showAddButton && (
+                    <button
+                        id="tour-add-button"
+                        onClick={() => onAdd?.()}
+                        aria-label={t('add_transaction') || t('add') || 'Add transaction'}
+                        title={t('add_transaction') || t('add') || 'Προσθήκη'}
+                        className="fixed bottom-8 right-8 z-40
+                                   w-14 h-14 rounded-2xl
+                                   bg-gray-950 hover:bg-black text-white
+                                   dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950
+                                   flex items-center justify-center
+                                   shadow-2xl shadow-black/25 dark:shadow-black/50
+                                   border border-black/10 dark:border-white/20
+                                   outline-none focus:outline-none focus-visible:outline-none
+                                   hover:scale-105 active:scale-95 transition-all duration-200 group select-none cursor-pointer"
+                        style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                    >
+                        <Plus size={24} strokeWidth={2.5} className="group-hover:rotate-90 transition-transform duration-300" />
+                        <span className="sr-only">{t('add_transaction') || 'Add transaction'}</span>
+                    </button>
+                )}
             </div>
         </div>
     );

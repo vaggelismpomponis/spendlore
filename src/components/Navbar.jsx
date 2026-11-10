@@ -3,12 +3,9 @@ import { Home, BarChart3, History, Settings, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 
-const NAV_ITEMS_LEFT = [
+const NAV_ITEMS = [
     { id: 'home', Icon: Home, labelKey: 'nav_home' },
     { id: 'stats', Icon: BarChart3, labelKey: 'nav_stats' },
-];
-
-const NAV_ITEMS_RIGHT = [
     { id: 'history', Icon: History, labelKey: 'nav_history' },
     { id: 'profile', Icon: Settings, labelKey: 'settings' },
 ];
@@ -49,10 +46,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
         const isProLocked = id === 'stats' && !isPro;
         const label = translate(labelKey);
 
-        const iconActiveClass = isDark ? 'text-violet-400' : 'text-violet-600';
-        const iconInactiveClass = isDark ? 'text-gray-400' : 'text-gray-500';
-        const labelActiveClass = isDark ? 'text-violet-400 font-bold' : 'text-violet-600 font-bold';
-        const labelInactiveClass = isDark ? 'text-gray-400 font-medium' : 'text-gray-500 font-medium';
+        const iconActiveClass = isDark ? 'text-white' : 'text-gray-950';
+        const iconInactiveClass = isDark ? 'text-gray-400' : 'text-gray-400';
+        const labelActiveClass = isDark ? 'text-white font-bold' : 'text-gray-950 font-bold';
+        const labelInactiveClass = isDark ? 'text-gray-400 font-medium' : 'text-gray-400 font-medium';
 
         return (
             <button
@@ -67,9 +64,8 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 }}
                 aria-label={label}
                 aria-current={active ? 'page' : undefined}
-                className="flex flex-col items-center justify-center flex-1 h-full gap-1 relative group outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0 select-none border-none"
+                className="flex flex-col items-center justify-center flex-1 h-[48px] rounded-full relative group outline-none focus:outline-none focus-visible:outline-none active:outline-none focus:ring-0 active:ring-0 select-none border-none transition-transform active:scale-95"
                 style={{
-                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     outline: 'none',
                     border: 'none',
                     boxShadow: 'none',
@@ -78,19 +74,13 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 }}
             >
                 <div
-                    className={`relative flex items-center justify-center rounded-xl p-1 transition-all duration-300 outline-none focus:outline-none focus-visible:outline-none select-none border-none
-                        ${active ? `scale-110` : `scale-100`}`}
-                    style={{
-                        outline: 'none',
-                        border: 'none',
-                        boxShadow: 'none',
-                        WebkitTapHighlightColor: 'transparent',
-                    }}
+                    className="relative flex items-center justify-center p-0.5 outline-none focus:outline-none select-none border-none"
+                    style={{ outline: 'none', border: 'none' }}
                 >
                     <Icon
-                        size={24}
-                        strokeWidth={active ? 2.5 : 2}
-                        className={`${active ? iconActiveClass : iconInactiveClass} outline-none focus:outline-none select-none`}
+                        size={20}
+                        strokeWidth={active ? 2.5 : 1.8}
+                        className={`${active ? iconActiveClass : iconInactiveClass} transition-colors duration-200 outline-none focus:outline-none select-none`}
                         style={{ outline: 'none', border: 'none' }}
                     />
                     {isProLocked && (
@@ -100,28 +90,36 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                     )}
                 </div>
 
-                <span className={`text-[10px] tracking-wide capitalize transition-all duration-300 select-none
-                    ${active ? labelActiveClass : labelInactiveClass}`}>
+                <span className={`text-[10px] tracking-tight leading-tight capitalize transition-colors duration-200 select-none ${
+                    active ? labelActiveClass : labelInactiveClass
+                }`}>
                     {label}
                 </span>
+
+                {/* Revolut micro-pill active indicator */}
+                <div
+                    className={`w-3.5 h-[2px] rounded-full mt-0.5 transition-all duration-300 ${
+                        active ? (isDark ? 'bg-white' : 'bg-gray-950') : 'bg-transparent'
+                    }`}
+                />
             </button>
         );
     };
 
-    const barStyle = isDark
+    const pillStyle = isDark
         ? {
-              background: 'rgba(15, 17, 23, 0.85)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              borderTop: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: '0 -4px 32px rgba(0,0,0,0.3)',
+              background: 'rgba(18, 18, 18, 0.88)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.10)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.3)',
           }
         : {
-              background: 'rgba(255, 255, 255, 0.92)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              borderTop: '1px solid rgba(0,0,0,0.06)',
-              boxShadow: '0 -4px 32px rgba(0,0,0,0.05)',
+              background: 'rgba(255, 255, 255, 0.88)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              border: '1px solid rgba(0, 0, 0, 0.08)',
+              boxShadow: '0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)',
           };
 
     return (
@@ -130,23 +128,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
             className="w-full pointer-events-none"
         >
             <div
-                className="w-full pointer-events-auto relative"
-                style={{ ...barStyle, paddingBottom: 'env(safe-area-inset-bottom)' }}
+                className="w-full h-[58px] rounded-full pointer-events-auto flex items-center justify-around px-2 relative transition-all duration-300"
+                style={pillStyle}
             >
-                <div className="flex items-center h-[72px] px-2 pb-2">
-                    {/* Left nav items */}
-                    <div className="flex-1 flex justify-around h-full items-center">
-                        {NAV_ITEMS_LEFT.map(renderItem)}
-                    </div>
-
-                    {/* Spacer for FAB */}
-                    <div className="w-[80px] flex-shrink-0" />
-
-                    {/* Right nav items */}
-                    <div className="flex-1 flex justify-around h-full items-center">
-                        {NAV_ITEMS_RIGHT.map(renderItem)}
-                    </div>
-                </div>
+                {NAV_ITEMS.map(renderItem)}
             </div>
         </nav>
     );

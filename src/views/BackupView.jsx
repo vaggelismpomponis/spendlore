@@ -257,7 +257,7 @@ const BackupView = ({ user, onBack, hideHeader = false }) => {
 
             {/* ─────── Main Scroll Container ─────── */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
+                <div className="w-full mx-auto px-4 sm:px-6 lg:px-0 py-5 md:py-8 lg:py-0 space-y-6">
 
                     {/* Desktop Navigation Breadcrumb Bar */}
                     <DesktopBreadcrumb

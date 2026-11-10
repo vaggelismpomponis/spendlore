@@ -550,7 +550,7 @@ const FinancialAdvisorView = ({ transactions = [], goals = [], onBack, hideHeade
             {/* Mobile Header */}
             {!isDesktop && <MobileHeader onBack={onBack} hideHeader={hideHeader} t={t} />}
 
-            <div className={`flex-1 ${isDesktop ? 'max-w-[1520px] w-full mx-auto px-2 sm:px-4 lg:px-6 py-4 space-y-6 pb-16' : 'px-4 py-4 space-y-5 pb-28'}`}>
+            <div className={`flex-1 ${isDesktop ? 'w-full mx-auto space-y-6 pb-16' : 'px-4 py-4 space-y-5 pb-28'}`}>
 
                 {/* ── Desktop Executive Header ── */}
                 {isDesktop && (

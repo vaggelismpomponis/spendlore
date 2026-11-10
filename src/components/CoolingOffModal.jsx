@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Hourglass } from 'lucide-react';
 import { DURATION_OPTIONS, DEFAULT_COOLING_OFF_HOURS, createCoolingOffItem } from '../utils/coolingOff';
 import { useSettings } from '../contexts/SettingsContext';
@@ -23,6 +24,15 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd }) => {
     const [durationHours, setDurationHours] = useState(DEFAULT_COOLING_OFF_HOURS);
     const [note, setNote] = useState('');
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const handleSubmit = (e) => {
@@ -45,9 +55,20 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd }) => {
         onClose();
     };
 
-    return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
-            <div className="w-full max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl p-5 sm:p-6 space-y-4 animate-pop">
+    const modalContent = (
+        <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 animate-fade-in"
+            role="dialog"
+            aria-modal="true"
+        >
+            {/* Full-viewport backdrop covering sidebar, topbar, and entire desktop layout */}
+            <div
+                className="fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity"
+                onClick={onClose}
+            />
+
+            {/* Modal Surface */}
+            <div className="w-full max-w-md bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl p-5 sm:p-6 space-y-4 relative z-10 animate-pop">
                 {/* Header */}
                 <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-white/10">
                     <div>
@@ -160,6 +181,11 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd }) => {
             </div>
         </div>
     );
+
+    if (typeof document !== 'undefined') {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 };
 
 export default CoolingOffModal;

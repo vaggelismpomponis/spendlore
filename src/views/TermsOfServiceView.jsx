@@ -38,7 +38,7 @@ const TermsOfServiceView = ({ onBack, hideHeader = false, lang, hideBack = false
             />
 
             {/* ─────── Main Container ─────── */}
-            <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
+            <div className="flex-1 w-full mx-auto px-4 sm:px-6 lg:px-0 py-5 md:py-8 lg:py-0 space-y-6">
 
                 {/* Desktop Navigation Breadcrumb Bar */}
                 <DesktopBreadcrumb
