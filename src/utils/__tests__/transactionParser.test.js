@@ -337,4 +337,31 @@ describe('Transaction Notification Parser', () => {
             expect(parsed.category).toBe('Δώρο');
         });
     });
+
+    describe('Self-Notification Exclusion & Spendwise Guard', () => {
+        it('rejects notifications originating from Spendlore itself (com.bomponis.spendwise)', () => {
+            const selfNotif = {
+                title: 'Skroutz • 43,99 €',
+                text: 'Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια:',
+                packageName: 'com.bomponis.spendwise'
+            };
+            expect(isTransactionNotification(selfNotif)).toBe(false);
+            expect(parseNotificationTransaction(selfNotif).isValidTransaction).toBe(false);
+        });
+
+        it('rejects Spendlore prompt text even if forwarded without spendwise packageName', () => {
+            const forwardedSelf = {
+                title: 'Skroutz • 43,99 € • 43,99 €',
+                text: 'Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια:',
+                packageName: 'com.unknown.bridge'
+            };
+            expect(isTransactionNotification(forwardedSelf)).toBe(false);
+        });
+
+        it('does not falsely identify com.bomponis.spendwise as Wise, while supporting TransferWise/Wise', () => {
+            expect(detectSource('com.bomponis.spendwise', 'Skroutz', '43,99 €')).not.toBe('Wise');
+            expect(detectSource('com.transferwise.android', 'Wise', 'You paid 10 EUR')).toBe('Wise');
+            expect(detectSource('com.wise.app', 'Wise', 'You paid 10 EUR')).toBe('Wise');
+        });
+    });
 });

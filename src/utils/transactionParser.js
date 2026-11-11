@@ -20,7 +20,7 @@ const SOURCE_PATTERNS = [
     { key: 'apple_pay', name: 'Apple Pay', regex: /apple\s*pay/i },
     { key: 'samsung_pay', name: 'Samsung Pay', regex: /samsung\s*(?:pay|wallet)|spay/i },
     { key: 'paypal', name: 'PayPal', regex: /paypal/i },
-    { key: 'wise', name: 'Wise', regex: /transferwise|wise/i },
+    { key: 'wise', name: 'Wise', regex: /transferwise|\bwise\b/i },
     { key: 'ticket_restaurant', name: 'Ticket Restaurant', regex: /ticket\s*restaurant|edenred/i },
     { key: 'payzy', name: 'Payzy', regex: /payzy/i },
     { key: 'winbank', name: 'Winbank', regex: /winbank|piraeus|πειραιως|πειραιώς/i },
@@ -84,6 +84,15 @@ export const isTransactionNotification = (data = {}) => {
 
     if (!combined || combined.length < 5) return false;
 
+    // 0. Never process Spendlore's own notifications
+    if (
+        packageName.includes('spendwise') ||
+        packageName.includes('spendlore') ||
+        combined.includes('Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια')
+    ) {
+        return false;
+    }
+
     // 1. Filter out OTP / 2FA verification codes
     if (OTP_REGEX.test(combined)) {
         return false;
@@ -108,7 +117,7 @@ export const isTransactionNotification = (data = {}) => {
     // Recognizes explicit action verbs OR digital wallet/banking card notifications
     // (e.g. Google Wallet: "Wolt €6.39 with Ticket Restaurant® ••2331", "€14.20 with Visa ••1234", "6,39 € με κάρτα ••2331")
     const isWalletOrBankNotification =
-        /wallet|gpay|spay|gms|revolut|bank|eurobank|winbank|alphabank|nbg|viva|payzy|edenred|pluxee|sodexo|uphellas|wise|curve|monzo|n26|klarna/i.test(packageName) ||
+        /wallet|gpay|spay|gms|revolut|bank|eurobank|winbank|alphabank|nbg|viva|payzy|edenred|pluxee|sodexo|uphellas|transferwise|\bwise\b|curve|monzo|n26|klarna/i.test(packageName) ||
         WALLET_CARD_REGEX.test(combined);
 
     const hasExpenseAction = EXPENSE_KEYWORDS_REGEX.test(combined) || isWalletOrBankNotification;
@@ -379,6 +388,7 @@ export const parseNotificationTransaction = (rawNotification = {}, userRules = [
     }
 
     return {
+        id: rawNotification.id || undefined,
         isValidTransaction: true,
         amount: amountResult.amount,
         currency: amountResult.currency,

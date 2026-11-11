@@ -315,8 +315,27 @@ function MainContent() {
         setNativeProStatus(isPro);
     }, [isPro]);
 
+    const recentNotifFingerprintsRef = useRef(new Map());
+
     // Notification Listener for Bank & Wallet Transactions
     useEffect(() => {
+        const isDuplicateNotifTx = (amount, label) => {
+            const now = Date.now();
+            const map = recentNotifFingerprintsRef.current;
+            // Prune entries older than 60s
+            for (const [k, ts] of map.entries()) {
+                if (now - ts > 60000) map.delete(k);
+            }
+            const amountCents = Math.round((Number(amount) || 0) * 100);
+            const normLabel = String(label || '').trim().toLowerCase().slice(0, 40);
+            const fp = `${amountCents}_${normLabel}`;
+            if (map.has(fp)) {
+                return true;
+            }
+            map.set(fp, now);
+            return false;
+        };
+
         const cleanup = setupNotificationListener(
             (rawTransactions) => {
                 if (!rawTransactions || rawTransactions.length === 0) return;
@@ -330,10 +349,11 @@ function MainContent() {
                 // Rigorously filter and parse ONLY authentic transactions
                 const validTransactions = rawTransactions
                     .map(raw => parseNotificationTransaction(raw, merchantRules))
-                    .filter(parsed => parsed && parsed.isValidTransaction);
+                    .filter(parsed => parsed && parsed.isValidTransaction)
+                    .filter(parsed => !isDuplicateNotifTx(parsed.amount, parsed.merchant || parsed.note));
 
                 if (validTransactions.length === 0) {
-                    logger.debug('No valid transaction notifications found in batch', 'App');
+                    logger.debug('No new unique transaction notifications found in batch', 'App');
                     return;
                 }
 
@@ -354,6 +374,21 @@ function MainContent() {
                         const amount = typeof ctx.amount === 'number' ? ctx.amount : parseFloat(ctx.amount);
                         if (isNaN(amount) || amount <= 0) continue;
 
+                        const label = ctx.merchant || ctx.note || ctx.category || 'Συναλλαγή';
+                        // Remove matching item from pending queue so AddModal does not prompt again
+                        setPendingNotificationTransactions(prev =>
+                            prev.filter(item => {
+                                if (ctx.id && item.id && item.id === ctx.id) return false;
+                                if (Math.abs((item.amount || 0) - amount) < 0.005) return false;
+                                return true;
+                            })
+                        );
+
+                        if (isDuplicateNotifTx(amount, `confirmed_${ctx.id || label}`)) {
+                            logger.debug('Skipping duplicate confirmed notification transaction', 'App');
+                            continue;
+                        }
+
                         const newTx = {
                             amount,
                             type: ctx.type || 'expense',
@@ -366,9 +401,8 @@ function MainContent() {
                             await addTransactionRef.current(newTx);
                         }
 
-                        const label = ctx.merchant || ctx.category || 'Συναλλαγή';
                         showToast(
-                            `✓ Καταγράφηκε: ${label} (${amount.toFixed(2)}€)`,
+                            `✓ Καταγράφηκε: ${ctx.merchant || ctx.category || 'Συναλλαγή'} (${amount.toFixed(2)}€)`,
                             'success'
                         );
                     } catch (err) {

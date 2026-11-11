@@ -110,16 +110,18 @@ public class NotificationActionReceiver extends BroadcastReceiver {
     private void removeFromPending(SharedPreferences prefs, String txId) {
         if (txId == null) return;
         try {
-            String pendingStr = prefs.getString("pending", "[]");
-            JSONArray pending = new JSONArray(pendingStr);
-            JSONArray updated = new JSONArray();
-            for (int i = 0; i < pending.length(); i++) {
-                JSONObject obj = pending.getJSONObject(i);
-                if (!txId.equals(obj.optString("id"))) {
-                    updated.put(obj);
+            synchronized (TransactionPlugin.class) {
+                String pendingStr = prefs.getString("pending", "[]");
+                JSONArray pending = new JSONArray(pendingStr);
+                JSONArray updated = new JSONArray();
+                for (int i = 0; i < pending.length(); i++) {
+                    JSONObject obj = pending.getJSONObject(i);
+                    if (!txId.equals(obj.optString("id"))) {
+                        updated.put(obj);
+                    }
                 }
+                prefs.edit().putString("pending", updated.toString()).commit();
             }
-            prefs.edit().putString("pending", updated.toString()).commit();
         } catch (Exception e) {
             Log.e(TAG, "Error removing tx from pending", e);
         }
@@ -127,21 +129,34 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
     private void saveToConfirmed(SharedPreferences prefs, String txId, double amount, String note, String category, String merchant, String type, long date) {
         try {
-            String confirmedStr = prefs.getString("confirmed", "[]");
-            JSONArray confirmed = new JSONArray(confirmedStr);
+            synchronized (TransactionPlugin.class) {
+                String confirmedStr = prefs.getString("confirmed", "[]");
+                JSONArray confirmed = new JSONArray(confirmedStr);
 
-            JSONObject obj = new JSONObject();
-            obj.put("id", txId);
-            obj.put("amount", amount);
-            obj.put("note", note);
-            obj.put("category", category);
-            obj.put("merchant", merchant);
-            obj.put("type", type);
-            obj.put("date", date);
-            obj.put("confirmedVia", "notification_action");
+                // Deduplicate in case notification action button was double-tapped
+                if (txId != null) {
+                    for (int i = 0; i < confirmed.length(); i++) {
+                        JSONObject existing = confirmed.optJSONObject(i);
+                        if (existing != null && txId.equals(existing.optString("id"))) {
+                            Log.d(TAG, "Confirmed transaction already queued: " + txId);
+                            return;
+                        }
+                    }
+                }
 
-            confirmed.put(obj);
-            prefs.edit().putString("confirmed", confirmed.toString()).commit();
+                JSONObject obj = new JSONObject();
+                obj.put("id", txId);
+                obj.put("amount", amount);
+                obj.put("note", note);
+                obj.put("category", category);
+                obj.put("merchant", merchant);
+                obj.put("type", type);
+                obj.put("date", date);
+                obj.put("confirmedVia", "notification_action");
+
+                confirmed.put(obj);
+                prefs.edit().putString("confirmed", confirmed.toString()).commit();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error saving confirmed transaction", e);
         }

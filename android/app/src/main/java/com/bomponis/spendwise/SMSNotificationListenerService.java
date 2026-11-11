@@ -29,12 +29,15 @@ public class SMSNotificationListenerService extends NotificationListenerService 
     private static final String TAG = "SpendWiseNotifListener";
     public static final String CHANNEL_ID = "spendlore_transactions";
 
-    // Deduplication buffer for recent notification signatures
+    // Deduplication buffer for recent notification signatures & lock for atomic checks
     private static final LinkedHashSet<String> sProcessedSignatures = new LinkedHashSet<>();
     private static final int MAX_DEDUP_CACHE = 50;
+    private static final Object DEDUP_LOCK = new Object();
+    private static final String PREF_RECENT_DEDUP = "recent_dedup_fingerprints";
 
     // Explicitly blocked packages (never read notifications from these)
     private static final String[] BLOCKED_PACKAGES = {
+        "com.bomponis.spendwise",
         "com.whatsapp",
         "com.facebook.orca",
         "com.facebook.katana",
@@ -256,12 +259,34 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         if (sbn == null) return;
 
         String packageName = sbn.getPackageName();
-        if (packageName == null || !isAllowedPackage(packageName)) {
+        if (packageName == null) return;
+
+        // 0. Strict self-exclusion: NEVER read or process Spendlore's own notifications
+        String lowerPkg = packageName.toLowerCase(Locale.ROOT);
+        if (packageName.equalsIgnoreCase(getPackageName()) ||
+            lowerPkg.contains("spendwise") ||
+            lowerPkg.contains("spendlore")) {
+            return;
+        }
+
+        if (!isAllowedPackage(packageName)) {
             return;
         }
 
         Notification notification = sbn.getNotification();
         if (notification == null || notification.extras == null) {
+            return;
+        }
+
+        // Ignore Spendlore notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && CHANNEL_ID.equals(notification.getChannelId())) {
+            return;
+        }
+
+        // Ignore Android group summary notifications and ongoing foreground/background indicators
+        if ((notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0 ||
+            (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) {
+            Log.d(TAG, "Skipped group summary or ongoing notification from: " + packageName);
             return;
         }
 
@@ -282,18 +307,9 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return;
         }
 
-        // Deduplication check
-        String signature = packageName + "_" + title + "_" + combined.hashCode();
-        synchronized (sProcessedSignatures) {
-            if (sProcessedSignatures.contains(signature)) {
-                Log.d(TAG, "Duplicate notification skipped: " + signature);
-                return;
-            }
-            if (sProcessedSignatures.size() >= MAX_DEDUP_CACHE) {
-                String oldest = sProcessedSignatures.iterator().next();
-                sProcessedSignatures.remove(oldest);
-            }
-            sProcessedSignatures.add(signature);
+        // Secondary self-content guard (in case forwarded by a wearable/notification bridge)
+        if (combined.contains("Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια")) {
+            return;
         }
 
         // 1. Strict Negative Check: OTP / 2FA / Passcodes
@@ -330,6 +346,12 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return;
         }
 
+        double amount = extractAmountValue(combined);
+        if (amount <= 0.0) {
+            Log.d(TAG, "Rejected: Non-positive amount parsed");
+            return;
+        }
+
         // 6. Extra verification for SMS apps: Must identify a bank or financial institution
         boolean isSmsApp = isSmsPackage(packageName);
         if (isSmsApp && !SMS_BANK_IDENTIFIER_PATTERN.matcher(combined).find()) {
@@ -337,13 +359,121 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return;
         }
 
+        // 7. Comprehensive Deduplication (Exact signature + Notification Key + Time-window Cooldown)
+        String sbnKey = sbn.getKey() != null ? sbn.getKey() : (packageName + "_" + sbn.getId());
+        String merchant = extractMerchantName(title, combined, packageName);
+        long amountCents = Math.round(amount * 100.0);
+        String cleanCombined = combined
+            .replaceAll("\\s*[•·-]\\s*(?:\\d+\\s*(?:m|min|h|s|sec)|now|τώρα|πριν)\\b", "")
+            .trim();
+        String signature = packageName + "_" + cleanCombined.hashCode();
+
+        synchronized (DEDUP_LOCK) {
+            synchronized (sProcessedSignatures) {
+                if (sProcessedSignatures.contains(signature)) {
+                    Log.d(TAG, "Duplicate signature skipped: " + signature);
+                    return;
+                }
+                if (sProcessedSignatures.size() >= MAX_DEDUP_CACHE) {
+                    String oldest = sProcessedSignatures.iterator().next();
+                    sProcessedSignatures.remove(oldest);
+                }
+                sProcessedSignatures.add(signature);
+            }
+
+            if (isRecentDuplicateTransaction(sbnKey, packageName, amountCents, merchant)) {
+                Log.i(TAG, "Duplicate transaction suppressed (" + packageName + ", " + amount + "€, " + merchant + ")");
+                return;
+            }
+        }
+
         Log.i(TAG, "Valid financial transaction notification confirmed from: " + packageName);
         saveAndPostTransaction(packageName, title, text, bigText, subText, combined);
     }
 
+    private boolean isRecentDuplicateTransaction(String sbnKey, String packageName, long amountCents, String merchant) {
+        try {
+            SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+            String raw = prefs.getString(PREF_RECENT_DEDUP, "[]");
+            JSONArray arr = new JSONArray(raw);
+            JSONArray pruned = new JSONArray();
+
+            long now = System.currentTimeMillis();
+            String normMerchant = normalizeForMatching(merchant);
+            boolean isDuplicate = false;
+
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject item = arr.optJSONObject(i);
+                if (item == null) continue;
+
+                long ts = item.optLong("ts", 0L);
+                long ageMs = now - ts;
+                if (ageMs < 0 || ageMs > 300_000L) {
+                    continue; // Prune entries older than 5 minutes
+                }
+                pruned.put(item);
+
+                long prevCents = item.optLong("cents", -1L);
+                if (prevCents != amountCents) continue;
+
+                String prevKey = item.optString("key", "");
+                String prevPkg = item.optString("pkg", "");
+                String prevMerchant = item.optString("merchant", "");
+
+                // A. Same Android notification key (e.g. notification updated in-place) within 2 minutes
+                if (!sbnKey.isEmpty() && sbnKey.equals(prevKey) && ageMs < 120_000L) {
+                    isDuplicate = true;
+                }
+                // B. Same package posting identical amount within 45 seconds
+                else if (packageName.equalsIgnoreCase(prevPkg) && ageMs < 45_000L) {
+                    isDuplicate = true;
+                }
+                // C. Cross-app duplicate (e.g. Google Wallet + Bank SMS echo) within 30 seconds
+                else if (ageMs < 30_000L && (
+                    normMerchant.equals(prevMerchant) ||
+                    normMerchant.equals("συναλλαγη") ||
+                    prevMerchant.equals("συναλλαγη") ||
+                    (!normMerchant.isEmpty() && !prevMerchant.isEmpty() &&
+                        (normMerchant.contains(prevMerchant) || prevMerchant.contains(normMerchant)))
+                )) {
+                    isDuplicate = true;
+                }
+            }
+
+            if (isDuplicate) {
+                return true;
+            }
+
+            // Record this transaction fingerprint
+            JSONObject entry = new JSONObject();
+            entry.put("key", sbnKey);
+            entry.put("pkg", packageName);
+            entry.put("cents", amountCents);
+            entry.put("merchant", normMerchant);
+            entry.put("ts", now);
+            pruned.put(entry);
+
+            // Keep max 30 entries
+            JSONArray trimmed = new JSONArray();
+            int start = Math.max(0, pruned.length() - 30);
+            for (int i = start; i < pruned.length(); i++) {
+                trimmed.put(pruned.get(i));
+            }
+            prefs.edit().putString(PREF_RECENT_DEDUP, trimmed.toString()).commit();
+        } catch (Exception e) {
+            Log.w(TAG, "Error checking persistent deduplication cache", e);
+        }
+        return false;
+    }
+
     private boolean isAllowedPackage(String pkg) {
         if (pkg == null) return false;
-        String p = pkg.toLowerCase();
+        String p = pkg.toLowerCase(Locale.ROOT);
+
+        // Self-exclusion safety check
+        if (p.contains("spendwise") || p.contains("spendlore")) {
+            return false;
+        }
 
         // 1. Definite blocked check
         for (String blocked : BLOCKED_PACKAGES) {
@@ -370,13 +500,16 @@ public class SMSNotificationListenerService extends NotificationListenerService 
 
     private boolean isFinancialPackage(String pkg) {
         if (pkg == null) return false;
-        String p = pkg.toLowerCase();
+        String p = pkg.toLowerCase(Locale.ROOT);
+        if (p.contains("spendwise") || p.contains("spendlore")) {
+            return false;
+        }
         if (p.contains("bank") || p.contains("wallet") || p.contains("fintech") || p.contains("card") ||
             p.contains("wolt") || p.contains("efood") || p.contains("edenred") || p.contains("ticketrestaurant") ||
             p.contains("payzy") || p.contains("pluxee") || p.contains("sodexo") || p.contains("uphellas") ||
-            p.contains("revolut") || p.contains("paypal") || p.contains("wise") || p.contains("curve") ||
-            p.contains("klarna") || p.contains("monzo") || p.contains("starling") || p.contains("bunq") ||
-            p.contains("n26") || p.contains("viva") || p.contains("gpay") || p.contains("spay") || p.contains("gms")) {
+            p.contains("revolut") || p.contains("paypal") || p.contains("transferwise") || p.matches(".*\\bwise\\b.*") ||
+            p.contains("curve") || p.contains("klarna") || p.contains("monzo") || p.contains("starling") ||
+            p.contains("bunq") || p.contains("n26") || p.contains("viva") || p.contains("gpay") || p.contains("spay") || p.contains("gms")) {
             return true;
         }
         if (p.contains("pay") && !p.contains("play") && !p.contains("player") && !p.contains("game")) {
@@ -402,32 +535,38 @@ public class SMSNotificationListenerService extends NotificationListenerService 
 
     private void saveAndPostTransaction(String packageName, String title, String text, String bigText, String subText, String combined) {
         try {
-            SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
-            String existing = prefs.getString("pending", "[]");
-            JSONArray jsonArray = new JSONArray(existing);
-
             String txId = UUID.randomUUID().toString();
             long now = new Date().getTime();
+            int pendingCount;
+            boolean success;
+            boolean isPro;
 
-            JSONObject obj = new JSONObject();
-            obj.put("id", txId);
-            obj.put("packageName", packageName);
-            obj.put("title", title);
-            obj.put("text", text);
-            obj.put("bigText", bigText);
-            obj.put("subText", subText);
-            obj.put("date", now);
+            synchronized (TransactionPlugin.class) {
+                SharedPreferences prefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+                String existing = prefs.getString("pending", "[]");
+                JSONArray jsonArray = new JSONArray(existing);
 
-            jsonArray.put(obj);
+                JSONObject obj = new JSONObject();
+                obj.put("id", txId);
+                obj.put("packageName", packageName);
+                obj.put("title", title);
+                obj.put("text", text);
+                obj.put("bigText", bigText);
+                obj.put("subText", subText);
+                obj.put("date", now);
 
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("pending", jsonArray.toString());
-            boolean success = editor.commit();
+                jsonArray.put(obj);
+                pendingCount = jsonArray.length();
 
-            Log.i(TAG, "Financial transaction saved to pending. Pending count: " + jsonArray.length() + " Success: " + success);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("pending", jsonArray.toString());
+                success = editor.commit();
+                isPro = prefs.getBoolean("isPro", true);
+            }
+
+            Log.i(TAG, "Financial transaction saved to pending. Pending count: " + pendingCount + " Success: " + success);
 
             // Check if user has Pro enabled
-            boolean isPro = prefs.getBoolean("isPro", true);
             if (!isPro) {
                 Log.d(TAG, "Interactive notification omitted because user is not Pro");
                 return;
@@ -589,6 +728,8 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         // Strip elapsed time suffixes e.g. " • 7m", " · 2h", " • now", " · τώρα"
         cleanTitle = cleanTitle.replaceAll("\\s*[•·-]\\s*\\d+\\s*(?:m|min|h|s|sec|τώρα|now|πριν)\\b.*$", "").trim();
         cleanTitle = cleanTitle.replaceAll("\\s*[•·-]\\s*(?:now|τώρα)\\b.*$", "").trim();
+        // Strip trailing amount/currency tokens so amounts never repeat in titles (e.g. "Skroutz • 43,99 €")
+        cleanTitle = cleanTitle.replaceAll("(?i)(?:\\s*[•·-]\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])?\\s*\\d+(?:[.,]\\d{1,2})?\\s*(?:[€$£]|EUR|USD|GBP|euro|ευρ[ώω])?)+\\s*$", "").trim();
         String lowerTitle = cleanTitle.toLowerCase();
 
         // 1. If title is a known merchant (not just the bank or system app)

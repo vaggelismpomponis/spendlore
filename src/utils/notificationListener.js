@@ -7,23 +7,50 @@ const TransactionReader = registerPlugin('TransactionReader');
 export const setupNotificationListener = (onTransactionsFound, onConfirmedFound) => {
     if (!Capacitor.isNativePlatform()) return () => {};
 
+    let isChecking = false;
+    const seenPendingIds = new Set();
+    const seenConfirmedIds = new Set();
+
+    const trackAndFilter = (list, seenSet) => {
+        if (!Array.isArray(list) || list.length === 0) return [];
+        const unique = [];
+        for (const item of list) {
+            if (!item) continue;
+            const id = item.id;
+            if (id && seenSet.has(id)) continue;
+            if (id) {
+                if (seenSet.size > 200) {
+                    const first = seenSet.values().next().value;
+                    seenSet.delete(first);
+                }
+                seenSet.add(id);
+            }
+            unique.push(item);
+        }
+        return unique;
+    };
+
     const checkTransactions = async () => {
+        if (isChecking) return;
+        isChecking = true;
         try {
             const result = await TransactionReader.getPendingTransactions();
-            const txs = result?.transactions;
-            const confirmedTxs = result?.confirmedTransactions;
+            const txs = trackAndFilter(result?.transactions, seenPendingIds);
+            const confirmedTxs = trackAndFilter(result?.confirmedTransactions, seenConfirmedIds);
 
-            if (txs && txs.length > 0 && typeof onTransactionsFound === 'function') {
+            if (txs.length > 0 && typeof onTransactionsFound === 'function') {
                 logger.info(`Received ${txs.length} pending notification payload(s)`, 'TransactionReader');
                 onTransactionsFound(txs);
             }
 
-            if (confirmedTxs && confirmedTxs.length > 0 && typeof onConfirmedFound === 'function') {
+            if (confirmedTxs.length > 0 && typeof onConfirmedFound === 'function') {
                 logger.info(`Received ${confirmedTxs.length} confirmed notification quick-action(s)`, 'TransactionReader');
                 onConfirmedFound(confirmedTxs);
             }
         } catch (e) {
             logger.warn(`TransactionReader getPendingTransactions error: ${e?.message || e}`, 'TransactionReader');
+        } finally {
+            isChecking = false;
         }
     };
 

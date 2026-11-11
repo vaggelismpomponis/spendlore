@@ -21,6 +21,9 @@ import android.os.Build;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @CapacitorPlugin(name = "TransactionReader")
 public class TransactionPlugin extends Plugin {
@@ -100,18 +103,35 @@ public class TransactionPlugin extends Plugin {
             Context context = getContext();
             ensureListenerConnected(context);
             SharedPreferences prefs = context.getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
-            
-            String pendingStr = prefs.getString("pending", "[]");
-            String confirmedStr = prefs.getString("confirmed", "[]");
-            
-            Log.d(TAG, "Pending txs: " + pendingStr + " | Confirmed txs: " + confirmedStr);
-            
-            JSArray pendingArr = new JSArray(pendingStr);
+
+            String pendingStr;
+            String confirmedStr;
+            synchronized (TransactionPlugin.class) {
+                pendingStr = prefs.getString("pending", "[]");
+                confirmedStr = prefs.getString("confirmed", "[]");
+                // Clear both queues atomically and synchronously
+                prefs.edit().putString("pending", "[]").putString("confirmed", "[]").commit();
+            }
+
+            // Sanitize pending queue: strip any self-originating notifications
+            JSONArray rawPending = new JSONArray(pendingStr);
+            JSONArray cleanPending = new JSONArray();
+            for (int i = 0; i < rawPending.length(); i++) {
+                JSONObject obj = rawPending.optJSONObject(i);
+                if (obj == null) continue;
+                String pkg = obj.optString("packageName", "").toLowerCase(Locale.ROOT);
+                String text = obj.optString("text", "");
+                if (pkg.contains("spendwise") || pkg.contains("spendlore") || text.contains("Εντοπίστηκε πληρωμή. Επιλέξτε ενέργεια")) {
+                    continue;
+                }
+                cleanPending.put(obj);
+            }
+
+            Log.d(TAG, "Pending txs: " + cleanPending.length() + " | Confirmed txs raw: " + confirmedStr);
+
+            JSArray pendingArr = new JSArray(cleanPending.toString());
             JSArray confirmedArr = new JSArray(confirmedStr);
-            
-            // Clear both queues after reading
-            prefs.edit().putString("pending", "[]").putString("confirmed", "[]").apply();
-            
+
             JSObject result = new JSObject();
             result.put("transactions", pendingArr);
             result.put("confirmedTransactions", confirmedArr);
