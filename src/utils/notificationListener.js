@@ -89,6 +89,42 @@ export const setNativeProStatus = async (isPro) => {
     }
 };
 
+export const setAutoTrackingEnabled = async (enabled) => {
+    const flag = Boolean(enabled);
+    try {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('spendlore_auto_tracking_enabled', flag ? 'true' : 'false');
+        }
+    } catch (_) {}
+    if (!Capacitor.isNativePlatform()) return flag;
+    try {
+        const res = await TransactionReader.setAutoTrackingEnabled({ enabled: flag });
+        return res?.enabled ?? flag;
+    } catch (e) {
+        logger.warn(`Failed to set native auto-tracking enabled: ${e?.message || e}`, 'TransactionReader');
+        return flag;
+    }
+};
+
+export const getAutoTrackingEnabled = async () => {
+    if (!Capacitor.isNativePlatform()) return false;
+    try {
+        const res = await TransactionReader.getAutoTrackingEnabled();
+        if (typeof res?.enabled === 'boolean') {
+            return res.enabled;
+        }
+    } catch (e) {
+        logger.warn(`Failed to read native auto-tracking state: ${e?.message || e}`, 'TransactionReader');
+    }
+    try {
+        if (typeof localStorage !== 'undefined') {
+            const val = localStorage.getItem('spendlore_auto_tracking_enabled');
+            if (val !== null) return val === 'true';
+        }
+    } catch (_) {}
+    return true;
+};
+
 export const setNativeMerchantRules = async (rules) => {
     if (!Capacitor.isNativePlatform()) return;
     try {

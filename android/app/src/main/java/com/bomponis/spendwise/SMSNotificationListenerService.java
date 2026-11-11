@@ -261,7 +261,13 @@ public class SMSNotificationListenerService extends NotificationListenerService 
         String packageName = sbn.getPackageName();
         if (packageName == null) return;
 
-        // 0. Strict self-exclusion: NEVER read or process Spendlore's own notifications
+        // 0. Check in-app master toggle ("Automatic Bank & SMS Tracking")
+        SharedPreferences togglePrefs = getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+        if (!togglePrefs.getBoolean("autoTrackingEnabled", true)) {
+            return;
+        }
+
+        // 1. Strict self-exclusion: NEVER read or process Spendlore's own notifications
         String lowerPkg = packageName.toLowerCase(Locale.ROOT);
         if (packageName.equalsIgnoreCase(getPackageName()) ||
             lowerPkg.contains("spendwise") ||

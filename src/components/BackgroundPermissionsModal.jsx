@@ -93,7 +93,7 @@ const BackgroundPermissionsModal = ({ isOpen, onClose, onPermissionsUpdated }) =
                 {/* Header */}
                 <div className="p-5 sm:p-6 border-b border-gray-200 dark:border-white/10 flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-gray-200/70 dark:bg-white/[0.06] border border-gray-300/60 dark:border-white/[0.1] text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             <Smartphone size={12} strokeWidth={2.5} />
                             <span>Android Reliability</span>
                         </div>
@@ -149,13 +149,22 @@ const BackgroundPermissionsModal = ({ isOpen, onClose, onPermissionsUpdated }) =
                             </span>
                         </div>
 
-                        {!status.notificationListener && (
+                        {!status.notificationListener ? (
                             <button
                                 type="button"
                                 onClick={handleOpenNotificationSettings}
                                 className="w-full py-2 px-3 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 text-xs font-bold rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1.5"
                             >
                                 <span>{t('bg_permission_open')}</span>
+                                <ArrowUpRight size={14} />
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={handleOpenNotificationSettings}
+                                className="w-full py-2 px-3 bg-gray-200/70 hover:bg-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] text-gray-800 dark:text-gray-200 border border-gray-300/60 dark:border-white/[0.1] text-xs font-bold rounded-lg transition-all active:scale-95 flex items-center justify-center gap-1.5"
+                            >
+                                <span>{isEL ? 'Διαχείριση Άδειας Συστήματος' : 'Manage System Permission'}</span>
                                 <ArrowUpRight size={14} />
                             </button>
                         )}

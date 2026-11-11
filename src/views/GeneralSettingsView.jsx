@@ -27,7 +27,14 @@ import BackgroundPermissionsModal from '../components/BackgroundPermissionsModal
 import PasswordInput from '../components/PasswordInput';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
-import { openNotificationSettings, checkNotificationPermission, getBackgroundPermissionsStatus, openAutostartSettings } from '../utils/notificationListener';
+import {
+    openNotificationSettings,
+    checkNotificationPermission,
+    getBackgroundPermissionsStatus,
+    openAutostartSettings,
+    setAutoTrackingEnabled,
+    getAutoTrackingEnabled
+} from '../utils/notificationListener';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -87,8 +94,9 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
     useEffect(() => {
         const updatePermissions = async () => {
             const hasPermission = await checkNotificationPermission();
-            setIsSmsEnabled(hasPermission);
-            if (isNative) {
+            const isAutoActive = isNative() ? await getAutoTrackingEnabled() : false;
+            setIsSmsEnabled(hasPermission && isAutoActive);
+            if (isNative()) {
                 const status = await getBackgroundPermissionsStatus();
                 setBgPermissions(status);
             }
@@ -115,8 +123,20 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
             return;
         }
 
-        // On Android native, request POST_NOTIFICATIONS and open the Background Reliability Setup Modal
+        // On Android native, allow direct toggle off/on if OS permission is already granted
         if (Capacitor.isNativePlatform()) {
+            if (isSmsEnabled) {
+                await setAutoTrackingEnabled(false);
+                setIsSmsEnabled(false);
+                showToast(
+                    isEL
+                        ? 'Η αυτόματη ανάγνωση συναλλαγών απενεργοποιήθηκε.'
+                        : 'Automatic transaction tracking disabled.',
+                    'info'
+                );
+                return;
+            }
+
             try {
                 const status = await LocalNotifications.checkPermissions();
                 if (status.display !== 'granted') {
@@ -126,7 +146,19 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                 console.warn('Could not request notification permissions:', err);
             }
 
-            setShowBgModal(true);
+            await setAutoTrackingEnabled(true);
+            const hasOsPermission = await checkNotificationPermission();
+            if (hasOsPermission) {
+                setIsSmsEnabled(true);
+                showToast(
+                    isEL
+                        ? 'Η αυτόματη ανάγνωση συναλλαγών ενεργοποιήθηκε!'
+                        : 'Automatic transaction tracking enabled!',
+                    'success'
+                );
+            } else {
+                setShowBgModal(true);
+            }
             return;
         }
 
@@ -339,7 +371,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                     </div>
 
                                     {/* Android Background Reliability Hub (Battery & Autostart) */}
-                                    {isNative && (
+                                    {isNative() && (
                                         <div className="p-3.5 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] space-y-3">
                                             <div className="flex items-center justify-between gap-3">
                                                 <div className="flex items-center gap-2 min-w-0">
@@ -369,15 +401,23 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                                     <button
                                                         type="button"
                                                         onClick={() => setShowBgModal(true)}
-                                                        className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 transition-opacity hover:opacity-80 ${
+                                                        className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 inline-flex items-center gap-1 transition-opacity hover:opacity-80 ${
                                                             bgPermissions.batteryNoRestrictions
                                                                 ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                                                                 : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300'
                                                         }`}
                                                     >
-                                                        {bgPermissions.batteryNoRestrictions
-                                                            ? (isEL ? 'Χωρίς Περιορισμούς ✓' : 'No Restrictions ✓')
-                                                            : (isEL ? 'Περιορισμένη ⚠️' : 'Restricted ⚠️')}
+                                                        {bgPermissions.batteryNoRestrictions ? (
+                                                            <>
+                                                                <CheckCircle2 size={11} strokeWidth={2.5} className="shrink-0" />
+                                                                <span>{isEL ? 'Χωρίς Περιορισμούς' : 'No Restrictions'}</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <AlertTriangle size={11} strokeWidth={2.5} className="shrink-0" />
+                                                                <span>{isEL ? 'Περιορισμένη' : 'Restricted'}</span>
+                                                            </>
+                                                        )}
                                                     </button>
                                                 </div>
 
@@ -392,9 +432,10 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                                     <button
                                                         type="button"
                                                         onClick={() => openAutostartSettings()}
-                                                        className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline shrink-0"
+                                                        className="text-[10px] font-bold text-violet-600 dark:text-violet-400 hover:underline shrink-0 inline-flex items-center gap-0.5"
                                                     >
-                                                        {isEL ? 'Άνοιγμα ➔' : 'Open ➔'}
+                                                        <span>{isEL ? 'Άνοιγμα' : 'Open'}</span>
+                                                        <ChevronRight size={12} strokeWidth={2.5} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -697,7 +738,14 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
             <BackgroundPermissionsModal
                 isOpen={showBgModal}
                 onClose={() => setShowBgModal(false)}
-                onPermissionsUpdated={setBgPermissions}
+                onPermissionsUpdated={(status) => {
+                    setBgPermissions(status);
+                    if (status && typeof status.notificationListener === 'boolean') {
+                        getAutoTrackingEnabled().then((active) => {
+                            setIsSmsEnabled(status.notificationListener && active);
+                        });
+                    }
+                }}
             />
         </div>
     );

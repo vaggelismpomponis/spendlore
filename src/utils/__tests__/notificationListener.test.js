@@ -8,7 +8,9 @@ import {
     requestIgnoreBatteryOptimization,
     openBatteryOptimizationSettings,
     openAutostartSettings,
-    getBackgroundPermissionsStatus
+    getBackgroundPermissionsStatus,
+    setAutoTrackingEnabled,
+    getAutoTrackingEnabled
 } from '../notificationListener';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
@@ -18,6 +20,8 @@ vi.mock('@capacitor/core', () => {
     const mockTransactionReader = {
         getPendingTransactions: vi.fn(),
         setProStatus: vi.fn(),
+        setAutoTrackingEnabled: vi.fn(),
+        getAutoTrackingEnabled: vi.fn(),
         checkPermission: vi.fn(),
         openNotificationSettings: vi.fn(),
         isIgnoringBatteryOptimizations: vi.fn(),
@@ -229,6 +233,18 @@ describe('Notification Listener with Quick Actions', () => {
         expect(status.batteryNoRestrictions).toBe(true);
         expect(status.autostartSupported).toBe(true);
         expect(status.manufacturer).toBe('xiaomi');
+    });
+
+    it('persists and retrieves auto tracking toggle state', async () => {
+        mockPlugin.setAutoTrackingEnabled.mockResolvedValueOnce({ enabled: false });
+        const disabled = await setAutoTrackingEnabled(false);
+        expect(disabled).toBe(false);
+        expect(mockPlugin.setAutoTrackingEnabled).toHaveBeenCalledWith({ enabled: false });
+
+        mockPlugin.getAutoTrackingEnabled.mockResolvedValueOnce({ enabled: false });
+        const isEnabled = await getAutoTrackingEnabled();
+        expect(isEnabled).toBe(false);
+        expect(mockPlugin.getAutoTrackingEnabled).toHaveBeenCalled();
     });
 });
 

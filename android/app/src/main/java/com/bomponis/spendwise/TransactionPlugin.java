@@ -106,8 +106,10 @@ public class TransactionPlugin extends Plugin {
 
             String pendingStr;
             String confirmedStr;
+            boolean isAutoEnabled;
             synchronized (TransactionPlugin.class) {
-                pendingStr = prefs.getString("pending", "[]");
+                isAutoEnabled = prefs.getBoolean("autoTrackingEnabled", true);
+                pendingStr = isAutoEnabled ? prefs.getString("pending", "[]") : "[]";
                 confirmedStr = prefs.getString("confirmed", "[]");
                 // Clear both queues atomically and synchronously
                 prefs.edit().putString("pending", "[]").putString("confirmed", "[]").commit();
@@ -151,6 +153,39 @@ public class TransactionPlugin extends Plugin {
             call.resolve();
         } catch (Exception e) {
             call.reject("Failed to set Pro status", e);
+        }
+    }
+
+    @PluginMethod
+    public void setAutoTrackingEnabled(PluginCall call) {
+        try {
+            boolean enabled = call.getBoolean("enabled", true);
+            synchronized (TransactionPlugin.class) {
+                SharedPreferences prefs = getContext().getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit().putBoolean("autoTrackingEnabled", enabled);
+                if (!enabled) {
+                    editor.putString("pending", "[]");
+                }
+                editor.commit();
+            }
+            JSObject result = new JSObject();
+            result.put("enabled", enabled);
+            call.resolve(result);
+        } catch (Exception e) {
+            call.reject("Failed to set auto-tracking state", e);
+        }
+    }
+
+    @PluginMethod
+    public void getAutoTrackingEnabled(PluginCall call) {
+        try {
+            SharedPreferences prefs = getContext().getSharedPreferences("com.bomponis.spendwise.transactions", Context.MODE_PRIVATE);
+            boolean enabled = prefs.getBoolean("autoTrackingEnabled", true);
+            JSObject result = new JSObject();
+            result.put("enabled", enabled);
+            call.resolve(result);
+        } catch (Exception e) {
+            call.reject("Failed to read auto-tracking state", e);
         }
     }
 
