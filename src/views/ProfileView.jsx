@@ -7,7 +7,7 @@ import {
     Languages, LayoutDashboard, MessageSquare, BookOpen, LifeBuoy,
     Settings, Info, Trash2, UserX, Tag,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
-    ShieldCheck
+    ShieldCheck, RefreshCw
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PlayStoreModal from '../components/PlayStoreModal';
@@ -18,7 +18,8 @@ import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { isNative } from '../utils/platform';
-import { APP_RELEASE_YEAR } from '../utils/version';
+import { APP_VERSION, APP_RELEASE_YEAR } from '../utils/version';
+import { checkForAppUpdates, forceAppCachePurge } from '../utils/pwaUpdate';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import ProBadge from '../components/ProBadge';
@@ -31,6 +32,7 @@ import ProBadge from '../components/ProBadge';
 const SettingRow = ({
     icon: Icon,
     label,
+    subtitle,
     color = 'text-gray-800 dark:text-white/90',
     onClick,
     right,
@@ -45,11 +47,18 @@ const SettingRow = ({
                     ${onClick ? 'cursor-pointer active:scale-[0.98]' : ''}
                     transition-all duration-200`}
     >
-        <Icon size={22} className={danger ? 'text-rose-500' : color} strokeWidth={1.75} />
-        <span className={`flex-1 text-[16px] font-bold tracking-tight
-                          ${danger ? 'text-rose-500' : 'text-gray-900 dark:text-white'}`}>
-            {label}
-        </span>
+        <Icon size={22} className={`shrink-0 ${danger ? 'text-rose-500' : color}`} strokeWidth={1.75} />
+        <div className="flex-1 min-w-0">
+            <span className={`block text-[16px] font-bold tracking-tight
+                              ${danger ? 'text-rose-500' : 'text-gray-900 dark:text-white'}`}>
+                {label}
+            </span>
+            {subtitle && (
+                <span className="block text-[11px] font-medium text-gray-500 dark:text-white/50 mt-0.5 leading-snug">
+                    {subtitle}
+                </span>
+            )}
+        </div>
         <div className="flex-shrink-0 ml-1">
             {right !== undefined ? right : (
                 <ChevronRight
@@ -101,7 +110,33 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
     const [showThemeModal, setShowThemeModal] = useState(false);
+    const [checkingUpdate, setCheckingUpdate] = useState(false);
     const isNativeApp = isNative();
+
+    const handleCheckUpdate = async () => {
+        if (checkingUpdate) return;
+        setCheckingUpdate(true);
+        try {
+            const result = await checkForAppUpdates();
+            if (result.updated) {
+                showToast(isEL ? 'Βρέθηκε νέα έκδοση! Γίνεται ανανέωση...' : 'New version found! Reloading...', 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast(isEL ? 'Είστε στην πιο πρόσφατη έκδοση!' : "You're on the latest version!", 'info');
+            }
+        } catch (e) {
+            showToast(isEL ? 'Αδυναμία ελέγχου ενημερώσεων' : 'Could not check for updates', 'error');
+        } finally {
+            setCheckingUpdate(false);
+        }
+    };
+
+    const handleForcePurgeCache = () => {
+        showToast(isEL ? 'Εκκαθάριση μνήμης & ανανέωση...' : 'Clearing cache & reloading...', 'info');
+        setTimeout(async () => {
+            await forceAppCachePurge();
+        }, 400);
+    };
     const [imgRetries, setImgRetries] = useState(0);
     const MAX_IMG_RETRIES = 3;
 
@@ -387,19 +422,41 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
                             <Card>
                                 {!isNativeApp && (
-                                    <SettingRow
-                                        icon={Smartphone}
-                                        label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
-                                        onClick={() => setShowPlayStoreModal(true)}
-                                        right={
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
-                                                    Google Play
-                                                </span>
-                                                <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
-                                            </div>
-                                        }
-                                    />
+                                    <>
+                                        <SettingRow
+                                            icon={RefreshCw}
+                                            label={translate('check_for_updates') || (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}
+                                            subtitle={translate('check_for_updates_desc') || (isEL ? 'Έλεγχος διαθεσιμότητας νέας έκδοσης εφαρμογής' : 'Check for the latest web application release')}
+                                            onClick={handleCheckUpdate}
+                                            right={
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10">
+                                                        {checkingUpdate ? (isEL ? 'Έλεγχος...' : 'Checking...') : `v${APP_VERSION}`}
+                                                    </span>
+                                                    <RefreshCw size={16} className={`text-gray-900 dark:text-white/80 ${checkingUpdate ? 'animate-spin' : ''}`} />
+                                                </div>
+                                            }
+                                        />
+                                        <SettingRow
+                                            icon={Trash2}
+                                            label={translate('purge_cache') || (isEL ? 'Εκκαθάριση Cache & Επανεκκίνηση' : 'Clear Cache & Reload')}
+                                            subtitle={translate('purge_cache_desc') || (isEL ? 'Επαναφορά τοπικής μνήμης εάν δεν φορτώνει η νεότερη έκδοση' : 'Reset local storage cache if the latest update fails to load')}
+                                            onClick={handleForcePurgeCache}
+                                        />
+                                        <SettingRow
+                                            icon={Smartphone}
+                                            label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
+                                            onClick={() => setShowPlayStoreModal(true)}
+                                            right={
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
+                                                        Google Play
+                                                    </span>
+                                                    <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                                </div>
+                                            }
+                                        />
+                                    </>
                                 )}
                                 {isAdmin && (
                                     <SettingRow

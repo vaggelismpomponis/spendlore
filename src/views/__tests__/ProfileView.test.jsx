@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ProfileView from '../ProfileView';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { checkForAppUpdates, forceAppCachePurge } from '../../utils/pwaUpdate';
 
 vi.mock('../../contexts/SettingsContext', () => ({
   useSettings: vi.fn(),
@@ -34,6 +35,11 @@ vi.mock('../../supabase', () => ({
 vi.mock('../../utils/platform', () => ({
   isNative: vi.fn(() => false),
   PLAY_STORE_URL: 'https://play.google.com/store/apps/details?id=gr.spendlore.app',
+}));
+
+vi.mock('../../utils/pwaUpdate', () => ({
+  checkForAppUpdates: vi.fn().mockResolvedValue({ supported: true, updated: false }),
+  forceAppCachePurge: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('ProfileView', () => {
@@ -106,5 +112,35 @@ describe('ProfileView', () => {
     // Click support row
     fireEvent.click(supportElement);
     expect(mockOnFeedback).toHaveBeenCalled();
+  });
+
+  it('renders dedicated Check for Updates and Clear Cache settings on web', async () => {
+    render(
+      <ProfileView
+        user={mockUser}
+        onGuide={mockOnGuide}
+        onFeedback={mockOnFeedback}
+      />
+    );
+
+    const checkUpdateRow = screen.getByText('Έλεγχος για ενημερώσεις');
+    const purgeCacheRow = screen.getByText('Εκκαθάριση Cache & Επανεκκίνηση');
+
+    expect(checkUpdateRow).toBeInTheDocument();
+    expect(purgeCacheRow).toBeInTheDocument();
+
+    fireEvent.click(checkUpdateRow);
+    await waitFor(() => {
+      expect(checkForAppUpdates).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(screen.getByText(/v\d+\.\d+\.\d+/)).toBeInTheDocument();
+    });
+
+    vi.useFakeTimers();
+    fireEvent.click(purgeCacheRow);
+    vi.advanceTimersByTime(500);
+    expect(forceAppCachePurge).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 });
