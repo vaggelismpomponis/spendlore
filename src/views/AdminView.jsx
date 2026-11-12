@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import {
     ArrowLeft, RefreshCw, Search, X,
     LayoutDashboard, Users, MessageSquare, Radio,
-    Filter, ChevronLeft, ChevronRight, ShieldCheck,
+    Filter, ChevronLeft, ChevronRight,
     Activity, CheckCircle2, SlidersHorizontal, ArrowRight,
     ShieldAlert, LifeBuoy
 } from 'lucide-react';
@@ -616,12 +616,12 @@ const AdminView = ({ onBack, hideHeader }) => {
     const renderContent = () => {
         if (loading) {
             return (
-                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs">
+                <div className="flex flex-col items-center justify-center py-20 px-4 sm:px-6 text-center bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs">
                     <RefreshCw size={24} className="animate-spin text-violet-600 dark:text-violet-400 mb-3" />
                     <p className="text-sm font-extrabold text-gray-900 dark:text-white mb-1">
                         {translate('admin_loading') || 'Loading telemetry data...'}
                     </p>
-                    <p className="text-xs text-gray-400 font-medium">
+                    <p className="text-xs text-gray-400 font-medium max-w-md">
                         {translate('admin_fetching_live_metrics') || 'Fetching live database metrics from Supabase'}
                     </p>
                 </div>
@@ -763,11 +763,6 @@ const AdminView = ({ onBack, hideHeader }) => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/60 dark:border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>{translate('admin_telemetry_online') || 'Cloud Telemetry Online'}</span>
-                        </div>
-
                         <button
                             onClick={fetchAllData}
                             disabled={loading}
@@ -850,24 +845,8 @@ const AdminView = ({ onBack, hideHeader }) => {
                         ))}
                     </div>
 
-                    {/* Telemetry card at bottom of sidebar */}
-                    <div className="mt-auto pt-4 border-t border-gray-100 dark:border-white/[0.05] space-y-3">
-                        <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.04] space-y-2">
-                            <div className="flex items-center justify-between text-[11px]">
-                                <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                    <ShieldCheck size={13} className="text-emerald-500" />
-                                    {translate('admin_security_role') || 'Security Role'}
-                                </span>
-                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white border border-gray-300/40 dark:border-white/10">
-                                    {translate('admin_master_admin') || 'Master Admin'}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11px]">
-                                <span className="font-bold text-gray-500 dark:text-gray-400">{translate('admin_database_engine') || 'Database Engine'}</span>
-                                <span className="font-black text-gray-800 dark:text-white">{translate('admin_supabase_live') || 'Supabase Live'}</span>
-                            </div>
-                        </div>
-
+                    {/* Sync action at bottom of sidebar */}
+                    <div className="mt-auto pt-4 border-t border-gray-100 dark:border-white/[0.05]">
                         <button
                             onClick={fetchAllData}
                             disabled={loading}

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
     Users, RefreshCw, MessageSquare, Activity, TrendingUp,
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
-    Trophy, ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
+    ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
     MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert,
     LifeBuoy, Radio, CreditCard, Sparkles, AlertCircle, Check
 } from 'lucide-react';
@@ -15,7 +15,8 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
     const cx = size / 2;
     const cy = size / 2;
 
-    const total = segments.reduce((s, seg) => s + seg.value, 0);
+    const visibleSegments = segments.filter(seg => seg.value > 0);
+    const total = visibleSegments.reduce((s, seg) => s + seg.value, 0);
     let offset = 0;
 
     return (
@@ -29,7 +30,7 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
                 className="text-gray-100 dark:text-white/[0.06]"
                 strokeWidth={strokeWidth}
             />
-            {total > 0 && segments.map((seg, i) => {
+            {total > 0 && visibleSegments.map((seg, i) => {
                 const dash = (seg.value / total) * circ;
                 const gap = circ - dash;
                 const el = (
@@ -39,11 +40,12 @@ const DonutChart = ({ segments, size = 110, strokeWidth = 14 }) => {
                         cy={cy}
                         r={r}
                         fill="none"
-                        stroke={seg.color}
+                        stroke={seg.colorClass ? 'currentColor' : seg.color}
+                        className={seg.colorClass || undefined}
                         strokeWidth={strokeWidth}
                         strokeDasharray={`${dash} ${gap}`}
                         strokeDashoffset={-offset}
-                        strokeLinecap="round"
+                        strokeLinecap="butt"
                         style={{ transition: 'stroke-dasharray 0.8s cubic-bezier(0.16,1,0.3,1)' }}
                     />
                 );
@@ -160,13 +162,11 @@ const UserLeaderboardRow = ({
     setActiveDropdown
 }) => {
     const t = (k, fb, p) => resolveTranslation(translate, k, fb, p);
-    const rankColors = [
-        'bg-gray-900 text-white dark:bg-white dark:text-gray-900',
-        'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-900',
-        'bg-gray-500 text-white dark:bg-gray-300 dark:text-gray-900',
-        'bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-300'
-    ];
-    const rankColor = rankColors[idx] || rankColors[3];
+    const rankColor = idx === 0
+        ? 'text-gray-900 dark:text-white'
+        : idx < 3
+            ? 'text-gray-600 dark:text-gray-300'
+            : 'text-gray-400 dark:text-gray-500';
     const isDropdownOpen = activeDropdown === user.id;
 
     return (
@@ -174,10 +174,10 @@ const UserLeaderboardRow = ({
             onClick={() => onClick && onClick(user)}
             className={`flex items-center gap-3.5 p-3 sm:p-3.5 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer group relative last:rounded-b-2xl ${isDropdownOpen ? 'z-30' : 'z-0'}`}
         >
-            {/* Rank badge */}
-            <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-extrabold shrink-0 ${rankColor}`}>
-                #{idx + 1}
-            </div>
+            {/* Rank indicator */}
+            <span className={`w-6 text-xs font-black tabular-nums tracking-wider text-center shrink-0 select-none ${rankColor}`}>
+                {String(idx + 1).padStart(2, '0')}
+            </span>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
@@ -402,9 +402,9 @@ const AdminOverview = ({
     const stickiness = metrics.active30Days > 0 ? Math.round((metrics.active7Days / metrics.active30Days) * 100) : 0;
 
     const subSegments = [
-        { value: metrics.proUsers, color: '#10b981' },
-        { value: metrics.freeUsers, color: '#94a3b8' },
-        { value: metrics.canceledUsers, color: '#f43f5e' },
+        { value: metrics.proUsers, color: '#0284c7', colorClass: 'text-sky-600 dark:text-sky-500' },
+        { value: metrics.freeUsers, color: '#e2e8f0', colorClass: 'text-slate-200 dark:text-slate-700' },
+        { value: metrics.canceledUsers, color: '#f43f5e', colorClass: 'text-rose-500 dark:text-rose-400' },
     ];
 
     const totalPlatform = platformCounts.mobile + platformCounts.desktop + platformCounts.other;
@@ -437,11 +437,14 @@ const AdminOverview = ({
                     </div>
 
                     <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-                        {/* Live Telemetry Pill */}
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/20 text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>{t('admin_telemetry_online', 'Cloud Telemetry Online')}</span>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={onNavigateUsers}
+                            className="px-3.5 py-2 rounded-xl bg-gray-950 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
+                        >
+                            <Users size={14} />
+                            <span>{t('admin_view_all_accounts', 'View All Accounts')}</span>
+                        </button>
 
                         {onRefresh && (
                             <button
@@ -455,41 +458,32 @@ const AdminOverview = ({
                                 <span>{loading ? t('admin_refreshing', 'Refreshing...') : t('admin_refresh', 'Refresh')}</span>
                             </button>
                         )}
-
-                        <button
-                            type="button"
-                            onClick={onNavigateUsers}
-                            className="px-3.5 py-2 rounded-xl bg-gray-950 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-950 font-bold text-xs flex items-center gap-2 active:scale-95 transition-all shadow-xs"
-                        >
-                            <Users size={14} />
-                            <span>{t('admin_view_all_accounts', 'View All Accounts')}</span>
-                        </button>
                     </div>
                 </div>
 
                 {/* Status Chips Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] min-w-0 overflow-hidden">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             {t('admin_total_accounts', 'Total Accounts')}
                         </span>
-                        <div className="flex items-baseline gap-1.5 mt-1">
+                        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                                 {stats.users}
                             </span>
                             {joinedThisMonth > 0 && (
-                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 leading-tight whitespace-nowrap">
                                     +{joinedThisMonth} {t('admin_this_month', 'mo')}
                                 </span>
                             )}
                         </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] min-w-0 overflow-hidden">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             {t('admin_pro_conversion', 'Pro Conversion')}
                         </span>
-                        <div className="flex items-baseline gap-1 mt-1">
+                        <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                                 {proConversionRate}%
                             </span>
@@ -499,11 +493,11 @@ const AdminOverview = ({
                         </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] min-w-0 overflow-hidden">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             {t('admin_active_7d', 'Active (7 Days)')}
                         </span>
-                        <div className="flex items-baseline gap-1 mt-1">
+                        <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
                                 {metrics.active7Days}
                             </span>
@@ -513,15 +507,15 @@ const AdminOverview = ({
                         </div>
                     </div>
 
-                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06]">
+                    <div className="p-3.5 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200/60 dark:border-white/[0.06] min-w-0 overflow-hidden">
                         <span className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                             {t('admin_client_sessions', 'Client Sessions')}
                         </span>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 mt-1">
                             <span className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white tabular-nums">
                                 {stats.activity}
                             </span>
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-gray-200/60 dark:bg-white/10 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-wider bg-gray-200/60 dark:bg-white/10 px-1.5 py-0.5 rounded max-w-full truncate">
                                 {t('admin_syncing', 'Syncing')}
                             </span>
                         </div>
@@ -653,18 +647,18 @@ const AdminOverview = ({
                             <div className="flex-1 space-y-2.5">
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-sky-600 dark:bg-sky-500" />
                                         <span className="font-bold text-gray-700 dark:text-gray-200">{t('admin_pro_tier', 'Pro Tier')}</span>
                                     </div>
                                     <div className="text-right tabular-nums">
-                                        <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{metrics.proUsers}</span>
+                                        <span className="font-extrabold text-sky-600 dark:text-sky-400">{metrics.proUsers}</span>
                                         <span className="text-[11px] text-gray-400 font-semibold ml-1">({proConversionRate}%)</span>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-500" />
+                                        <div className="w-2.5 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300/80 dark:border-slate-600" />
                                         <span className="font-bold text-gray-700 dark:text-gray-200">{t('admin_free_tier', 'Free Tier')}</span>
                                     </div>
                                     <div className="text-right tabular-nums">
@@ -824,13 +818,10 @@ const AdminOverview = ({
                 {/* Left (7 cols): Most Active Accounts Leaderboard */}
                 <div className="lg:col-span-7 bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs relative flex flex-col justify-between">
                     <div>
-                        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 dark:border-white/[0.06] rounded-t-2xl">
-                            <div className="flex items-center gap-2.5">
-                                <Trophy size={18} className="text-amber-500 shrink-0" strokeWidth={2.2} />
-                                <div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_most_active_accounts', 'Most Active Accounts')}</h3>
-                                    <p className="text-[11px] text-gray-400 font-medium">{t('admin_most_active_sub', 'Top user engagement leaderboard by app sessions')}</p>
-                                </div>
+                        <div className="flex items-center justify-between gap-3 p-4 sm:p-5 border-b border-gray-100 dark:border-white/[0.06] rounded-t-2xl">
+                            <div>
+                                <h3 className="text-sm font-extrabold text-gray-900 dark:text-white leading-tight">{t('admin_most_active_accounts', 'Most Active Accounts')}</h3>
+                                <p className="text-[11px] text-gray-400 font-medium">{t('admin_most_active_sub', 'Top user engagement leaderboard by app sessions')}</p>
                             </div>
                             <button
                                 type="button"

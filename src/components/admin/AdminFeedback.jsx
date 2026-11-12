@@ -130,9 +130,9 @@ const AdminFeedback = ({
             </div>
 
             {/* ─────── Search & Action Controls Toolbar ─────── */}
-            <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+            <div className="bg-white dark:bg-surface-dark2 p-4 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xs flex flex-col xl:flex-row gap-3 items-stretch xl:items-center justify-between">
                 {/* Search */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 min-w-0">
                     <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                         type="text"
@@ -144,9 +144,9 @@ const AdminFeedback = ({
                 </div>
 
                 {/* Filter Controls */}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2.5 shrink-0">
                     {/* Status Tabs */}
-                    <div className="flex bg-gray-100 dark:bg-white/[0.06] p-1 rounded-xl gap-1">
+                    <div className="grid grid-cols-2 lg:inline-flex lg:items-center bg-gray-100 dark:bg-white/[0.06] p-1 rounded-xl gap-1 w-full lg:w-auto">
                         {[
                             { key: 'all', label: translate('admin_all_status') || 'All Status' },
                             { key: 'open', label: translate('admin_open') || 'Open' },
@@ -157,7 +157,7 @@ const AdminFeedback = ({
                                 key={tab.key}
                                 type="button"
                                 onClick={() => setStatusFilter(tab.key)}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap text-center truncate ${
                                     statusFilter === tab.key
                                         ? 'bg-white dark:bg-surface-dark3 text-gray-900 dark:text-white shadow-xs'
                                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -169,7 +169,7 @@ const AdminFeedback = ({
                     </div>
 
                     {/* Category Selector */}
-                    <div className="w-40">
+                    <div className="w-full lg:w-44 shrink-0">
                         <CustomSelect
                             size="sm"
                             value={typeFilter}
