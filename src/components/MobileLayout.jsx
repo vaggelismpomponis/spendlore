@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import Navbar from './Navbar';
 import OfflineIndicator from './OfflineIndicator';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
+import { scrollContainerToTop } from '../utils/scroll';
 
 export default function MobileLayout({
     activeTab,
@@ -28,6 +29,11 @@ export default function MobileLayout({
     const [showFabMenu, setShowFabMenu] = useState(false);
     const fabLongPressRef = useRef(null);
     const fabPressStartRef = useRef(false);
+    const scrollAreaRef = useRef(null);
+
+    useLayoutEffect(() => {
+        scrollContainerToTop(scrollAreaRef.current);
+    }, [activeTab]);
 
     return (
         <main className="h-full w-full bg-surface-light dark:bg-surface-dark
@@ -64,7 +70,7 @@ export default function MobileLayout({
                 )}
 
                 {/* ── Main Scroll Area ── */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
+                <div ref={scrollAreaRef} data-scroll-container="main" className="flex-1 overflow-y-auto overflow-x-hidden px-4">
                     {/* ── Top Bar ── */}
                     <div className="shrink-0 sticky top-0 z-50
                                     bg-white/90 dark:bg-surface-dark backdrop-blur-md

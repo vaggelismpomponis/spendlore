@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { Plus, ArrowUpRight, ArrowDownRight, Bell, User, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -8,6 +8,7 @@ import Amount from './Amount';
 import CategoryIcon from './CategoryIcon';
 import OfflineIndicator from './OfflineIndicator';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
+import { scrollContainerToTop } from '../utils/scroll';
 
 /* ─────────────────────────────────────────────
    Right Panel Widget: Mini Stats Card
@@ -340,7 +341,12 @@ const DesktopLayout = ({
     children,
 }) => {
     const { t } = useSettings();
+    const mainScrollRef = useRef(null);
     const handleToggleNotifications = onToggleNotifications || (() => setShowNotificationPanel?.(prev => !prev));
+
+    useLayoutEffect(() => {
+        scrollContainerToTop(mainScrollRef.current);
+    }, [activeTab]);
 
     // All desktop pages follow the unified full-width layout matching the home page
     const hideRightPanel = true;
@@ -385,7 +391,7 @@ const DesktopLayout = ({
 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Main scrollable area */}
-                    <main className="flex-1 overflow-y-auto custom-scrollbar">
+                    <main ref={mainScrollRef} data-scroll-container="main" className="flex-1 overflow-y-auto custom-scrollbar">
                         <div className={`h-full ${activeTab === 'admin' ? 'p-0' : 'px-6 lg:px-10 py-6 max-w-[1680px] mx-auto w-full'}`}>
                             {children}
                         </div>

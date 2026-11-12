@@ -36,6 +36,7 @@ import { useAppStore } from './store/useAppStore';
 import { isNetworkError, processSyncQueue, initSyncListeners } from './services/SyncService';
 import { updateNativeWidget } from './services/widgetService';
 import { normalizeCoolingOffItem, denormalizeCoolingOffItem } from './utils/coolingOff';
+import { resetGlobalScroll } from './utils/scroll';
 
 // Components
 import LoginView from './views/LoginView';
@@ -314,6 +315,11 @@ function MainContent() {
     useEffect(() => {
         setNativeProStatus(isPro);
     }, [isPro]);
+
+    // Global scroll-to-top whenever navigating between views/tabs/routes
+    useEffect(() => {
+        resetGlobalScroll();
+    }, [activeTab, location.pathname]);
 
     const recentNotifFingerprintsRef = useRef(new Map());
 

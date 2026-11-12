@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
     ArrowLeft, RefreshCw, Search, X,
@@ -23,6 +23,7 @@ import AdminBroadcast from '../components/admin/AdminBroadcast';
 import AdminSentryErrors from '../components/admin/AdminSentryErrors';
 import sentryLogger from '../utils/sentryLogger';
 import logger from '../utils/logger';
+import { scrollContainerToTop, resetGlobalScroll } from '../utils/scroll';
 
 /* ─── Desktop Sidebar Tab ─── */
 const SidebarTab = ({ tab, isActive, onClick }) => {
@@ -104,6 +105,13 @@ const AdminView = ({ onBack, hideHeader }) => {
     const [profileStats, setProfileStats] = useState({ transactions: 0, budgets: 0, goals: 0 });
     const [profileSessions, setProfileSessions] = useState([]);
     const [loadingProfileData, setLoadingProfileData] = useState(false);
+    const mainScrollRef = useRef(null);
+
+    // Ensure section switches and opening/closing a user profile always start at top of page
+    useLayoutEffect(() => {
+        scrollContainerToTop(mainScrollRef.current);
+        resetGlobalScroll();
+    }, [activeSection, selectedProfile?.id]);
 
     const { showToast } = useToast();
     const { t: translate } = useSettings();
@@ -872,7 +880,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                 </aside>
 
                 {/* ─────── Main Content Scrollable Area ─────── */}
-                <main className="flex-1 overflow-y-auto custom-scrollbar">
+                <main ref={mainScrollRef} data-scroll-container="main" className="flex-1 overflow-y-auto custom-scrollbar">
                     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-[1680px] mx-auto pb-16">
 
                         {/* Section Header */}
