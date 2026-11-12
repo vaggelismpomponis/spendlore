@@ -6,6 +6,8 @@ import { useSettings } from '../../contexts/SettingsContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
 import { checkForAppUpdates, forceAppCachePurge } from '../../utils/pwaUpdate';
+import { isNative } from '../../utils/platform';
+import { openPlayStoreUpdates } from '../../utils/notificationListener';
 
 vi.mock('../../contexts/SettingsContext', () => ({
   useSettings: vi.fn(),
@@ -40,6 +42,10 @@ vi.mock('../../utils/platform', () => ({
 vi.mock('../../utils/pwaUpdate', () => ({
   checkForAppUpdates: vi.fn().mockResolvedValue({ supported: true, updated: false }),
   forceAppCachePurge: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../../utils/notificationListener', () => ({
+  openPlayStoreUpdates: vi.fn().mockResolvedValue(true),
 }));
 
 describe('ProfileView', () => {
@@ -142,5 +148,32 @@ describe('ProfileView', () => {
     vi.advanceTimersByTime(500);
     expect(forceAppCachePurge).toHaveBeenCalledTimes(1);
     vi.useRealTimers();
+  });
+
+  it('renders update check (Play Store) and clear cache on native Android app', async () => {
+    isNative.mockReturnValue(true);
+
+    render(
+      <ProfileView
+        user={mockUser}
+        onGuide={mockOnGuide}
+        onFeedback={mockOnFeedback}
+      />
+    );
+
+    const checkUpdateRow = screen.getByText('Έλεγχος για ενημερώσεις');
+    const purgeCacheRow = screen.getByText('Εκκαθάριση Cache & Επανεκκίνηση');
+
+    expect(checkUpdateRow).toBeInTheDocument();
+    expect(purgeCacheRow).toBeInTheDocument();
+    expect(screen.queryByText('Εφαρμογή Android (Play Store)')).not.toBeInTheDocument();
+
+    fireEvent.click(checkUpdateRow);
+    await waitFor(() => {
+      expect(openPlayStoreUpdates).toHaveBeenCalledTimes(1);
+    });
+    expect(checkForAppUpdates).not.toHaveBeenCalled();
+
+    isNative.mockReturnValue(false);
   });
 });

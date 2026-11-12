@@ -10,7 +10,8 @@ import {
     openAutostartSettings,
     getBackgroundPermissionsStatus,
     setAutoTrackingEnabled,
-    getAutoTrackingEnabled
+    getAutoTrackingEnabled,
+    openPlayStoreUpdates
 } from '../notificationListener';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
@@ -24,6 +25,7 @@ vi.mock('@capacitor/core', () => {
         getAutoTrackingEnabled: vi.fn(),
         checkPermission: vi.fn(),
         openNotificationSettings: vi.fn(),
+        openPlayStore: vi.fn(),
         isIgnoringBatteryOptimizations: vi.fn(),
         requestIgnoreBatteryOptimization: vi.fn(),
         openBatteryOptimizationSettings: vi.fn(),
@@ -245,6 +247,13 @@ describe('Notification Listener with Quick Actions', () => {
         const isEnabled = await getAutoTrackingEnabled();
         expect(isEnabled).toBe(false);
         expect(mockPlugin.getAutoTrackingEnabled).toHaveBeenCalled();
+    });
+
+    it('opens Play Store on native platform', async () => {
+        mockPlugin.openPlayStore.mockResolvedValueOnce(undefined);
+        const res = await openPlayStoreUpdates();
+        expect(res).toBe(true);
+        expect(mockPlugin.openPlayStore).toHaveBeenCalled();
     });
 });
 

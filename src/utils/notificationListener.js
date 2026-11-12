@@ -144,6 +144,21 @@ export const openNotificationSettings = async () => {
     }
 };
 
+export const openPlayStoreUpdates = async () => {
+    if (Capacitor.isNativePlatform()) {
+        try {
+            await TransactionReader.openPlayStore();
+            return true;
+        } catch (e) {
+            logger.warn(`Failed to open Play Store: ${e?.message || e}`, 'TransactionReader');
+        }
+    }
+    if (typeof window !== 'undefined') {
+        window.open('https://play.google.com/store/apps/details?id=com.bomponis.spendwise', '_blank', 'noopener,noreferrer');
+    }
+    return false;
+};
+
 export const checkNotificationPermission = async () => {
     if (!Capacitor.isNativePlatform()) return false;
     try {

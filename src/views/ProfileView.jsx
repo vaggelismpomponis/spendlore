@@ -20,6 +20,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { isNative } from '../utils/platform';
 import { APP_VERSION, APP_RELEASE_YEAR } from '../utils/version';
 import { checkForAppUpdates, forceAppCachePurge } from '../utils/pwaUpdate';
+import { openPlayStoreUpdates } from '../utils/notificationListener';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import ProBadge from '../components/ProBadge';
@@ -117,6 +118,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
         if (checkingUpdate) return;
         setCheckingUpdate(true);
         try {
+            if (isNativeApp) {
+                showToast(isEL ? 'Άνοιγμα Google Play Store...' : 'Opening Google Play Store...', 'info');
+                await openPlayStoreUpdates();
+                return;
+            }
             const result = await checkForAppUpdates();
             if (result.updated) {
                 showToast(isEL ? 'Βρέθηκε νέα έκδοση! Γίνεται ανανέωση...' : 'New version found! Reloading...', 'success');
@@ -417,57 +423,54 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                     </div>
 
                     {/* ════ System & App ════ */}
-                    {(!isNativeApp || isAdmin) && (
-                        <div className="mt-2">
-                            <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
-                            <Card>
-                                {!isNativeApp && (
-                                    <>
-                                        <SettingRow
-                                            icon={RefreshCw}
-                                            label={translate('check_for_updates') || (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}
-                                            subtitle={translate('check_for_updates_desc') || (isEL ? 'Έλεγχος διαθεσιμότητας νέας έκδοσης εφαρμογής' : 'Check for the latest web application release')}
-                                            onClick={handleCheckUpdate}
-                                            right={
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10">
-                                                        {checkingUpdate ? (isEL ? 'Έλεγχος...' : 'Checking...') : `v${APP_VERSION}`}
-                                                    </span>
-                                                    <RefreshCw size={16} className={`text-gray-900 dark:text-white/80 ${checkingUpdate ? 'animate-spin' : ''}`} />
-                                                </div>
-                                            }
-                                        />
-                                        <SettingRow
-                                            icon={Trash2}
-                                            label={translate('purge_cache') || (isEL ? 'Εκκαθάριση Cache & Επανεκκίνηση' : 'Clear Cache & Reload')}
-                                            subtitle={translate('purge_cache_desc') || (isEL ? 'Επαναφορά τοπικής μνήμης εάν δεν φορτώνει η νεότερη έκδοση' : 'Reset local storage cache if the latest update fails to load')}
-                                            onClick={handleForcePurgeCache}
-                                        />
-                                        <SettingRow
-                                            icon={Smartphone}
-                                            label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
-                                            onClick={() => setShowPlayStoreModal(true)}
-                                            right={
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
-                                                        Google Play
-                                                    </span>
-                                                    <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
-                                                </div>
-                                            }
-                                        />
-                                    </>
-                                )}
-                                {isAdmin && (
-                                    <SettingRow
-                                        icon={LayoutDashboard}
-                                        label={translate('control_panel') || 'Control Panel'}
-                                        onClick={onAdmin}
-                                    />
-                                )}
-                            </Card>
-                        </div>
-                    )}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
+                        <Card>
+                            <SettingRow
+                                icon={RefreshCw}
+                                label={translate('check_for_updates') || (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}
+                                subtitle={isNativeApp
+                                    ? (isEL ? 'Άνοιγμα Google Play Store για έλεγχο νέας έκδοσης' : 'Open Google Play Store to check for updates')
+                                    : (translate('check_for_updates_desc') || (isEL ? 'Έλεγχος διαθεσιμότητας νέας έκδοσης εφαρμογής' : 'Check for the latest web application release'))}
+                                onClick={handleCheckUpdate}
+                                right={
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10">
+                                            {checkingUpdate ? (isEL ? 'Έλεγχος...' : 'Checking...') : `v${APP_VERSION}`}
+                                        </span>
+                                        <RefreshCw size={16} className={`text-gray-900 dark:text-white/80 ${checkingUpdate ? 'animate-spin' : ''}`} />
+                                    </div>
+                                }
+                            />
+                            <SettingRow
+                                icon={Trash2}
+                                label={translate('purge_cache') || (isEL ? 'Εκκαθάριση Cache & Επανεκκίνηση' : 'Clear Cache & Reload')}
+                                onClick={handleForcePurgeCache}
+                            />
+                            {!isNativeApp && (
+                                <SettingRow
+                                    icon={Smartphone}
+                                    label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
+                                    onClick={() => setShowPlayStoreModal(true)}
+                                    right={
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-500/20">
+                                                Google Play
+                                            </span>
+                                            <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    }
+                                />
+                            )}
+                            {isAdmin && (
+                                <SettingRow
+                                    icon={LayoutDashboard}
+                                    label={translate('control_panel') || 'Control Panel'}
+                                    onClick={onAdmin}
+                                />
+                            )}
+                        </Card>
+                    </div>
 
                     {/* ════ Session / Account ════ */}
                     <div className="mt-2">

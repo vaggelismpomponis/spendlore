@@ -214,6 +214,26 @@ public class TransactionPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void openPlayStore(PluginCall call) {
+        try {
+            Context context = getContext();
+            String packageName = context.getPackageName();
+            try {
+                Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName));
+                marketIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(marketIntent);
+            } catch (android.content.ActivityNotFoundException anfe) {
+                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName));
+                webIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(webIntent);
+            }
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Failed to open Play Store: " + e.getMessage(), e);
+        }
+    }
+
+    @PluginMethod
     public void checkPermission(PluginCall call) {
         try {
             Context context = getContext();
