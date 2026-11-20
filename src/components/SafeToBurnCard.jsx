@@ -89,8 +89,8 @@ const SafeToBurnCard = ({
 
                     {/* Inner Amount Text */}
                     <div className="flex flex-col items-center justify-center z-10">
-                        <div className="flex items-start justify-center gap-1">
-                            {!privacyMode && <span className="text-2xl font-bold text-gray-900 dark:text-white mt-1.5">€</span>}
+                        <div className={`flex items-start justify-center gap-1 transition-all duration-200 ${privacyMode ? 'filter blur-[6px] select-none' : ''}`}>
+                            <span className="text-2xl font-bold text-gray-900 dark:text-white mt-1.5">€</span>
                             <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
                                 <Amount
                                     value={stb}

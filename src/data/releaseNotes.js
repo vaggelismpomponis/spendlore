@@ -18,6 +18,35 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.60',
+        build: 72,
+        date: '2026-11-20',
+        title_el: 'Spendlore v1.1.60 - Εξελιγμένο Gaussian Blur στο Απόρρητο & Βελτιώσεις Αρχικής',
+        title_en: 'Spendlore v1.1.60 - Elegant Gaussian Blur Privacy Shield & Home Polish',
+        summary_el: 'Στη νέα έκδοση 1.1.60, η λειτουργία απορρήτου (Privacy Mode) αναβαθμίζεται σε ένα εξαιρετικά κομψό εφέ Gaussian blur αντί για απλούς αστερίσκους, διατηρώντας ακέραια τη δομή της οθόνης σας χωρίς ανεπιθύμητα κουνήματα.',
+        summary_en: 'In release 1.1.60, Privacy Mode is elevated with a sleek Gaussian blur shield replacing rigid asterisks, preserving natural page geometry and providing a modern, private personal finance overview.',
+        sections: [
+            {
+                title_el: 'Κομψό Gaussian Blur στη Λειτουργία Απορρήτου',
+                title_en: 'Elegant Gaussian Blur Privacy Shield',
+                desc_el: 'Με το πάτημα του ματιού απορρήτου, όλα τα οικονομικά ποσά, τα υπόλοιπα, οι συναλλαγές και οι τάσεις εξόδων θολώνουν ομαλά με Gaussian blur, προσφέροντας απόλυτη ιδιωτικότητα σε δημόσιους χώρους χωρίς αστερίσκους ή διατάραξη του layout.',
+                desc_en: 'Tapping the privacy eye now applies an exquisite Gaussian blur to all balances, transaction amounts, and trend indicators, providing effortless shoulder-surfing protection without unsightly asterisks or layout shifts.',
+                previewType: 'privacy_blur',
+                caption_el: 'Απόλυτη προστασία των προσωπικών σας δεδομένων με ένα άγγιγμα.',
+                caption_en: 'Uncompromised financial privacy with a single tap.'
+            },
+            {
+                title_el: 'Ομοιόμορφη Προστασία σε Όλα τα Widgets & Φόρμες',
+                title_en: 'Uniform Shielding Across All Widgets & Forms',
+                desc_el: 'Ενοποίηση του εφέ θολώματος στο Safe-to-Burn, στον Κανόνα 72 Ωρών, στην κατανομή κατηγοριών και στις φόρμες συναλλαγών, εξασφαλίζοντας ενιαία και ασφαλή εμπειρία σε κάθε γωνιά της εφαρμογής.',
+                desc_en: 'Unified blur shielding extended to Safe-to-Burn, 72-Hour Cooling-Off, category distributions, and entry forms for a seamless and private experience across every feature.',
+                previewType: 'privacy_uniformity',
+                caption_el: 'Πλήρης συνοχή και προστασία σε όλα τα στοιχεία της εφαρμογής.',
+                caption_en: 'Complete consistency and privacy coverage across all components.'
+            }
+        ]
+    },
+    {
         version: '1.1.59',
         build: 71,
         date: '2026-11-20',

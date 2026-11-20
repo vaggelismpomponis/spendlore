@@ -397,11 +397,9 @@ export default function BalanceTrendCard({
                 {/* Primary Figure & Trend Subtitle */}
                 <div className="mt-2.5">
                     <div className="flex items-baseline gap-1">
-                        {!privacyMode && (
-                            <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500 font-sans">
-                                {currency}
-                            </span>
-                        )}
+                        <span className={`text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500 font-sans transition-all duration-200 ${privacyMode ? 'filter blur-[6px] select-none' : ''}`}>
+                            {currency}
+                        </span>
                         <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-gray-900 dark:text-white tracking-tight tabular-nums font-sans leading-none">
                             <Amount value={displaySpend} showCurrency={false} minimumFractionDigits={2} maximumFractionDigits={2} />
                         </h2>
@@ -413,19 +411,17 @@ export default function BalanceTrendCard({
                             <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                                 {chartPoints[hoveredIndex].dateStr}
                             </span>
-                        ) : privacyMode ? (
-                            <span className="text-gray-400 dark:text-gray-500 font-semibold text-xs">••••</span>
                         ) : diffPct > 0 ? (
-                            <span className={`inline-flex items-center gap-1 text-xs sm:text-[13px] font-bold ${
+                            <span className={`inline-flex items-center gap-1 text-xs sm:text-[13px] font-bold transition-all duration-200 ${
                                 spendTrend === 'below'
                                     ? 'text-emerald-600 dark:text-emerald-400'
                                     : 'text-rose-600 dark:text-rose-400'
-                            }`}>
+                            } ${privacyMode ? 'filter blur-[5px] select-none' : ''}`}>
                                 {spendTrend === 'below' ? <TrendingDown size={13} className="shrink-0" /> : <TrendingUp size={13} className="shrink-0" />}
                                 <span>{diffPct}% {spendTrend === 'below' ? (t('below_last_month') || 'κάτω από προηγούμενο μήνα') : (t('above_last_month') || 'πάνω από προηγούμενο μήνα')}</span>
                             </span>
                         ) : (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                            <span className={`text-xs text-gray-500 dark:text-gray-400 font-medium transition-all duration-200 ${privacyMode ? 'filter blur-[5px] select-none' : ''}`}>
                                 {t('same_as_last_month') || (isEL ? 'Ίδια επίπεδα με προηγούμενο μήνα' : 'Same as last month')}
                             </span>
                         )}
@@ -602,14 +598,11 @@ export default function BalanceTrendCard({
                         <p className={`text-sm sm:text-base font-black tabular-nums truncate ${
                             isMonthNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                         }`}>
-                            {privacyMode ? (
-                                <Amount value={monthNet} />
-                            ) : (
-                                <>
-                                    {isMonthNetPositive ? '+' : '−'}
-                                    <Amount value={Math.abs(monthNet)} showSign={false} />
-                                </>
-                            )}
+                            <Amount
+                                value={Math.abs(monthNet)}
+                                prefix={isMonthNetPositive ? '+' : '−'}
+                                showSign={false}
+                            />
                         </p>
                     </div>
                 </div>

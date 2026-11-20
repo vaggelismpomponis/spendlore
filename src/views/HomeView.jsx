@@ -716,7 +716,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                                 />
                                                             </div>
                                                             <span
-                                                                className="text-[11px] font-black px-2 py-0.5 rounded-full tabular-nums border"
+                                                                className={`text-[11px] font-black px-2 py-0.5 rounded-full tabular-nums border transition-all duration-200 ${privacyMode ? 'filter blur-[4px] select-none' : ''}`}
                                                                 style={{
                                                                     color: cat.accent,
                                                                     backgroundColor: `${cat.accent}14`,
@@ -897,7 +897,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                                 ? 'text-rose-600 dark:text-rose-400'
                                                 : 'text-gray-900 dark:text-white'
                                         }`}>
-                                        {stbData.stb <= 0 ? '0,00 €' : <Amount value={stbData.stb} />}
+                                        <Amount value={stbData.stb <= 0 ? 0 : stbData.stb} />
                                     </div>
                                     <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">
                                         {t('today') || 'Σήμερα'}

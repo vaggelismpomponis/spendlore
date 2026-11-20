@@ -117,9 +117,10 @@ describe('BalanceTrendCard', () => {
             />
         );
 
-        // In privacy mode, Amount masks as **** and trend subtitle renders ••••
-        expect(screen.getAllByText('****')[0]).toBeInTheDocument();
-        expect(screen.getByText('••••')).toBeInTheDocument();
+        // In privacy mode, Amount has blur class and data-privacy="blurred"
+        const blurredAmounts = document.querySelectorAll('[data-privacy="blurred"]');
+        expect(blurredAmounts.length).toBeGreaterThan(0);
+        expect(blurredAmounts[0]).toHaveClass('blur-[6px]');
 
         // Privacy button calls toggle
         const toggleBtn = screen.getByRole('button', { name: /Disable Privacy Mode/i });

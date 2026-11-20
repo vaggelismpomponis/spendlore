@@ -3,7 +3,7 @@ import { useSettings } from '../contexts/SettingsContext';
 
 /**
  * Reusable component to display financial amounts.
- * Automatically masks the value if Privacy Mode is enabled.
+ * Blurs the value when Privacy Mode is enabled.
  */
 const Amount = ({ 
     value, 
@@ -17,12 +17,9 @@ const Amount = ({
 }) => {
     const { privacyMode, currency, language } = useSettings();
 
-    if (privacyMode) {
-        return <span className={className}>{prefix}****</span>;
-    }
-
     const locale = language === 'el' ? 'el-GR' : 'en-US';
     
+    let formattedText = '';
     try {
         const displayValue = showSign ? value : Math.abs(value);
         const formatted = new Intl.NumberFormat(locale, {
@@ -32,16 +29,23 @@ const Amount = ({
             maximumFractionDigits,
         }).format(displayValue);
 
-        return (
-            <span className={className}>
-                {prefix}{formatted}{style === 'decimal' && showCurrency && ` ${currency}`}
-            </span>
-        );
+        formattedText = `${prefix}${formatted}${style === 'decimal' && showCurrency ? ` ${currency}` : ''}`;
     } catch (e) {
         // Fallback if Intl fails
         const val = showSign ? value : Math.abs(value);
-        return <span className={className}>{prefix}{val.toFixed(2)}{showCurrency && ` ${currency}`}</span>;
+        formattedText = `${prefix}${val.toFixed(2)}${showCurrency ? ` ${currency}` : ''}`;
     }
+
+    const privacyClasses = privacyMode ? 'filter blur-[6px] select-none pointer-events-none transition-all duration-200' : 'transition-all duration-200';
+
+    return (
+        <span 
+            className={`inline-block ${privacyClasses} ${className}`.trim()}
+            data-privacy={privacyMode ? "blurred" : "visible"}
+        >
+            {formattedText}
+        </span>
+    );
 };
 
 export default Amount;

@@ -87,10 +87,10 @@ const AddAccountModal = ({ onClose, user }) => {
                                 onChange={(e) => setBalance(e.target.value)}
                                 placeholder="0.00"
                                 step="0.01"
-                                className="w-full p-3 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-xl font-bold placeholder-gray-400"
+                                className={`w-full p-3 bg-white dark:bg-surface-dark3 rounded-xl border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-xl font-bold placeholder-gray-400 transition-all duration-200 ${privacyMode ? 'filter blur-[5px] select-none' : ''}`}
                                 required
                             />
-                            {!privacyMode && <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">€</span>}
+                            <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium transition-all duration-200 ${privacyMode ? 'filter blur-[4px]' : ''}`}>€</span>
                         </div>
                     </div>
 

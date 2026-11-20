@@ -10,7 +10,7 @@ vi.mock('../../contexts/SettingsContext', () => ({
 }));
 
 describe('Amount Component', () => {
-  it('renders masked value when privacyMode is enabled', () => {
+  it('renders blurred value when privacyMode is enabled', () => {
     useSettings.mockReturnValue({
       privacyMode: true,
       currency: '€',
@@ -18,7 +18,10 @@ describe('Amount Component', () => {
     });
 
     render(<Amount value={123.45} />);
-    expect(screen.getByText('****')).toBeInTheDocument();
+    const el = screen.getByText(/123/);
+    expect(el).toBeInTheDocument();
+    expect(el).toHaveClass('blur-[6px]');
+    expect(el).toHaveAttribute('data-privacy', 'blurred');
   });
 
   it('renders formatted value when privacyMode is disabled', () => {
@@ -45,7 +48,7 @@ describe('Amount Component', () => {
     expect(screen.getByText(/Total: 100\.00/)).toBeInTheDocument();
   });
 
-  it('masks with prefix when privacyMode is enabled', () => {
+  it('masks with prefix and blurs when privacyMode is enabled', () => {
     useSettings.mockReturnValue({
       privacyMode: true,
       currency: '€',
@@ -53,7 +56,10 @@ describe('Amount Component', () => {
     });
 
     render(<Amount value={100} prefix="Total: " />);
-    expect(screen.getByText('Total: ****')).toBeInTheDocument();
+    const el = screen.getByText(/Total: 100\.00/);
+    expect(el).toBeInTheDocument();
+    expect(el).toHaveClass('blur-[6px]');
+    expect(el).toHaveAttribute('data-privacy', 'blurred');
   });
 
   it('formats with Greek locale correctly', () => {

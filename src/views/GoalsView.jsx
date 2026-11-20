@@ -677,9 +677,9 @@ const GoalsView = ({ user, onBack, hideHeader }) => {
 
                         {/* Amount Display */}
                         <div className="px-6 py-3 text-center">
-                            <p className="text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                            <p className={`text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight transition-all duration-200 ${privacyMode ? 'filter blur-[6px] select-none' : ''}`}>
                                 {addMoneyAmount || '0'}
-                                {!privacyMode && <span className="text-2xl text-gray-400 dark:text-gray-500 ml-1.5">€</span>}
+                                <span className="text-2xl text-gray-400 dark:text-gray-500 ml-1.5">€</span>
                             </p>
                         </div>
 

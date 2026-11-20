@@ -681,21 +681,19 @@ const BudgetsView = ({ user, transactions, onBack, hideHeader }) => {
                                 {/* Amount Input */}
                                 <div>
                                     <label htmlFor="budget-limit" className="block text-xs font-bold text-gray-500 dark:text-white/60 mb-2 uppercase tracking-wide">
-                                        {t('monthly_limit')} {!privacyMode && '(€)'}
+                                        {t('monthly_limit')} (€)
                                     </label>
                                     <div className="relative">
-                                        {!privacyMode && (
-                                            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-bold">
-                                                €
-                                            </div>
-                                        )}
+                                        <div className={`absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 font-bold transition-all duration-200 ${privacyMode ? 'filter blur-[4px]' : ''}`}>
+                                            €
+                                        </div>
                                         <input
                                             id="budget-limit"
                                             type="number"
                                             placeholder="300"
                                             value={formAmount}
                                             onChange={(e) => setFormAmount(e.target.value)}
-                                            className={`w-full ${!privacyMode ? 'pl-10' : 'pl-4'} pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-sm font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500`}
+                                            className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white text-sm font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-200 ${privacyMode ? 'filter blur-[5px] select-none' : ''}`}
                                             required
                                             min="1"
                                         />

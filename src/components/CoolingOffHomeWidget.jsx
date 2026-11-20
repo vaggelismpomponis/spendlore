@@ -45,7 +45,7 @@ const CoolingOffHomeWidget = ({ onOpen, language = 'el' }) => {
                         {hasReadyDecisions
                             ? (isEL ? `${expiredList.length} αγορά είναι έτοιμη για τελική απόφαση!` : `${expiredList.length} purchase ready for your final decision!`)
                             : stats.totalSaved > 0
-                            ? (isEL ? `Έχεις γλιτώσει €${stats.totalSaved.toFixed(0)} από παρορμητικές αγορές.` : `You've saved €${stats.totalSaved.toFixed(0)} from impulse purchases.`)
+                            ? (isEL ? <>Έχεις γλιτώσει <Amount value={stats.totalSaved} maximumFractionDigits={0} /> από παρορμητικές αγορές.</> : <>You've saved <Amount value={stats.totalSaved} maximumFractionDigits={0} /> from impulse purchases.</>)
                             : activeList.length > 0
                             ? (isEL ? `${activeList.length} αντικείμενα υπό ενεργή αναμονή.` : `${activeList.length} items in active cooling-off.`)
                             : (isEL ? 'Βάλτε σε αναμονή αγορές πριν αποφασίσετε.' : 'Park impulse urges for 72 hours before buying.')}

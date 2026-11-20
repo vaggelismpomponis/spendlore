@@ -636,8 +636,16 @@ const StatsView = ({ transactions }) => {
                                                     <text x="50%" y="50%" dy="-10" textAnchor="middle" dominantBaseline="middle" className="fill-gray-400 dark:fill-gray-500 text-[10px] font-bold uppercase tracking-widest">
                                                         {t('stats_total_spent')}
                                                     </text>
-                                                    <text x="50%" y="50%" dy="15" textAnchor="middle" dominantBaseline="middle" className="fill-gray-900 dark:fill-white text-xl font-black">
-                                                        {privacyMode ? '****' : new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(totalExpense)}
+                                                    <text
+                                                        x="50%"
+                                                        y="50%"
+                                                        dy="15"
+                                                        textAnchor="middle"
+                                                        dominantBaseline="middle"
+                                                        className="fill-gray-900 dark:fill-white text-xl font-black"
+                                                        style={{ filter: privacyMode ? 'blur(6px)' : 'none' }}
+                                                    >
+                                                        {new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(totalExpense)}
                                                     </text>
                                                 </g>
                                             )}

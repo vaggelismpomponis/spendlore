@@ -121,7 +121,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                     }`}>
                     <span className="text-[10px] font-black uppercase tracking-wider">Net Flow</span>
                     <span className="text-sm font-black">
-                        {cashFlow >= 0 ? '+' : '−'}<Amount value={Math.abs(cashFlow)} showSign={false} />
+                        <Amount value={Math.abs(cashFlow)} prefix={cashFlow >= 0 ? '+' : '−'} showSign={false} />
                     </span>
                 </div>
             </div>
@@ -180,7 +180,7 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
                                 </div>
                                 <span className={`text-xs font-black flex-shrink-0
                                                 ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {tx.type === 'income' ? '+' : '−'}<Amount value={tx.amount} showSign={false} />
+                                    <Amount value={tx.amount} prefix={tx.type === 'income' ? '+' : '−'} showSign={false} />
                                 </span>
                             </div>
                         ))}

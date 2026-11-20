@@ -451,7 +451,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                         {translate('amount') || 'Amount'} ({sym})
                                     </label>
                                     <div className="relative">
-                                        {!privacyMode && <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">{sym}</span>}
+                                        <span className={`absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm transition-all duration-200 ${privacyMode ? 'filter blur-[4px]' : ''}`}>{sym}</span>
                                         <input
                                             id="recurring-amount"
                                             type="number"
@@ -461,7 +461,7 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
                                             step="0.01"
                                             min="0"
                                             required
-                                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                            className={`w-full pl-10 pr-4 py-3 bg-white dark:bg-surface-dark3 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${privacyMode ? 'filter blur-[5px] select-none' : ''}`}
                                         />
                                     </div>
                                 </div>

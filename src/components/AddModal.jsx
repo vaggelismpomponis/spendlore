@@ -671,15 +671,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
                             key={amount}
                             initial={{ scale: 0.95, opacity: 0.8 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="flex items-baseline justify-center gap-1.5"
+                            className={`flex items-baseline justify-center gap-1.5 transition-all duration-200 ${privacyMode ? 'filter blur-[6px] select-none' : ''}`}
                         >
-                            {!privacyMode && (
-                                <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${isNoteFocused ? 'text-lg' : 'text-2xl lg:text-3xl xl:text-4xl'
-                                    }`}>€</span>
-                            )}
-                            <span className={`font-extrabold tracking-tight transition-all ${isNoteFocused ? 'text-3xl' : 'text-5xl lg:text-6xl xl:text-7xl'
-                                } ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
-                                {privacyMode ? '****' : (amount || '0')}
+                            <span className={`font-bold text-gray-300 dark:text-gray-500 transition-all ${isNoteFocused ? 'text-lg' : 'text-2xl lg:text-3xl xl:text-4xl'}`}>€</span>
+                            <span className={`font-extrabold tracking-tight transition-all ${isNoteFocused ? 'text-3xl' : 'text-5xl lg:text-6xl xl:text-7xl'} ${amount ? 'text-gray-900 dark:text-white' : 'text-gray-300 dark:text-gray-600'}`}>
+                                {amount || '0'}
                             </span>
                         </motion.div>
                     </div>
