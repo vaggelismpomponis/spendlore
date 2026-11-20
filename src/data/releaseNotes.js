@@ -18,6 +18,35 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.61',
+        build: 73,
+        date: '2026-11-20',
+        title_el: 'Spendlore v1.1.61 - Βελτιστοποίηση Safe-Area & Ενημερώσεις Έκδοσης',
+        title_en: 'Spendlore v1.1.61 - Safe-Area Status Bar Alignment & Release Notes Polish',
+        summary_el: 'Στη νέα έκδοση 1.1.61, το Spendlore διορθώνει την ευθυγράμμιση του παραθύρου ενημερώσεων έκδοσης (What\'s New) στο Android, προσθέτοντας αυτόματη προσαρμογή safe-area για πλήρη ορατότητα κάτω από τη γραμμή κατάστασης και την κάμερα, καθώς και πλούσιες οπτικές προεπισκοπήσεις.',
+        summary_en: 'In release 1.1.61, Spendlore enhances the What\'s New release drawer on Android with edge-to-edge safe-area status bar spacing, ensuring perfect visibility beneath device notches and punch-holes along with rich feature previews.',
+        sections: [
+            {
+                title_el: 'Πλήρης Ευθυγράμμιση Safe-Area στο Android',
+                title_en: 'Edge-to-Edge Safe-Area Alignment on Android',
+                desc_el: 'Το συρτάρι ενημερώσεων έκδοσης (What\'s New) προσαρμόζεται πλέον αυτόματα στη status bar και το punch-hole της κάμερας σε συσκευές Android, εξασφαλίζοντας ότι ο τίτλος και το κουμπί κλεισίματος παραμένουν απόλυτα ευδιάκριτα και προσβάσιμα.',
+                desc_en: 'The What\'s New release drawer now dynamically respects status bar and camera punch-hole safe areas on Android devices, guaranteeing that header titles and close actions remain completely unobstructed.',
+                previewType: 'mobile_polish',
+                caption_el: 'Άψογη προβολή και άνετη διάταξη σε κάθε συσκευή Android.',
+                caption_en: 'Flawless layout and navigation across every Android device.'
+            },
+            {
+                title_el: 'Εμπλουτισμένες Προεπισκοπήσεις Νέων Λειτουργιών',
+                title_en: 'Rich Visual Release Previews',
+                desc_el: 'Όλες οι νέες δυνατότητες του Spendlore συνοδεύονται από ρεαλιστικές οπτικές μικρογραφίες, εξαλείφοντας κενά πλαίσια και προσφέροντας άμεση κατανόηση των νέων αναβαθμίσεων.',
+                desc_en: 'Every new Spendlore feature is accompanied by realistic interactive visual mockups, eliminating empty placeholder boxes and making release highlights immediate and tangible.',
+                previewType: 'whats_new',
+                caption_el: 'Οπτική και διαδραστική παρουσίαση των νέων δυνατοτήτων.',
+                caption_en: 'Interactive and visual demonstration of upcoming improvements.'
+            }
+        ]
+    },
+    {
         version: '1.1.60',
         build: 72,
         date: '2026-11-20',

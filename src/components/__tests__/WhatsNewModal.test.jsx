@@ -24,7 +24,10 @@ describe('WhatsNewModal Component', () => {
         render(<WhatsNewModal isOpen={true} onClose={onClose} />);
 
         // Top bar
-        expect(screen.getByText('Τι νέο υπάρχει')).toBeInTheDocument();
+        const titleSpan = screen.getByText('Τι νέο υπάρχει');
+        expect(titleSpan).toBeInTheDocument();
+        const topBar = titleSpan.closest('div');
+        expect(topBar.style.paddingTop).toContain('env(safe-area-inset-top');
         expect(screen.getByLabelText('Κλείσιμο')).toBeInTheDocument();
 
         // Release headline and summary from latest release notes (v1.1.58)

@@ -1,9 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Activity, RefreshCw, FileText, Smartphone, ArrowUp } from 'lucide-react';
+import { X, CheckCircle2, Activity, RefreshCw, FileText, Smartphone, ArrowUp, EyeOff, MoreVertical } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import ProBadge from './ProBadge';
 import { getLatestReleaseNote, getReleaseNoteByVersion } from '../data/releaseNotes';
+
+const KNOWN_PREVIEWS = new Set([
+    'balance_trend', 'whats_new', 'telemetry', 'pro_badge',
+    'feedback_toolbar', 'scroll_reset', 'update_check',
+    'categories_redesign', 'mobile_polish', 'modal_portal',
+    'privacy_blur', 'privacy_uniformity'
+]);
+
+export const hasFeaturePreview = (type) => KNOWN_PREVIEWS.has(type);
 
 /**
  * FeaturePreview — Renders realistic, high-fidelity UI previews for release notes
@@ -200,6 +209,123 @@ const FeaturePreview = ({ type, isEL }) => {
                 </div>
             );
 
+        case 'categories_redesign':
+            return (
+                <div className="space-y-2 select-none">
+                    <div className="flex items-center justify-between p-2.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-pink-50 dark:bg-pink-500/10 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-500/20 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-pink-500" />
+                                {isEL ? 'Σούπερ Μάρκετ' : 'Supermarket'}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase">
+                                {isEL ? 'Έξοδο' : 'Expense'}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-400">
+                            <MoreVertical size={16} />
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-500/20 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                                {isEL ? 'Φαγητό & Καφές' : 'Food & Coffee'}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-400">
+                            <MoreVertical size={16} />
+                        </div>
+                    </div>
+                </div>
+            );
+
+        case 'mobile_polish':
+            return (
+                <div className="space-y-2.5 select-none">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-950 text-white dark:bg-white dark:text-gray-950 shrink-0 shadow-xs">
+                            {isEL ? 'Όλες' : 'All'}
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200/70 dark:border-white/10 shrink-0">
+                            {isEL ? 'Έξοδα' : 'Expenses'}
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200/70 dark:border-white/10 shrink-0">
+                            {isEL ? 'Έσοδα' : 'Income'}
+                        </span>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-white dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200/70 dark:border-white/10 shrink-0">
+                            {isEL ? 'Κανόνες Εμπόρων' : 'Merchant Rules'}
+                        </span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex-1 py-2 px-3 text-center rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-xs font-bold shadow-xs">
+                            + {isEL ? 'Προσθήκη Κανόνα' : 'Add Rule'}
+                        </div>
+                    </div>
+                </div>
+            );
+
+        case 'modal_portal':
+            return (
+                <div className="p-3 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10 space-y-2.5 select-none">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-gray-100 dark:border-white/5">
+                        <span className="text-xs font-bold text-gray-900 dark:text-white">
+                            {isEL ? 'Απομονωμένο Παράθυρο Διαλόγου' : 'Isolated Dialog Window'}
+                        </span>
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                            z-[99999]
+                        </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>{isEL ? 'Κλείδωμα κύλισης παρασκηνίου' : 'Background scroll lock'}</span>
+                        <CheckCircle2 size={15} className="text-emerald-500" />
+                    </div>
+                </div>
+            );
+
+        case 'privacy_blur':
+            return (
+                <div className="p-3.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10 space-y-2.5 select-none">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                            <EyeOff size={15} className="text-gray-500 dark:text-gray-400" />
+                            <span className="text-xs font-bold text-gray-900 dark:text-white">
+                                {isEL ? 'Λειτουργία Απορρήτου' : 'Privacy Mode'}
+                            </span>
+                        </div>
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300">
+                            Gaussian Blur
+                        </span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-gray-900 dark:text-white tabular-nums filter blur-[6px]">
+                            €1.450,00
+                        </span>
+                        <span className="text-xs font-bold text-emerald-600 filter blur-[4px]">
+                            +12% vs last month
+                        </span>
+                    </div>
+                </div>
+            );
+
+        case 'privacy_uniformity':
+            return (
+                <div className="grid grid-cols-2 gap-2 select-none">
+                    <div className="p-2.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase block">Safe-to-Burn</span>
+                        <span className="text-base font-black text-gray-900 dark:text-white tabular-nums filter blur-[5px]">
+                            €45,00
+                        </span>
+                    </div>
+                    <div className="p-2.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10">
+                        <span className="text-[10px] font-bold text-gray-500 uppercase block">Cooling-Off</span>
+                        <span className="text-base font-black text-emerald-600 tabular-nums filter blur-[5px]">
+                            +€28,00
+                        </span>
+                    </div>
+                </div>
+            );
+
         default:
             return null;
     }
@@ -283,7 +409,13 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                 className="relative w-full sm:w-[500px] md:w-[540px] h-full bg-white dark:bg-surface-dark border-l border-gray-200 dark:border-white/10 shadow-2xl flex flex-col z-[101] animate-slide-up sm:animate-none overflow-hidden"
             >
                 {/* ── Top Bar ── */}
-                <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md">
+                <div
+                    className="px-6 border-b border-gray-100 dark:border-white/[0.08] flex items-center justify-between shrink-0 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md"
+                    style={{
+                        paddingTop: 'calc(env(safe-area-inset-top) + 1rem)',
+                        paddingBottom: '1rem',
+                    }}
+                >
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         {isEL ? 'Τι νέο υπάρχει' : "What's new"}
                     </span>
@@ -291,9 +423,9 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                         type="button"
                         onClick={onClose}
                         aria-label={isEL ? 'Κλείσιμο' : 'Close'}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors active:scale-95 cursor-pointer"
                     >
-                        <X size={17} />
+                        <X size={18} />
                     </button>
                 </div>
 
@@ -322,6 +454,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                                 const sectionTitle = isEL ? (section.title_el || section.title_en) : (section.title_en || section.title_el);
                                 const sectionDesc = isEL ? (section.desc_el || section.desc_en) : (section.desc_en || section.desc_el);
                                 const caption = isEL ? (section.caption_el || section.caption_en) : (section.caption_en || section.caption_el);
+                                const hasPreview = Boolean(section.image || (section.previewType && hasFeaturePreview(section.previewType)));
 
                                 return (
                                     <div key={idx} className="space-y-3">
@@ -338,7 +471,7 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                                         )}
 
                                         {/* Visual Preview Card */}
-                                        {(section.previewType || section.image) && (
+                                        {hasPreview && (
                                             <div className="mt-3">
                                                 <div className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50/80 dark:bg-surface-dark2 p-3.5 sm:p-4 overflow-hidden shadow-xs">
                                                     {section.image ? (
@@ -368,7 +501,13 @@ const WhatsNewModal = ({ isOpen, onClose, data }) => {
                 </div>
 
                 {/* ── Sticky Bottom Footer ── */}
-                <div className="p-4 sm:p-5 border-t border-gray-100 dark:border-white/[0.08] bg-white dark:bg-surface-dark flex items-center justify-end shrink-0">
+                <div
+                    className="px-6 border-t border-gray-100 dark:border-white/[0.08] bg-white dark:bg-surface-dark flex items-center justify-end shrink-0"
+                    style={{
+                        paddingTop: '1rem',
+                        paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)',
+                    }}
+                >
                     <button
                         type="button"
                         onClick={onClose}
