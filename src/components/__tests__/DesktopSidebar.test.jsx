@@ -216,5 +216,57 @@ describe('DesktopSidebar Component', () => {
         expect(recurringNav).not.toHaveTextContent('PRO');
         expect(advisorNav).not.toHaveTextContent('PRO');
     });
+
+    it('renders clean brand header without redundant collapse button inside sidebar', () => {
+        render(
+            <DesktopSidebar
+                activeTab="home"
+                setActiveTab={vi.fn()}
+                user={{ id: 'user-1', email: 'pro@spendlore.gr' }}
+                displayName="Pro User"
+                photoURL={null}
+                balance={500}
+                totalIncome={1000}
+                totalExpense={500}
+                onSignOut={vi.fn()}
+                isCollapsed={false}
+            />
+        );
+
+        // Sidebar header shows brand and logo, without internal collapse button
+        expect(screen.getByText('Spendlore')).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /collapse sidebar/i })).not.toBeInTheDocument();
+    });
+
+    it('renders collapsed icon-only layout with logo when isCollapsed is true', () => {
+        const setActiveTab = vi.fn();
+        render(
+            <DesktopSidebar
+                activeTab="stats"
+                setActiveTab={setActiveTab}
+                user={{ id: 'user-1', email: 'pro@spendlore.gr' }}
+                displayName="Pro User"
+                photoURL={null}
+                balance={500}
+                totalIncome={1000}
+                totalExpense={500}
+                onSignOut={vi.fn()}
+                isCollapsed={true}
+            />
+        );
+
+        // Logo button in collapsed header
+        const logoBtn = screen.getByRole('button', { name: /spendlore home/i });
+        expect(logoBtn).toBeInTheDocument();
+        fireEvent.click(logoBtn);
+        expect(setActiveTab).toHaveBeenCalledWith('home');
+
+        // Internal expand button should NOT be inside the sidebar
+        expect(screen.queryByRole('button', { name: /expand sidebar/i })).not.toBeInTheDocument();
+
+        // Text labels should be hidden in collapsed mode
+        expect(screen.queryByText('ΚΥΡΙΕΣ ΣΕΛΙΔΕΣ')).not.toBeInTheDocument();
+        expect(screen.queryByText('ΓΡΗΓΟΡΗ ΠΡΟΣΒΑΣΗ')).not.toBeInTheDocument();
+    });
 });
 

@@ -7,11 +7,12 @@ import {
     Languages, LayoutDashboard, MessageSquare, BookOpen, LifeBuoy,
     Settings, Info, Trash2, UserX, Tag,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
-    ShieldCheck, RefreshCw
+    ShieldCheck, RefreshCw, FileText
 } from 'lucide-react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import PlayStoreModal from '../components/PlayStoreModal';
 import ThemeSelectionModal from '../components/ThemeSelectionModal';
+import WhatsNewModal from '../components/WhatsNewModal';
 import PasswordInput from '../components/PasswordInput';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -111,6 +112,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
     const [showThemeModal, setShowThemeModal] = useState(false);
+    const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
     const [checkingUpdate, setCheckingUpdate] = useState(false);
     const isNativeApp = isNative();
 
@@ -427,6 +429,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
                         <Card>
                             <SettingRow
+                                icon={FileText}
+                                label={translate('whats_new') || (isEL ? 'Τι νέο υπάρχει' : "What's New")}
+                                onClick={() => setShowWhatsNewModal(true)}
+                            />
+                            <SettingRow
                                 icon={RefreshCw}
                                 label={translate('check_for_updates') || (isEL ? 'Έλεγχος για ενημερώσεις' : 'Check for updates')}
                                 subtitle={isNativeApp
@@ -527,9 +534,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <div className="flex items-center gap-1.5">
                             <span className="text-[11px] font-bold text-gray-950 dark:text-white tracking-wide">Spendlore</span>
                         </div>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 tracking-wide">
+                        <button
+                            type="button"
+                            onClick={() => setShowWhatsNewModal(true)}
+                            className="text-[10px] text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors tracking-wide underline-offset-2 hover:underline cursor-pointer"
+                        >
                             {translate('version')} · {APP_RELEASE_YEAR}
-                        </p>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -538,6 +549,11 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
             <ThemeSelectionModal
                 isOpen={showThemeModal}
                 onClose={() => setShowThemeModal(false)}
+            />
+
+            <WhatsNewModal
+                isOpen={showWhatsNewModal}
+                onClose={() => setShowWhatsNewModal(false)}
             />
 
             <PlayStoreModal

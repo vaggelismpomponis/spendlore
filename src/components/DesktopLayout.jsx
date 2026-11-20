@@ -1,8 +1,10 @@
 import React, { useMemo, useState, useRef, useLayoutEffect } from 'react';
-import { Plus, ArrowUpRight, ArrowDownRight, Bell, User, ShieldCheck } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownRight, Bell, User, ShieldCheck, PanelLeft } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import DesktopSidebar from './DesktopSidebar';
+import ProfileDropdownMenu from './ProfileDropdownMenu';
+import WhatsNewModal from './WhatsNewModal';
 import TransactionItem from './TransactionItem';
 import Amount from './Amount';
 import CategoryIcon from './CategoryIcon';
@@ -192,11 +194,14 @@ const DesktopRightPanel = ({ transactions, budgets, totalIncome, totalExpense, s
 /* ─────────────────────────────────────────────
    Desktop Top Header
 ───────────────────────────────────────────── */
-const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTab, setPreviousTab, unreadCount, onToggleNotifications }) => {
+const DesktopTopBar = ({
+    activeTab, t, onAdd, displayName, photoURL, setActiveTab, setPreviousTab,
+    unreadCount, onToggleNotifications,
+    user, onSignOut, onOpenWhatsNew,
+    isSidebarCollapsed, onToggleSidebarCollapse
+}) => {
 
     const { isPro, openUpgradeModal } = useSubscription();
-    const [imgRetries, setImgRetries] = useState(0);
-    const MAX_IMG_RETRIES = 3;
     const isHome = activeTab === 'home';
     const isSettingsTab = ['profile', 'account', 'general', 'security', 'backup', 'support', 'feedback', 'guide', 'profile-details', 'categories', 'privacy', 'terms'].includes(activeTab);
 
@@ -236,31 +241,31 @@ const DesktopTopBar = ({ activeTab, t, onAdd, displayName, photoURL, setActiveTa
                         border-b border-gray-200/80 dark:border-white/10
                         relative z-50">
 
-            {/* ── Left: Profile Avatar ── */}
-            <div className="relative flex-shrink-0">
-                <button
-                    onClick={() => setActiveTab('profile')}
-                    className="w-10 h-10 rounded-full flex-shrink-0
-                               bg-gray-100 dark:bg-white/[0.08]
-                               flex items-center justify-center
-                               text-gray-400 dark:text-gray-500
-                               hover:scale-105 active:scale-95
-                               transition-all duration-200 overflow-hidden"
-                    title={t('nav_profile')}
-                >
-                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                        <img
-                            src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                            alt="Profile"
-                            referrerPolicy="no-referrer"
-                            crossOrigin="anonymous"
-                            className="w-full h-full object-cover"
-                            onError={() => setTimeout(() => setImgRetries(prev => prev + 1), 500 * imgRetries)}
-                        />
-                    ) : (
-                        <User size={20} strokeWidth={2} />
-                    )}
-                </button>
+            {/* ── Left: Sidebar Collapse Toggle + Profile Avatar Dropdown ── */}
+            <div className="flex items-center gap-2.5 flex-shrink-0">
+                {onToggleSidebarCollapse && (
+                    <button
+                        type="button"
+                        onClick={onToggleSidebarCollapse}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center
+                                   text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white
+                                   hover:bg-gray-200/70 dark:hover:bg-white/[0.08] active:scale-95
+                                   transition-all duration-200 shrink-0 cursor-pointer"
+                        title={isSidebarCollapsed ? (t('expand_sidebar') || 'Expand sidebar') : (t('collapse_sidebar') || 'Collapse sidebar')}
+                        aria-label="Toggle sidebar collapse"
+                    >
+                        <PanelLeft size={18} />
+                    </button>
+                )}
+
+                <ProfileDropdownMenu
+                    user={user}
+                    displayName={displayName}
+                    photoURL={photoURL}
+                    onSignOut={onSignOut}
+                    setActiveTab={setActiveTab}
+                    onOpenWhatsNew={onOpenWhatsNew}
+                />
             </div>
 
             {/* ── Center: Spendlore (home) or Page Title ── */}
@@ -344,6 +349,25 @@ const DesktopLayout = ({
     const mainScrollRef = useRef(null);
     const handleToggleNotifications = onToggleNotifications || (() => setShowNotificationPanel?.(prev => !prev));
 
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+        try {
+            return localStorage.getItem('spendlore_desktop_sidebar_collapsed') === 'true';
+        } catch {
+            return false;
+        }
+    });
+    const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
+
+    const toggleSidebarCollapse = () => {
+        setIsSidebarCollapsed(prev => {
+            const next = !prev;
+            try {
+                localStorage.setItem('spendlore_desktop_sidebar_collapsed', String(next));
+            } catch {}
+            return next;
+        });
+    };
+
     useLayoutEffect(() => {
         scrollContainerToTop(mainScrollRef.current);
     }, [activeTab]);
@@ -370,6 +394,9 @@ const DesktopLayout = ({
                 totalIncome={totalIncome}
                 totalExpense={totalExpense}
                 onSignOut={onSignOut}
+                isCollapsed={isSidebarCollapsed}
+                onToggleCollapse={toggleSidebarCollapse}
+                onOpenWhatsNew={() => setShowWhatsNewModal(true)}
             />
 
             {/* ── MAIN CONTENT + TOPBAR ── */}
@@ -384,6 +411,11 @@ const DesktopLayout = ({
                     setPreviousTab={setPreviousTab}
                     unreadCount={unreadCount}
                     onToggleNotifications={handleToggleNotifications}
+                    user={user}
+                    onSignOut={onSignOut}
+                    onOpenWhatsNew={() => setShowWhatsNewModal(true)}
+                    isSidebarCollapsed={isSidebarCollapsed}
+                    onToggleSidebarCollapse={toggleSidebarCollapse}
                 />
 
                 {/* Offline / Sync status banner */}
@@ -432,6 +464,12 @@ const DesktopLayout = ({
                     </button>
                 )}
             </div>
+
+            {/* ── What's New Release Drawer ── */}
+            <WhatsNewModal
+                isOpen={showWhatsNewModal}
+                onClose={() => setShowWhatsNewModal(false)}
+            />
         </div>
     );
 };

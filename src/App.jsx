@@ -37,6 +37,8 @@ import { isNetworkError, processSyncQueue, initSyncListeners } from './services/
 import { updateNativeWidget } from './services/widgetService';
 import { normalizeCoolingOffItem, denormalizeCoolingOffItem } from './utils/coolingOff';
 import { resetGlobalScroll } from './utils/scroll';
+import { APP_VERSION } from './utils/version';
+import { getReleaseNoteByVersion } from './data/releaseNotes';
 
 // Components
 import LoginView from './views/LoginView';
@@ -617,6 +619,18 @@ function MainContent() {
     useEffect(() => {
         const checkWhatsNew = async () => {
             if (user && !loading && !isLocked) {
+                // 1. Check built-in release notes for current version first
+                const hasSeenLocal = localStorage.getItem(`whatsnew_seen_${APP_VERSION}_${user.id}`);
+                if (!hasSeenLocal) {
+                    const localNote = getReleaseNoteByVersion(APP_VERSION);
+                    if (localNote) {
+                        setLatestUpdate(localNote);
+                        setShowWhatsNew(true);
+                        return;
+                    }
+                }
+
+                // 2. Also check remote Supabase app_updates for broadcasts / custom releases
                 try {
                     const { data, error } = await supabase
                         .from('app_updates')

@@ -45,7 +45,9 @@ import {
     Truck,
     Pizza,
     Ticket,
-    Hotel
+    Hotel,
+    ShieldCheck,
+    PiggyBank
 } from 'lucide-react';
 
 export const CATEGORY_ACCENT = {
@@ -231,8 +233,23 @@ export const CATEGORY_ACCENT = {
     'train':             '#3b82f6',
     'bicycle':           '#22c55e',
     'loan':              '#f43f5e',
-    'insurance':         '#10b981',
+    'insurance':         '#3b82f6',
     'tax':               '#9ca3af',
+    // Sure style categories
+    'fees':                     '#64748b',
+    'food & drink':             '#f97316',
+    'gifts & donations':        '#0ea5e9',
+    'groceries':                '#22c55e',
+    'healthcare':               '#10b981',
+    'home improvement':         '#f59e0b',
+    'income':                   '#22c55e',
+    'investment contributions': '#0d9488',
+    'loan payments':            '#f43f5e',
+    'mortgage / rent':          '#d97706',
+    'mortgage':                 '#d97706',
+    'personal care':            '#06b6d4',
+    'savings & investments':    '#10b981',
+    'savings':                  '#10b981',
 };
 
 export const CATEGORY_ICONS = {
@@ -418,9 +435,76 @@ export const CATEGORY_ICONS = {
     'train':             Train,
     'bicycle':           Bike,
     'loan':              CreditCard,
-    'insurance':         ShoppingBag,
+    'insurance':         ShieldCheck,
     'tax':               Receipt,
+    // Sure style categories
+    'fees':                     Receipt,
+    'food & drink':             Utensils,
+    'gifts & donations':        Gift,
+    'groceries':                ShoppingCart,
+    'healthcare':               HeartPulse,
+    'home improvement':         HomeIcon,
+    'income':                   Banknote,
+    'investment contributions': LineChart,
+    'loan payments':            CreditCard,
+    'mortgage / rent':          HomeIcon,
+    'mortgage':                 HomeIcon,
+    'personal care':            Scissors,
+    'savings & investments':    PiggyBank,
+    'savings':                  PiggyBank,
 };
+
+export const AVAILABLE_CATEGORY_ICONS = [
+    { id: 'Utensils', name: 'Food & Drink', icon: Utensils },
+    { id: 'ShoppingCart', name: 'Groceries', icon: ShoppingCart },
+    { id: 'Coffee', name: 'Coffee', icon: Coffee },
+    { id: 'HomeIcon', name: 'Home', icon: HomeIcon },
+    { id: 'Car', name: 'Transport', icon: Car },
+    { id: 'Receipt', name: 'Bills', icon: Receipt },
+    { id: 'Ticket', name: 'Entertainment', icon: Ticket },
+    { id: 'Martini', name: 'Nightlife', icon: Martini },
+    { id: 'Fuel', name: 'Fuel', icon: Fuel },
+    { id: 'HeartPulse', name: 'Healthcare', icon: HeartPulse },
+    { id: 'Banknote', name: 'Salary / Income', icon: Banknote },
+    { id: 'Gift', name: 'Gifts & Donations', icon: Gift },
+    { id: 'LineChart', name: 'Investments', icon: LineChart },
+    { id: 'Landmark', name: 'Banking', icon: Landmark },
+    { id: 'CreditCard', name: 'Loan Payments', icon: CreditCard },
+    { id: 'PiggyBank', name: 'Savings', icon: PiggyBank },
+    { id: 'ShieldCheck', name: 'Insurance', icon: ShieldCheck },
+    { id: 'Shapes', name: 'Other', icon: Shapes },
+    { id: 'Tv', name: 'Subscriptions', icon: Tv },
+    { id: 'Shirt', name: 'Shopping', icon: Shirt },
+    { id: 'GraduationCap', name: 'Education', icon: GraduationCap },
+    { id: 'Dumbbell', name: 'Fitness', icon: Dumbbell },
+    { id: 'Plane', name: 'Travel', icon: Plane },
+    { id: 'Scissors', name: 'Personal Care', icon: Scissors },
+    { id: 'Cat', name: 'Pets', icon: Cat },
+    { id: 'Baby', name: 'Family', icon: Baby },
+    { id: 'Wrench', name: 'Repairs', icon: Wrench },
+    { id: 'Music', name: 'Music', icon: Music },
+    { id: 'Gamepad2', name: 'Gaming', icon: Gamepad2 },
+    { id: 'Building2', name: 'Rent', icon: Building2 },
+    { id: 'Smartphone', name: 'Tech & Phone', icon: Smartphone },
+    { id: 'Flower2', name: 'Garden', icon: Flower2 },
+    { id: 'Briefcase', name: 'Work', icon: Briefcase },
+    { id: 'BookOpen', name: 'Books', icon: BookOpen }
+];
+
+export const AVAILABLE_CATEGORY_COLORS = [
+    '#a855f7', // purple (Entertainment)
+    '#64748b', // slate (Fees)
+    '#f97316', // orange (Food & Drink)
+    '#0ea5e9', // sky (Gifts & Donations)
+    '#22c55e', // green (Groceries)
+    '#10b981', // emerald (Healthcare / Income)
+    '#f59e0b', // amber (Home Improvement)
+    '#3b82f6', // blue (Insurance)
+    '#0d9488', // teal (Investment Contributions)
+    '#f43f5e', // rose / pink (Loan Payments)
+    '#d97706', // amber-600 (Mortgage / Rent)
+    '#06b6d4', // cyan (Personal Care)
+];
 
 /**
  * Fuzzy-match a custom category name to the best available icon.

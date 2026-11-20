@@ -79,9 +79,12 @@ describe('CategoriesSettingsView', () => {
     it('opens inline edit mode and saves renamed category', async () => {
         render(<CategoriesSettingsView transactions={[]} onBack={vi.fn()} />);
 
-        // Click edit on Pills (first edit button)
-        const editButtons = screen.getAllByTitle('edit_category');
-        fireEvent.click(editButtons[0]);
+        // Open row menu on Pills (first more options button) then click edit
+        const moreButtons = screen.getAllByTitle('More options');
+        fireEvent.click(moreButtons[0]);
+
+        const editButton = screen.getByTitle('edit_category');
+        fireEvent.click(editButton);
 
         const input = screen.getByDisplayValue('Pills');
         fireEvent.change(input, { target: { value: 'Βιταμίνες' } });
@@ -99,9 +102,12 @@ describe('CategoriesSettingsView', () => {
         const transactions = [{ category: 'Pills', type: 'expense' }];
         render(<CategoriesSettingsView transactions={transactions} onBack={vi.fn()} />);
 
-        // Click delete on Pills
-        const deleteButtons = screen.getAllByTitle('delete_category');
-        fireEvent.click(deleteButtons[0]);
+        // Open row menu on Pills then click delete
+        const moreButtons = screen.getAllByTitle('More options');
+        fireEvent.click(moreButtons[0]);
+
+        const deleteButton = screen.getByTitle('delete_category');
+        fireEvent.click(deleteButton);
 
         // Delete modal appears
         expect(screen.getByText(/delete_category/i)).toBeInTheDocument();
@@ -132,5 +138,51 @@ describe('CategoriesSettingsView', () => {
 
         // Reset mockIsPro
         mockIsPro = true;
+    });
+
+    it('navigates back when clicking breadcrumb home', () => {
+        const handleBack = vi.fn();
+        render(<CategoriesSettingsView transactions={[]} onBack={handleBack} />);
+
+        const homeBreadcrumb = screen.getByText('categories_breadcrumb_home');
+        fireEvent.click(homeBreadcrumb);
+
+        expect(handleBack).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens New category modal and adds category', async () => {
+        render(<CategoriesSettingsView transactions={[]} onBack={vi.fn()} />);
+
+        // Click + New category button
+        const newCatBtn = screen.getByRole('button', { name: /add_category/i });
+        fireEvent.click(newCatBtn);
+
+        // Modal appears
+        expect(screen.getByText('new_category_modal')).toBeInTheDocument();
+
+        // Type name
+        const input = screen.getByPlaceholderText('category_name_placeholder');
+        fireEvent.change(input, { target: { value: 'Streaming' } });
+
+        // Submit form
+        const submitBtn = screen.getByTitle('save');
+        fireEvent.click(submitBtn);
+
+        await waitFor(() => {
+            expect(mockAddCustomCategory).toHaveBeenCalledWith('expense', 'Streaming');
+            expect(mockShowToast).toHaveBeenCalledWith('category_added_success', 'success');
+        });
+    });
+
+    it('opens header menu and triggers reset to defaults', () => {
+        render(<CategoriesSettingsView transactions={[]} onBack={vi.fn()} />);
+
+        const moreBtn = screen.getByTitle('More actions');
+        fireEvent.click(moreBtn);
+
+        const resetBtn = screen.getByText('use_defaults_recommended');
+        fireEvent.click(resetBtn);
+
+        expect(mockShowToast).toHaveBeenCalledWith('defaults_restored', 'success');
     });
 });

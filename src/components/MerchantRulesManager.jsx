@@ -25,21 +25,21 @@ export default function MerchantRulesManager({ rules = [], onAdd, onEdit, onDele
                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                     {translate('merchant_rules_tab') || 'Κανόνες Εμπόρων'} ({rules.length})
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
                     <button
                         type="button"
                         onClick={onRestoreStarter}
-                        className="py-2 px-3 text-xs font-bold rounded-xl bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] transition-all flex items-center gap-1.5"
+                        className="w-full sm:w-auto py-2.5 sm:py-2 px-3.5 text-xs font-bold rounded-xl bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                     >
-                        <RefreshCw size={13} />
+                        <RefreshCw size={13} className="shrink-0" />
                         <span>{translate('restore_starter_rules') || 'Προτεινόμενοι Κανόνες'}</span>
                     </button>
                     <button
                         type="button"
                         onClick={() => { setEditingRule(null); setModalOpen(true); }}
-                        className="py-2 px-3.5 text-xs font-bold rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
+                        className="w-full sm:w-auto py-2.5 sm:py-2 px-3.5 text-xs font-bold rounded-xl bg-gray-900 hover:bg-black text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900 shadow-sm transition-all flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
                     >
-                        <Plus size={15} />
+                        <Plus size={15} className="shrink-0" />
                         <span>{translate('add_merchant_rule') || 'Νέος Κανόνας'}</span>
                     </button>
                 </div>

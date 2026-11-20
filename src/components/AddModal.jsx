@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
     X, Camera, Layers, Mic, Delete, Check, Plus, Search,
     MessageSquare, MoreHorizontal, AlertCircle, ShieldCheck, Shapes, GitFork
@@ -532,15 +533,14 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
 
     const inBatchMode = batchQueue.length > 1;
 
-
-    return (
+    const modalContent = (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-            className="fixed inset-0 z-[70] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm p-0 lg:p-3"
+            className="fixed inset-0 z-[99999] flex items-end lg:items-center justify-center bg-black/40 backdrop-blur-sm p-0 lg:p-3"
             role="dialog"
             aria-modal="true"
             aria-labelledby="add-modal-title"
@@ -1201,6 +1201,11 @@ const AddModal = ({ onClose, onAdd, initialData, initialType }) => {
             </motion.div>
         </motion.div>
     );
+
+    if (typeof document !== 'undefined') {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 };
 
 export default AddModal;

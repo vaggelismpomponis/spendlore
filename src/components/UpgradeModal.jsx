@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
     X, Check, ShieldCheck, CheckCircle2,
     Infinity, Bell, TrendingUp, ScanLine, Tags,
@@ -104,11 +105,28 @@ const UpgradeModal = () => {
         }
     };
 
-    return (
+    useEffect(() => {
+        if (!isUpgradeModalOpen) return;
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') closeUpgradeModal();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.body.style.overflow = prevOverflow;
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isUpgradeModalOpen, closeUpgradeModal]);
+
+    const modalContent = (
         <AnimatePresence>
             {isUpgradeModalOpen && (
                 <div
-                    className="fixed inset-0 z-[250] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md animate-fade-in"
+                    className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md animate-fade-in"
+                    role="dialog"
+                    aria-modal="true"
                     onClick={(e) => {
                         if (e.target === e.currentTarget) closeUpgradeModal();
                     }}
@@ -257,6 +275,11 @@ const UpgradeModal = () => {
             )}
         </AnimatePresence>
     );
+
+    if (typeof document !== 'undefined') {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 };
 
 export default UpgradeModal;

@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Settings, Bell, Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import Navbar from './Navbar';
 import OfflineIndicator from './OfflineIndicator';
+import ProfileDropdownMenu from './ProfileDropdownMenu';
+import WhatsNewModal from './WhatsNewModal';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
 import { scrollContainerToTop } from '../utils/scroll';
@@ -24,8 +26,13 @@ export default function MobileLayout({
     openAddModal,
     children,
     overlays,
-    modals
+    modals,
+    user,
+    displayName,
+    handleSignOut,
+    onOpenWhatsNew,
 }) {
+    const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
     const [showFabMenu, setShowFabMenu] = useState(false);
     const fabLongPressRef = useRef(null);
     const fabPressStartRef = useRef(false);
@@ -79,35 +86,48 @@ export default function MobileLayout({
                         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
 
                         <div className="flex items-center justify-between min-h-[40px]">
-                            {/* LEFT — User Profile Avatar */}
+                            {/* LEFT — User Profile Avatar Dropdown */}
                             <div className="relative flex-shrink-0">
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setActiveTab('profile')}
-                                    className="w-9 h-9 rounded-full flex items-center justify-center
-                                               bg-gray-100 dark:bg-surface-dark2
-                                               text-gray-600 dark:text-gray-300
-                                               hover:bg-gray-200 dark:hover:bg-white/[0.08]
-                                               active:scale-95 transition-all
-                                               overflow-hidden shadow-xs shrink-0"
-                                    style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
-                                    title={translate('settings')}
-                                    aria-label={translate('settings')}
-                                >
-                                    {photoURL && imgRetries < MAX_IMG_RETRIES ? (
-                                        <img
-                                            src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
-                                            alt="Profile"
-                                            referrerPolicy="no-referrer"
-                                            crossOrigin="anonymous"
-                                            className="w-full h-full object-cover"
-                                            onError={() => setImgRetries(prev => prev + 1)}
-                                        />
-                                    ) : (
-                                        <User size={18} strokeWidth={2.2} />
+                                <ProfileDropdownMenu
+                                    user={user}
+                                    displayName={displayName}
+                                    photoURL={photoURL}
+                                    onSignOut={handleSignOut}
+                                    setActiveTab={setActiveTab}
+                                    onOpenWhatsNew={onOpenWhatsNew || (() => setShowWhatsNewModal(true))}
+                                    align="left"
+                                    direction="down"
+                                    trigger={({ isOpen }) => (
+                                        <motion.div
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className={`w-9 h-9 rounded-full flex items-center justify-center
+                                                       bg-gray-100 dark:bg-surface-dark2
+                                                       text-gray-600 dark:text-gray-300
+                                                       hover:bg-gray-200 dark:hover:bg-white/[0.08]
+                                                       active:scale-95 transition-all
+                                                       overflow-hidden shadow-xs shrink-0 cursor-pointer border ${
+                                                           isOpen ? 'border-gray-900 dark:border-white ring-1 ring-gray-900 dark:ring-white' : 'border-gray-200 dark:border-white/10'
+                                                       }`}
+                                            style={{ outline: 'none', border: 'none', WebkitTapHighlightColor: 'transparent' }}
+                                            title={translate('settings')}
+                                            aria-label="User Profile Menu"
+                                        >
+                                            {photoURL && imgRetries < MAX_IMG_RETRIES ? (
+                                                <img
+                                                    src={imgRetries > 0 ? `${photoURL}${photoURL.includes('?') ? '&' : '?'}retry=${imgRetries}` : photoURL}
+                                                    alt="Profile"
+                                                    referrerPolicy="no-referrer"
+                                                    crossOrigin="anonymous"
+                                                    className="w-full h-full object-cover"
+                                                    onError={() => setImgRetries(prev => prev + 1)}
+                                                />
+                                            ) : (
+                                                <User size={18} strokeWidth={2.2} />
+                                            )}
+                                        </motion.div>
                                     )}
-                                </motion.button>
+                                />
                             </div>
 
                             {/* CENTER — App Name */}
@@ -266,6 +286,12 @@ export default function MobileLayout({
 
                 {/* Global Modals */}
                 {modals}
+
+                {/* What's New Drawer (Mobile) */}
+                <WhatsNewModal
+                    isOpen={showWhatsNewModal}
+                    onClose={() => setShowWhatsNewModal(false)}
+                />
             </div>
         </main>
     );

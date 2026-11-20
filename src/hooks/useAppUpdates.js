@@ -1,12 +1,25 @@
 import { useEffect } from 'react';
 import { supabase } from '../supabase';
 import logger from '../utils/logger';
+import { APP_VERSION } from '../utils/version';
+import { getReleaseNoteByVersion } from '../data/releaseNotes';
 
 export function useAppUpdates({ user, loading, isLocked, setLatestUpdate, setShowWhatsNew, setCurrentBroadcast, setShowBroadcast }) {
     // 1. Check for App Updates (WhatsNew)
     useEffect(() => {
         const checkWhatsNew = async () => {
             if (user && !loading && !isLocked) {
+                // Check local release notes first for current app version
+                const hasSeenLocal = localStorage.getItem(`whatsnew_seen_${APP_VERSION}_${user.id}`);
+                if (!hasSeenLocal) {
+                    const localNote = getReleaseNoteByVersion(APP_VERSION);
+                    if (localNote) {
+                        setLatestUpdate(localNote);
+                        setShowWhatsNew(true);
+                        return;
+                    }
+                }
+
                 try {
                     const { data, error } = await supabase
                         .from('app_updates')

@@ -53,7 +53,7 @@ describe('UpgradeModal Component', () => {
         expect(screen.getByText('€29.99')).toBeInTheDocument();
 
         // Check footer has the safe-area and navigation bar bottom padding class
-        const footer = container.querySelector('.border-t.border-gray-200');
+        const footer = document.querySelector('.border-t.border-gray-200');
         expect(footer).toBeInTheDocument();
         expect(footer.className).toContain('pb-[max(3.75rem,calc(env(safe-area-inset-bottom,0px)+1.25rem))]');
     });

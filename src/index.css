@@ -404,6 +404,16 @@ svg *:focus-visible,
   }
 }
 
+@keyframes toast-circle-countdown {
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: 47.124;
+  }
+}
+
 @keyframes expandWidth {
   from {
     width: 0%;

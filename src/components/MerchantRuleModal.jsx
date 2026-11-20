@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Check } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
@@ -30,6 +31,21 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
         }
     }, [editingRule, isOpen, type]);
 
+    useEffect(() => {
+        if (!isOpen) return;
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.body.style.overflow = prevOverflow;
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose]);
+
     if (!isOpen) return null;
 
     const availableCategories = type === 'income'
@@ -47,8 +63,12 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
         onClose();
     };
 
-    return (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+    const modalContent = (
+        <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in"
+            role="dialog"
+            aria-modal="true"
+        >
             <div className="w-full max-w-lg bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col">
                 <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/10">
                     <div>
@@ -59,7 +79,7 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
                             {translate('merchant_rules_desc') || 'Αυτόματη αντιστοίχιση εμπόρου σε κατηγορία'}
                         </p>
                     </div>
-                    <button type="button" onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors" aria-label="Κλείσιμο">
+                    <button type="button" onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl bg-gray-200/60 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/15 transition-colors cursor-pointer" aria-label="Κλείσιμο">
                         <X size={18} />
                     </button>
                 </div>
@@ -98,8 +118,8 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
                     </div>
 
                     <div className="flex gap-3 pt-3">
-                        <button type="button" onClick={onClose} className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm">Ακύρωση</button>
-                        <button type="submit" className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+                        <button type="button" onClick={onClose} className="flex-1 py-2.5 bg-gray-200/70 hover:bg-gray-200 text-gray-700 dark:text-gray-200 dark:bg-white/[0.08] dark:hover:bg-white/[0.12] border border-gray-300/60 dark:border-white/[0.1] font-bold rounded-xl transition-all active:scale-95 text-sm cursor-pointer">Ακύρωση</button>
+                        <button type="submit" className="flex-1 py-2.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-xl shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 text-sm cursor-pointer">
                             <Check size={16} />
                             <span>{translate('save_changes') || 'Αποθήκευση'}</span>
                         </button>
@@ -108,4 +128,9 @@ export default function MerchantRuleModal({ isOpen, onClose, editingRule = null,
             </div>
         </div>
     );
+
+    if (typeof document !== 'undefined') {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 }

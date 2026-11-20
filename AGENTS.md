@@ -50,10 +50,21 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
        npm run prepare-mobile
        ```
        (which runs `npm run build && npx cap sync` to build the web bundle and sync native Android assets).
-    2. **Increment Android version numbers** in `android/app/build.gradle`:
-       - Increment `versionCode` by +1
-       - Increment `versionName` patch version (e.g., `1.1.26` -> `1.1.27`)
-    3. Stage all modified files, `android/app/build.gradle`, and synchronized mobile assets, and create the local commit.
+    2. **Increment Version Numbers across All Manifests**:
+       - In `android/app/build.gradle`: Increment `versionCode` by +1 and `versionName` patch version (e.g., `1.1.26` -> `1.1.27`)
+       - In `package.json`: Increment `"version"`
+       - In `src/utils/version.js`: Update `APP_VERSION` and `APP_BUILD_NUMBER`
+    3. **Mandatory 'What's New' Release Entry in `src/data/releaseNotes.js`**:
+       - In every release version bump, automatically author and prepend a new release entry in `src/data/releaseNotes.js` matching the Sure-style rich editorial format:
+         - `version`: target version string (e.g. `'1.1.58'`)
+         - `build`: target build number (e.g. `70`)
+         - `date`: release date (`YYYY-MM-DD`)
+         - `title_el` / `title_en`: Catchy release title with version and main highlights (e.g. `Spendlore v1.1.58 - ...`)
+         - `summary_el` / `summary_en`: Executive lead paragraph summarizing what changed in this version
+         - `sections`: Array of feature sections, each with `title_el`/`title_en`, detailed narrative `desc_el`/`desc_en`, `previewType` (or `image`), and `caption_el`/`caption_en`.
+       - **Strict Exclusion of Admin / Internal Tooling**: NEVER include internal administrative changes, Admin Panel / Operations Dashboard modifications, user management tooling, internal telemetry rankings, moderation tools, or developer infrastructure in user-facing release notes. End-users must only see features, enhancements, UX improvements, and bug fixes that directly impact their personal finance management experience.
+       - The app automatically surfaces this "What's New" slide-over drawer to users upon first launching the new version (persisting view state in `localStorage` per user/version), and allows users to review release notes on demand via Settings/Profile.
+    4. Stage all modified files, `android/app/build.gradle`, synchronized mobile assets, and create the local commit.
 - **No Remote Push**: Do NOT execute `git push` under any circumstances. All remote pushes are handled manually by the user.
 
 ## Iconography & UI Design Guidelines
@@ -67,6 +78,8 @@ Single Source of Truth personal finance application powering Web (PWA) and Andro
 ## Executive Modal & Form Design Standards
 
 Whenever building or redesigning modals, dialogs, forms, or new interactive surfaces:
+- **Mandatory Body Portaling (`createPortal`) & Absolute Highest Z-Index (`z-[99999]`)**: ALL modals, dialogs, drawers, and overlay sheets MUST be portaled directly to `document.body` using `createPortal(modalContent, document.body)` (guarded with `typeof document !== 'undefined'`) and assigned `z-[99999]` (the largest z-index in the entire application). Modals must NEVER be rendered inside nested component trees, view wrappers, or content containers, because parent CSS stacking contexts (`overflow-hidden`, `transform`, `filter`, `backdrop-blur`) trap and clip the fixed backdrop, causing topbars, desktop sidebars, or headers to remain undimmed and interactive. The backdrop must cover the entire viewport unconditionally (`fixed inset-0 z-[99999] bg-black/60 backdrop-blur-md`).
+- **Focus Trap & Complete Viewport Isolation**: When any modal is open, focus and interaction MUST be strictly locked to the modal window (`role="dialog"`, `aria-modal="true"`). Background scrolling must be disabled (`document.body.style.overflow = 'hidden'`), keyboard `Tab` / `Shift+Tab` navigation must cycle exclusively within the modal's focusable elements, pressing `Escape` must close the modal, and clicks on the backdrop must dismiss it safely. No background controls (sidebar buttons, topbar actions, floating buttons) may receive focus, hover, or clicks while the modal is open.
 - **Card Surface & Border**: Use `bg-gray-100/95 dark:bg-surface-dark2 rounded-2xl border border-gray-300 dark:border-white/10 shadow-2xl` with backdrop `bg-black/60 backdrop-blur-md`.
 - **Header Typography & Controls**:
   - Title: `text-lg font-bold text-gray-900 dark:text-white`.

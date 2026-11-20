@@ -1,0 +1,152 @@
+/**
+ * Single Source of Truth for Application Release Notes & "What's New" Entries
+ *
+ * Modeled after modern editorial release drawers (e.g. Sure personal finance).
+ * Every release entry contains:
+ * - version: String matching APP_VERSION
+ * - build: Integer matching APP_BUILD_NUMBER
+ * - date: Release date string (YYYY-MM-DD)
+ * - title_el / title_en: Release headline with version and highlights
+ * - summary_el / summary_en: Executive lead paragraph
+ * - sections: Array of feature blocks containing title, narrative description,
+ *             rich previewType (or image URL), and caption.
+ *
+ * NOTE: Admin panel, operations dashboard, moderation tools, and internal
+ * telemetry features must NEVER be included here. Release notes are strictly
+ * tailored to end-user personal finance management features.
+ */
+
+export const RELEASE_NOTES = [
+    {
+        version: '1.1.59',
+        build: 71,
+        date: '2026-11-20',
+        title_el: 'Spendlore v1.1.59 - Ανασχεδιασμός Κατηγοριών, Κανόνες Εμπόρων & Βελτιώσεις Mobile',
+        title_en: 'Spendlore v1.1.59 - Redesigned Categories, Merchant Rules & Mobile UX Polish',
+        summary_el: 'Στη νέα έκδοση 1.1.59, το Spendlore αναβαθμίζει ριζικά τη διαχείριση κατηγοριών και κανόνων εμπόρων με μινιμαλιστική αισθητική Sure, διακριτικά μενού επιλογών, πλήρη απομόνωση παραθύρων διαλόγου και βελτιστοποιημένη διάταξη για οθόνες κινητών.',
+        summary_en: 'In release 1.1.59, Spendlore fundamentally upgrades custom categories and merchant rules management with a minimalist Sure-inspired aesthetic, clean action menus, modal viewport isolation, and seamless mobile responsive layouts.',
+        sections: [
+            {
+                title_el: 'Ανασχεδιασμός Προσαρμοσμένων Κατηγοριών & Κανόνων',
+                title_en: 'Redesigned Custom Categories & Merchant Rules',
+                desc_el: 'Νέα κομψή εμφάνιση κατηγοριών με διακριτικά χρωματικά pills, ενσωματωμένα εικονίδια Lucide, και μινιμαλιστικό μενού τριών κουκκίδων (...) για γρήγορη επεξεργασία και διαγραφή. Ενοποιημένοι κανόνες εμπόρων με δοκιμή λέξεων-κλειδιών σε πραγματικό χρόνο.',
+                desc_en: 'Brand-new category design featuring pastel tint pills, semantic Lucide icons, and minimalist three-dots (...) dropdown menus for swift editing and deletion. Unified merchant rules with real-time keyword matching.',
+                previewType: 'categories_redesign',
+                caption_el: 'Καθαρή, μινιμαλιστική οργάνωση των κατηγοριών σας με άμεσο συγχρονισμό στο cloud.',
+                caption_en: 'Clean, minimalist organization of your expense and income categories with real-time cloud sync.'
+            },
+            {
+                title_el: 'Βελτιστοποίηση Διάταξης για Κινητά (Mobile UX)',
+                title_en: 'Mobile Responsive Layout Optimization',
+                desc_el: 'Πλήρως επανασχεδιασμένη εμπειρία σε οθόνες κινητών: οριζόντια κύλιση των καρτελών χωρίς σπάσιμο κειμένων, κάθετη στοίβαξη πλήρους πλάτους στα κουμπιά ενεργειών και προστασία από υπερχείλιση των μενού επιλογών.',
+                desc_en: 'Fully optimized mobile experience: smooth horizontal tabs swipe with zero awkward word breaking, full-width action button stacking, and viewport overflow shielding on all dropdown menus.',
+                previewType: 'mobile_polish',
+                caption_el: 'Άνετη πλοήγηση και αβίαστη χρήση με το ένα χέρι σε κάθε μέγεθος οθόνης.',
+                caption_en: 'Comfortable one-handed navigation and flawless rendering across all smartphone screens.'
+            },
+            {
+                title_el: 'Απόλυτη Απομόνωση Παραθύρων Διαλόγου (Modal Isolation)',
+                title_en: 'Complete Modal Viewport Isolation & Focus',
+                desc_el: 'Όλα τα παράθυρα διαλόγου και οι φόρμες της εφαρμογής εμφανίζονται πλέον στο ανώτατο επίπεδο (portal στο σώμα του εγγράφου με απόλυτο z-index), κλειδώνοντας την κύλιση στο παρασκήνιο για απρόσκοπτη εστίαση.',
+                desc_en: 'All application dialogs and forms now portal directly to the document body with the highest application z-index, automatically disabling background scroll for focused, distraction-free workflows.',
+                previewType: 'modal_portal',
+                caption_el: 'Πλήρης εστίαση και ασφαλής ακύρωση με το πλήκτρο Escape ή κλικ στο σκιασμένο παρασκήνιο.',
+                caption_en: 'Complete focus trap and safe dismissal with the Escape key or backdrop click.'
+            }
+        ]
+    },
+    {
+        version: '1.1.58',
+        build: 70,
+        date: '2026-11-20',
+        title_el: 'Spendlore v1.1.58 - Διαδραστικό Γράφημα Υπολοίπου & Νέο Συρτάρι Ενημερώσεων',
+        title_en: 'Spendlore v1.1.58 - Interactive Balance Trend & Editorial Release Drawer',
+        summary_el: 'Με αυτή τη νέα έκδοση, το Spendlore αναβαθμίζει την κεντρική εμπειρία διαχείρισης των οικονομικών σας με διαδραστικό γράφημα εξέλιξης υπολοίπου, πλήρη επιλογέα χρονικών περιόδων, κομψό συρτάρι νέων λειτουργιών και ενιαία σήμανση Obsidian PRO.',
+        summary_en: 'With this release, Spendlore elevates your personal finance experience with an interactive balance trend card inspired by Sure, multi-interval timeframe selection, an editorial release drawer, and unified obsidian PRO badging.',
+        sections: [
+            {
+                title_el: 'Διαδραστικό Γράφημα Υπολοίπου & Τάσης Περιόδου',
+                title_en: 'Interactive Balance & Net Worth Trend',
+                desc_el: 'Παρακολουθήστε την πορεία του υπολοίπου σας στον χρόνο με ελαφρύ διαδραστικό γράφημα, σύγκριση τάσης σε πραγματικό χρόνο και άμεση επιλογή περιόδου (1Η, WTD, 7Η, MTD, 30Η, 90Η, YTD, 1Ε, 5Ε, Όλα) με scrubbing κύλιση ανά ημερομηνία.',
+                desc_en: 'Track your net worth progression over time with a lightweight interactive area chart, real-time trend comparison, and multi-interval timeframe selector (1D, WTD, 7D, MTD, 30D, 90D, YTD, 1Y, 5Y, All) with date scrubbing.',
+                previewType: 'balance_trend',
+                caption_el: 'Δυναμική απεικόνιση κεφαλαίου και ταμειακών ροών στην αρχική σελίδα.',
+                caption_en: 'Dynamic capital and cashflow visualization right on your home screen.'
+            },
+            {
+                title_el: 'Παρουσίαση Νέων Δυνατοτήτων Έκδοσης (What\'s New)',
+                title_en: 'Editorial \'What\'s New\' Release Drawer',
+                desc_el: 'Ένα καλαίσθητο συρτάρι παρουσίασης νέων λειτουργιών που σας υποδέχεται μετά από κάθε ενημέρωση, με λεπτομερή επεξήγηση και οπτικές προεπισκοπήσεις των αλλαγών.',
+                desc_en: 'An elegant release presentation drawer welcoming you upon launching new versions, offering comprehensive highlights and visual mockups of what changed.',
+                previewType: 'whats_new',
+                caption_el: 'Άμεση ενημέρωση για κάθε βελτίωση και νέα δυνατότητα στο Spendlore.',
+                caption_en: 'Instant visibility into every improvement and enhancement in Spendlore.'
+            },
+            {
+                title_el: 'Executive Obsidian PRO Badges',
+                title_en: 'Executive Obsidian PRO Badges',
+                desc_el: 'Ενιαία σήμανση PRO σε μονόχρωμο obsidian στυλ υψηλής αντίθεσης σε προφίλ, πλαϊνή μπάρα πλοήγησης και ρυθμίσεις, προσφέροντας καθαρή και επαγγελματική αισθητική.',
+                desc_en: 'Unified high-contrast monochrome PRO badges across user profile cards, desktop sidebar navigation, and settings, maintaining a clean corporate aesthetic.',
+                previewType: 'pro_badge',
+                caption_el: 'Καθαρή μονόχρωμη σήμανση με συνεπή οπτική ιεραρχία σε φωτεινή και σκοτεινή λειτουργία.',
+                caption_en: 'Clean, unboxed monochrome badge ensuring consistent visual hierarchy across light and dark modes.'
+            }
+        ]
+    },
+    {
+        version: '1.1.57',
+        build: 69,
+        date: '2026-11-12',
+        title_el: 'Spendlore v1.1.57 - Καθολική Επαναφορά Κύλισης & Βελτιστοποίηση Πλοήγησης',
+        title_en: 'Spendlore v1.1.57 - Global Scroll Preservation & Navigation Polish',
+        summary_el: 'Αυτόματη επαναφορά κύλισης στην αρχή της σελίδας σε κάθε μετάβαση και προβολή, εξασφαλίζοντας ομαλή πλοήγηση σε καρτέλες, ρυθμίσεις και προφίλ χρηστών.',
+        summary_en: 'Global scroll position reset across all screen transitions and views, eliminating stuck scroll offsets when switching tabs or viewing account profiles.',
+        sections: [
+            {
+                title_el: 'Άμεση Επαναφορά Κύλισης σε Κάθε Μετάβαση',
+                title_en: 'Instant Scroll Reset on Screen Transitions',
+                desc_el: 'Κάθε φορά που ανοίγετε ένα προφίλ χρήστη, αλλάζετε ενότητα στις ρυθμίσεις ή περιηγείστε στο app, η σελίδα ξεκινά πάντα από την αρχή χωρίς να διατηρεί προηγούμενη κύλιση.',
+                desc_en: 'Every time you view a user profile, change settings sections, or navigate between tabs, the viewport immediately resets to top without retained scroll offset.',
+                previewType: 'scroll_reset',
+                caption_el: 'Απρόσκοπτη περιήγηση με συνεπή συμπεριφορά κύλισης σε κινητό και υπολογιστή.',
+                caption_en: 'Seamless viewport navigation with consistent top scroll behavior across devices.'
+            }
+        ]
+    },
+    {
+        version: '1.1.56',
+        build: 68,
+        date: '2026-11-11',
+        title_el: 'Spendlore v1.1.56 - Διαχείριση Ενημερώσεων & Εκκαθάριση Cache',
+        title_en: 'Spendlore v1.1.56 - In-App Updates & Cache Management',
+        summary_el: 'Προσθήκη αποκλειστικών ρυθμίσεων για άμεσο έλεγχο ενημερώσεων μέσω Google Play και ασφαλή εκκαθάριση τοπικής cache απευθείας από την ενότητα Σύστημα & Εφαρμογή.',
+        summary_en: 'Dedicated controls for checking app updates directly via Google Play and safely purging local cache directly from the System & App section.',
+        sections: [
+            {
+                title_el: 'Έλεγχος Ενημερώσεων & Εκκαθάριση Μνήμης',
+                title_en: 'Update Verification & Safe Cache Reset',
+                desc_el: 'Εύκολος έλεγχος διαθεσιμότητας νέων εκδόσεων και δυνατότητα επαναφοράς της τοπικής cache σε περίπτωση που δεν φορτώνει άμεσα η τελευταία έκδοση.',
+                desc_en: 'Effortlessly check for new versions on Google Play and reset local cache whenever a newer release needs immediate loading.',
+                previewType: 'update_check',
+                caption_el: 'Πλήρης έλεγχος εκδόσεων και κατάστασης εφαρμογής από το προφίλ.',
+                caption_en: 'Complete version control and application maintenance from user profile.'
+            }
+        ]
+    }
+];
+
+export const getLatestReleaseNote = () => RELEASE_NOTES[0] || null;
+
+export const getReleaseNoteByVersion = (version) => {
+    if (!version) return null;
+    return RELEASE_NOTES.find(n => n.version === String(version).trim()) || null;
+};
+
+export const getAllReleaseNotes = () => RELEASE_NOTES;
+
+export default {
+    RELEASE_NOTES,
+    getLatestReleaseNote,
+    getReleaseNoteByVersion,
+    getAllReleaseNotes,
+};

@@ -42,7 +42,7 @@ const ProtectedStatsView = ({ transactions }) => {
 export default function AppRouter(props) {
     const { 
         isDesktop, activeTab, setActiveTab, previousTab, setPreviousTab,
-        user, transactions, budgets, goals, balance, totalIncome, totalExpense,
+        user, displayName, photoURL, transactions, budgets, goals, balance, totalIncome, totalExpense,
         deleteTransaction, handleEdit, handleSignOut, openAddModal, handleStartTour,
         ...rest
     } = props;
@@ -58,7 +58,8 @@ export default function AppRouter(props) {
             <React.Suspense fallback={<div className="h-full w-full bg-gray-50 dark:bg-surface-dark" />}>
                 <DesktopLayout 
                     activeTab={activeTab} setActiveTab={setActiveTab} setPreviousTab={setPreviousTab}
-                    user={user} transactions={transactions} budgets={budgets} 
+                    user={user} displayName={displayName} photoURL={photoURL}
+                    transactions={transactions} budgets={budgets} 
                     balance={balance} totalIncome={totalIncome} totalExpense={totalExpense}
                     onSignOut={handleSignOut} onAdd={() => openAddModal()}
                     onToggleNotifications={() => props.setShowNotificationPanel?.(prev => !prev)}
@@ -124,6 +125,7 @@ export default function AppRouter(props) {
         <React.Suspense fallback={<div className="h-full w-full" />}>
             <MobileLayout 
                 activeTab={activeTab} setActiveTab={setActiveTab} openAddModal={openAddModal}
+                user={user} displayName={displayName} photoURL={photoURL} handleSignOut={handleSignOut}
                 {...rest}
                 overlays={
                     <React.Suspense fallback={<div className="absolute inset-0 z-50 bg-gray-50 dark:bg-surface-dark" />}>

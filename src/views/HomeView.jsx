@@ -18,6 +18,7 @@ import SafeToBurnCard from '../components/SafeToBurnCard';
 import { getCategoryTranslation } from '../utils/categoryTranslations';
 import CoolingOffHomeWidget from '../components/CoolingOffHomeWidget';
 import ProBadge from '../components/ProBadge';
+import BalanceTrendCard from '../components/home/BalanceTrendCard';
 /* ─────────────────────────────────────────────
    Getting Started — onboarding step data
 ───────────────────────────────────────────── */
@@ -563,176 +564,29 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     </div>
                 </div>
 
-                {/* ── 2. Top Executive Section: Iconic Violet Hero + 4-KPI Bento Grid ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-                    {/* ──── Hero Card (7 cols): Vibrant Violet Gradient ──── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 12, scale: 0.99 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="lg:col-span-7 relative overflow-hidden rounded-2xl
-                                   bg-gray-100/90 dark:bg-surface-dark2
-                                   p-6 sm:p-7 text-gray-900 dark:text-white border border-gray-200 dark:border-white/10
-                                   flex flex-col justify-between"
-                    >
-                        <div className="relative z-10">
-                            {/* Top row inside Hero */}
-                            <div className="flex items-center justify-between gap-2 mb-3">
-                                <span className="text-gray-500 dark:text-gray-400 text-[11px] font-bold uppercase tracking-wider font-display">
-                                    {t('this_month_spend') || 'Έξοδα Μήνα'}
-                                </span>
-                                {stats.diffPct > 0 && (
-                                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black backdrop-blur-md ${stats.trend === 'below'
-                                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                                        : stats.trend === 'above'
-                                            ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20'
-                                            : 'bg-gray-200/60 text-gray-700 dark:text-gray-300 border border-gray-300/60 dark:border-white/10'
-                                        }`}>
-                                        {stats.trend === 'below' && <TrendingDown size={13} />}
-                                        {stats.trend === 'above' && <TrendingUp size={13} />}
-                                        {stats.trend === 'neutral' && <Minus size={13} />}
-                                        <span>
-                                            {stats.diffPct}% {stats.trend === 'below' ? (t('below_last_month') || 'κάτω') : (t('above_last_month') || 'πάνω')}
-                                        </span>
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Main Amount */}
-                            <div className="flex items-baseline gap-1 my-1">
-                                {!privacyMode && (
-                                    <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500">{currency || '€'}</span>
-                                )}
-                                <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight tabular-nums font-display leading-none">
-                                    <Amount value={stats.curSpent} showCurrency={false} />
-                                </h2>
-                            </div>
-
-                            {stats.lastSpent > 0 && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2">{t('prev_month') || 'Προηγούμενος'}: <span className="text-gray-900 dark:text-white font-bold"><Amount value={stats.lastSpent} /></span></p>
-                            )}
-                        </div>
-
-                        {/* Bottom Row Inside Hero: Current Month Cashflow Capsules */}
-                        <div className="relative z-10 grid grid-cols-2 gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-white/10">
-                            {/* This Month Income */}
-                            <div className="bg-gray-200/60 dark:bg-white/[0.06] rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-300/60 dark:border-white/[0.1]">
-                                <ArrowUpRight size={18} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
-                                <div className="min-w-0">
-                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('month_income') || 'Έσοδα Μήνα'}
-                                    </p>
-                                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate tabular-nums">
-                                        <Amount value={curMonthIncome} />
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* This Month Net */}
-                            <div className="bg-gray-200/60 dark:bg-white/[0.06] rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 border border-gray-300/60 dark:border-white/[0.1]">
-                                {isCurMonthNetPositive ? (
-                                    <TrendingUp size={18} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
-                                ) : (
-                                    <TrendingDown size={18} className="text-rose-500 shrink-0" strokeWidth={2.5} />
-                                )}
-                                <div className="min-w-0">
-                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('month_net') || 'Ισοζύγιο Μήνα'}
-                                    </p>
-                                    <p className={`text-sm font-black truncate tabular-nums ${isCurMonthNetPositive ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-rose-600 dark:text-rose-400 font-bold'
-                                        }`}>
-                                        {isCurMonthNetPositive ? '+' : '−'}<Amount value={Math.abs(curMonthNet)} showSign={false} />
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* ──── All-Time Financial Bento (5 cols): 2x2 Grid of Stat Cards ──── */}
-                    <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
-                        {/* 1. Total Balance */}
-                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <Wallet size={20} className="text-gray-900 dark:text-white shrink-0" />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('all_time_balance') || 'Συνολικό Υπόλοιπο'}
-                                    </span>
-                                </div>
-                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full flex-shrink-0 ${balance >= 0
-                                    ? 'bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300'
-                                    : 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
-                                    }`}>
-                                    {balance >= 0 ? (t('balance') || 'Υπόλοιπο') : (t('net_deficit') || 'Έλλειμμα')}
-                                </span>
-                            </div>
-
-                            <div className="my-2">
-                                <div className={`text-2xl font-black tracking-tight tabular-nums font-display truncate ${balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                                    }`}>
-                                    <Amount value={balance} />
-                                </div>
-                            </div>
-
-                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />
-                                <span>{t('total_liquidity') || 'Διαθέσιμο κεφάλαιο'}</span>
-                            </p>
-                        </div>
-
-                        {/* 2. Total Inflows */}
-                        <div className="bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <ArrowUpRight size={20} className="text-emerald-500 shrink-0" strokeWidth={2.5} />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('all_time_income') || 'Συνολικά Έσοδα'}
-                                    </span>
-                                </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex-shrink-0">
-                                    {t('stats_income') || 'Έσοδα'}
-                                </span>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight tabular-nums font-display truncate">
-                                    <Amount value={totalIncome} />
-                                </div>
-                            </div>
-
-                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                                <span>{t('income_inflows') || 'Συνολικές εισροές'}</span>
-                            </p>
-                        </div>
-
-                        {/* 3. Total Expenses (Full width of remaining row) */}
-                        <div className="col-span-2 bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 rounded-2xl p-4 transition-all flex flex-col justify-between">
-                            <div className="flex items-center justify-between gap-1.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <ArrowDownRight size={20} className="text-rose-500 shrink-0" strokeWidth={2.5} />
-                                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                        {t('all_time_expenses') || 'Συνολικά Έξοδα'}
-                                    </span>
-                                </div>
-                                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 flex-shrink-0">
-                                    {t('stats_expense') || 'Έξοδα'}
-                                </span>
-                            </div>
-
-                            <div className="my-2">
-                                <div className="text-2xl font-black text-gray-900 dark:text-white tracking-tight tabular-nums font-display truncate">
-                                    <Amount value={totalExpense} />
-                                </div>
-                            </div>
-
-                            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 truncate flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 flex-shrink-0" />
-                                <span>{t('stats_expense') || 'Συνολικές εκροές'}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                {/* ── 2. Top Executive Section: Sure-Style Flagship Balance Trend Card ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 12, scale: 0.99 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    <BalanceTrendCard
+                        balance={balance}
+                        transactions={transactions}
+                        currency={currency}
+                        privacyMode={privacyMode}
+                        togglePrivacyMode={togglePrivacyMode}
+                        monthSpend={stats.curSpent}
+                        monthIncome={curMonthIncome}
+                        monthNet={curMonthNet}
+                        isMonthNetPositive={isCurMonthNetPositive}
+                        spendTrend={stats.trend}
+                        diffPct={stats.diffPct}
+                        isDesktop={true}
+                        t={t}
+                        language={language}
+                    />
+                </motion.div>
 
                 {/* ── 3. AI Advisor Sleek Horizontal Ribbon ── */}
                 <button
@@ -1150,93 +1004,28 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
     return (
         <div className="space-y-4 sm:space-y-5 pb-28">
 
-            {/* ── Executive Hero Card ── */}
+            {/* ── Sure-Style Flagship Balance Trend Card ── */}
             <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="relative overflow-hidden rounded-2xl
-                           bg-gray-100/90 dark:bg-surface-dark2
-                           text-gray-900 dark:text-white p-5 sm:p-6
-                           border border-gray-200 dark:border-white/10
-                           shadow-sm dark:shadow-lg dark:shadow-gray-950/20"
             >
-                {/* Subtle top edge metallic highlight in dark mode */}
-                <div className="hidden dark:block absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-
-                <div className="relative z-10">
-                    {/* Header Row: Status & Privacy Toggle */}
-                    <div className="flex items-center justify-between mb-3">
-                        <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest font-sans">
-                            {t('this_month_spend')}
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={togglePrivacyMode}
-                            aria-label={privacyMode ? 'Disable Privacy Mode' : 'Enable Privacy Mode'}
-                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 active:scale-95 transition-all"
-                            title={privacyMode ? 'Show amounts' : 'Hide amounts'}
-                        >
-                            {privacyMode ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                    </div>
-
-                    {/* Main Balance Display */}
-                    <div className="flex items-baseline gap-1.5 my-2">
-                        {!privacyMode && (
-                            <span className="text-2xl sm:text-3xl font-extrabold text-gray-400 dark:text-gray-500 font-sans">€</span>
-                        )}
-                        <h1 className="text-4xl sm:text-[42px] font-black text-gray-900 dark:text-white tracking-tight leading-none tabular-nums font-sans">
-                            <Amount
-                                value={stats.curSpent}
-                                showCurrency={false}
-                                minimumFractionDigits={2}
-                                maximumFractionDigits={2}
-                            />
-                        </h1>
-                    </div>
-
-                    {/* Trend Indicator */}
-                    <div className="mt-2.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border ${stats.trend === 'below'
-                                ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-100/70 dark:bg-emerald-500/10 border-emerald-300/70 dark:border-emerald-500/20'
-                                : stats.trend === 'above'
-                                    ? 'text-rose-700 dark:text-rose-400 bg-rose-100/70 dark:bg-rose-500/10 border-rose-300/70 dark:border-rose-500/20'
-                                    : 'text-gray-700 dark:text-gray-400 bg-gray-200/60 dark:bg-white/5 border-gray-300/60 dark:border-white/10'
-                            }`}>
-                            {stats.trend === 'below' && <TrendingDown size={13} className="shrink-0" />}
-                            {stats.trend === 'above' && <TrendingUp size={13} className="shrink-0" />}
-                            {stats.trend === 'neutral' && <Minus size={13} className="shrink-0" />}
-                            <span>
-                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                            </span>
-                        </span>
-                    </div>
-
-                    {/* Cashflow Summary Cards */}
-                    <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-gray-200 dark:border-white/[0.08]">
-                        <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <ArrowUpRight size={22} strokeWidth={2.5} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
-                            <div className="min-w-0">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_income')}</p>
-                                <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">
-                                    <Amount value={totalIncome} />
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="bg-gray-200/60 hover:bg-gray-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.09] border border-gray-300/60 dark:border-white/[0.1] rounded-xl p-3 flex items-center gap-2.5 transition-colors">
-                            <ArrowDownRight size={22} strokeWidth={2.5} className="text-rose-600 dark:text-rose-400 shrink-0" />
-                            <div className="min-w-0">
-                                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">{t('stats_expense')}</p>
-                                <p className="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate tabular-nums">
-                                    <Amount value={totalExpense} />
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <BalanceTrendCard
+                    balance={balance}
+                    transactions={transactions}
+                    currency={currency}
+                    privacyMode={privacyMode}
+                    togglePrivacyMode={togglePrivacyMode}
+                    monthSpend={stats.curSpent}
+                    monthIncome={curMonthIncome}
+                    monthNet={curMonthNet}
+                    isMonthNetPositive={isCurMonthNetPositive}
+                    spendTrend={stats.trend}
+                    diffPct={stats.diffPct}
+                    isDesktop={false}
+                    t={t}
+                    language={language}
+                />
             </motion.div>
 
             {/* ── AI Advisor Executive Card ── */}
