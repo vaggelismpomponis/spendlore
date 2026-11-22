@@ -442,7 +442,7 @@ export default function BalanceTrendCard({
                 <div ref={svgContainerRef} className="relative w-full">
                     <svg
                         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                        className="w-full h-28 sm:h-32 overflow-visible"
+                        className="w-full h-20 sm:h-32 overflow-visible"
                         preserveAspectRatio="none"
                     >
                         <defs>
@@ -553,17 +553,17 @@ export default function BalanceTrendCard({
             </div>
 
             {/* ── Cashflow Summary Capsules Row: Total Balance, Month Income, Month Net ── */}
-            <div className="p-4 sm:p-5 pt-3 border-t border-gray-200/70 dark:border-white/10 bg-gray-50/60 dark:bg-white/[0.01]">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className="p-2.5 sm:p-5 pt-2 sm:pt-3 border-t border-gray-200/70 dark:border-white/10 bg-gray-50/60 dark:bg-white/[0.01]">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5">
                     {/* 1. Total Balance Card (Συνολικό Υπόλοιπο) */}
-                    <div className="bg-white dark:bg-surface-dark3 rounded-xl p-3 border border-gray-200/70 dark:border-white/10 shadow-xs">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <Wallet size={13} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.4} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                    <div className="bg-white dark:bg-surface-dark3 rounded-xl p-2 sm:p-3 border border-gray-200/70 dark:border-white/10 shadow-xs min-w-0">
+                        <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                            <Wallet size={12} className="text-gray-900 dark:text-white shrink-0 sm:w-[13px] sm:h-[13px]" strokeWidth={2.4} />
+                            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                 {t('all_time_balance') || (isEL ? 'Συνολικό Υπόλοιπο' : 'Total Balance')}
                             </span>
                         </div>
-                        <p className={`text-sm sm:text-base font-extrabold tabular-nums truncate ${
+                        <p className={`text-xs sm:text-base font-extrabold tabular-nums truncate ${
                             balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
                         }`}>
                             <Amount value={balance} />
@@ -571,31 +571,31 @@ export default function BalanceTrendCard({
                     </div>
 
                     {/* 2. Month Income */}
-                    <div className="bg-white dark:bg-surface-dark3 rounded-xl p-3 border border-gray-200/70 dark:border-white/10 shadow-xs">
-                        <div className="flex items-center gap-1.5 mb-1">
-                            <ArrowUpRight size={13} className="text-emerald-500 shrink-0" strokeWidth={2.4} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                    <div className="bg-white dark:bg-surface-dark3 rounded-xl p-2 sm:p-3 border border-gray-200/70 dark:border-white/10 shadow-xs min-w-0">
+                        <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+                            <ArrowUpRight size={12} className="text-emerald-500 shrink-0 sm:w-[13px] sm:h-[13px]" strokeWidth={2.4} />
+                            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
                                 {t('month_income') || (isEL ? 'Έσοδα Μήνα' : 'Month Income')}
                             </span>
                         </div>
-                        <p className="text-sm sm:text-base font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums truncate">
+                        <p className="text-xs sm:text-base font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums truncate">
                             <Amount value={monthIncome} />
                         </p>
                     </div>
 
                     {/* 3. Month Net Cashflow */}
-                    <div className="col-span-2 sm:col-span-1 bg-white dark:bg-surface-dark3 rounded-xl p-3 border border-gray-200/70 dark:border-white/10 shadow-xs">
-                        <div className="flex items-center gap-1.5 mb-1">
+                    <div className="bg-white dark:bg-surface-dark3 rounded-xl p-2 sm:p-3 border border-gray-200/70 dark:border-white/10 shadow-xs min-w-0">
+                        <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
                             {isMonthNetPositive ? (
-                                <TrendingUp size={13} className="text-emerald-500 shrink-0" strokeWidth={2.4} />
+                                <TrendingUp size={12} className="text-emerald-500 shrink-0 sm:w-[13px] sm:h-[13px]" strokeWidth={2.4} />
                             ) : (
-                                <TrendingDown size={13} className="text-rose-500 shrink-0" strokeWidth={2.4} />
+                                <TrendingDown size={12} className="text-rose-500 shrink-0 sm:w-[13px] sm:h-[13px]" strokeWidth={2.4} />
                             )}
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
-                                {t('month_net') || (isEL ? 'Ισοζύγιο Μήνα' : 'Month Net')}
+                            <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 truncate">
+                                {t('month_net') || (isEL ? 'Ισοζύγιο' : 'Month Net')}
                             </span>
                         </div>
-                        <p className={`text-sm sm:text-base font-black tabular-nums truncate ${
+                        <p className={`text-xs sm:text-base font-black tabular-nums truncate ${
                             isMonthNetPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
                         }`}>
                             <Amount

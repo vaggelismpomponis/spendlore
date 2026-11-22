@@ -28,6 +28,7 @@ import CategoryIcon, {
     AVAILABLE_CATEGORY_COLORS
 } from '../components/CategoryIcon';
 import ProBadge from '../components/ProBadge';
+import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 const BASE_EXPENSE_CATEGORIES = ['Σούπερ Μάρκετ', 'Φαγητό', 'Καφές', 'Σπίτι', 'Λογαριασμοί', 'Διασκέδαση', 'Βενζίνη', 'Υγεία', 'Άλλο'];
 const BASE_INCOME_CATEGORIES = ['Μισθός', 'Δώρο', 'Επενδύσεις', 'Άλλα Έσοδα'];
@@ -398,19 +399,11 @@ const CategoriesSettingsView = ({ user, transactions = [], onBack, hideHeader = 
                 <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6">
 
                     {/* Navigation Breadcrumb (Home > Categories) matching Sure screenshot */}
-                    <nav className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
-                        <button
-                            type="button"
-                            onClick={onBack}
-                            className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1 font-medium"
-                        >
-                            <span>{translate('categories_breadcrumb_home') || (isEL ? 'Αρχική' : 'Home')}</span>
-                        </button>
-                        <ChevronRight size={12} className="text-gray-400 dark:text-gray-600" />
-                        <span className="text-gray-900 dark:text-white font-bold">
-                            {translate('categories_breadcrumb_categories') || (isEL ? 'Κατηγορίες' : 'Categories')}
-                        </span>
-                    </nav>
+                    <DesktopBreadcrumb
+                        onBack={onBack}
+                        parentLabel={translate('categories_breadcrumb_home') || (isEL ? 'Αρχική' : 'Home')}
+                        currentLabel={translate('categories_breadcrumb_categories') || (isEL ? 'Κατηγορίες' : 'Categories')}
+                    />
 
                     {/* Page Title & Action Buttons Row */}
                     <div className="flex items-center justify-between gap-4">

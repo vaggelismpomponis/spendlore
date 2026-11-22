@@ -8,6 +8,7 @@ import WhatsNewModal from './WhatsNewModal';
 import PaymentSuccessView from '../views/PaymentSuccessView';
 import PaymentCanceledView from '../views/PaymentCanceledView';
 import { scrollContainerToTop } from '../utils/scroll';
+import { hapticImpactMedium, hapticImpactLight } from '../utils/haptics';
 
 export default function MobileLayout({
     activeTab,
@@ -220,7 +221,11 @@ export default function MobileLayout({
                                             {/* Income pill */}
                                             <motion.button
                                                 whileTap={{ scale: 0.93 }}
-                                                onClick={() => { setShowFabMenu(false); openAddModal('income'); }}
+                                                onClick={() => {
+                                                    setShowFabMenu(false);
+                                                    hapticImpactLight();
+                                                    openAddModal('income');
+                                                }}
                                                 className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-black/15 border border-emerald-400/30 whitespace-nowrap transition-colors"
                                             >
                                                 <TrendingUp size={14} strokeWidth={2.5} />
@@ -229,7 +234,11 @@ export default function MobileLayout({
                                             {/* Expense pill */}
                                             <motion.button
                                                 whileTap={{ scale: 0.93 }}
-                                                onClick={() => { setShowFabMenu(false); openAddModal('expense'); }}
+                                                onClick={() => {
+                                                    setShowFabMenu(false);
+                                                    hapticImpactLight();
+                                                    openAddModal('expense');
+                                                }}
                                                 className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-black/15 border border-rose-400/30 whitespace-nowrap transition-colors"
                                             >
                                                 <TrendingDown size={14} strokeWidth={2.5} />
@@ -248,13 +257,21 @@ export default function MobileLayout({
                                     animate={showFabMenu ? { scale: 1.05 } : { scale: 1 }}
                                     onClick={() => {
                                         if (showFabMenu) { setShowFabMenu(false); return; }
+                                        hapticImpactMedium();
                                         openAddModal();
                                     }}
-                                    onContextMenu={(e) => { e.preventDefault(); setShowFabMenu(true); }}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        hapticImpactMedium();
+                                        setShowFabMenu(true);
+                                    }}
                                     onPointerDown={() => {
                                         fabPressStartRef.current = true;
                                         fabLongPressRef.current = setTimeout(() => {
-                                            if (fabPressStartRef.current) setShowFabMenu(true);
+                                            if (fabPressStartRef.current) {
+                                                hapticImpactMedium();
+                                                setShowFabMenu(true);
+                                            }
                                         }, 500);
                                     }}
                                     onPointerUp={() => {

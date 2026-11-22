@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Home, BarChart3, History, Settings, ShieldCheck } from 'lucide-react';
 import { useSettings } from '../contexts/SettingsContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
+import { hapticImpactLight } from '../utils/haptics';
 
 const NAV_ITEMS = [
     { id: 'home', Icon: Home, labelKey: 'nav_home' },
@@ -31,6 +32,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
     const isDark = useDarkMode();
 
     const handleNavClick = (id) => {
+        hapticImpactLight();
         if (id === 'stats' && !isPro) {
             openUpgradeModal('stats');
             return;

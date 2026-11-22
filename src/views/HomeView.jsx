@@ -272,6 +272,13 @@ const DesktopBudgetMiniCard = ({ budget, transactions, t }) => {
 const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions = [], budgets = [], onDelete, onEdit, setActiveTab, onRecurring, isDesktop, user, displayName, onAdd }) => {
     const { t, privacyMode, togglePrivacyMode, language, currency } = useSettings();
     const { isPro, openUpgradeModal } = useSubscription();
+    const isEL = language === 'el';
+
+    const storeCoolingOff = useAppStore(state => state.coolingOffItems || []);
+    const hasReadyCoolingOffDecisions = useMemo(() => {
+        const now = Date.now();
+        return storeCoolingOff.some(i => i.status === 'active' && new Date(i.expiresAt).getTime() <= now);
+    }, [storeCoolingOff]);
 
     // ── Data Calculations ──
     const stats = useMemo(() => {
@@ -340,12 +347,13 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
             bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
         },
         {
-            icon: BarChart, label: t('stats_short'), delay: '150',
-            onClick: () => {
-                if (!isPro) { openUpgradeModal('stats'); }
-                else { setActiveTab('stats'); }
-            },
-            isPro: true, userIsPro: isPro,
+            icon: Hourglass,
+            label: t('cooling_off_short') || (isEL ? 'Κανόνας 72h' : '72h Rule'),
+            delay: '150',
+            onClick: () => setActiveTab('cooling-off'),
+            isPro: false,
+            userIsPro: isPro,
+            badge: hasReadyCoolingOffDecisions ? (isEL ? 'Έτοιμο' : 'Ready') : null,
             color: 'text-violet-600 dark:text-violet-400',
             bg: 'bg-gradient-to-br from-violet-100/80 to-violet-200/40 dark:from-violet-900/40 dark:to-violet-800/20',
         },
@@ -860,60 +868,12 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     <div className="lg:col-span-5 xl:col-span-4 space-y-5">
                         {/* ── Safe-to-Burn Pace Card (Refined & Intelligent) ── */}
                         {stbData && (
-                            <div className="rounded-2xl p-5 space-y-2.5 transition-all bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Flame size={20} className="text-amber-500 shrink-0" />
-                                        <div>
-                                            <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                                                Safe-to-Burn
-                                            </h3>
-                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
-                                                {t('safe_to_burn_daily') || 'Ημερήσιο Όριο'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0 ? (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-gray-200/80 dark:bg-white/10 text-gray-600 dark:text-gray-300">
-                                            <span>{t('no_income_set') || 'Χωρίς Έσοδα'}</span>
-                                        </span>
-                                    ) : stbData.stb <= 0 ? (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
-                                            <AlertTriangle size={11} className="stroke-[2.5]" />
-                                            <span>{t('over_daily_limit') || 'Υπέρβαση Ορίου'}</span>
-                                        </span>
-                                    ) : stbData.streak > 0 ? (
-                                        <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
-                                            <Flame size={12} className="fill-orange-500 text-orange-500" />
-                                            <span>{stbData.streak} Streak</span>
-                                        </span>
-                                    ) : null}
-                                </div>
-
-                                <div className="flex items-baseline justify-between pt-1">
-                                    <div className={`text-2xl font-black tabular-nums font-display ${stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0
-                                            ? 'text-gray-500 dark:text-gray-400'
-                                            : stbData.stb <= 0
-                                                ? 'text-rose-600 dark:text-rose-400'
-                                                : 'text-gray-900 dark:text-white'
-                                        }`}>
-                                        <Amount value={stbData.stb <= 0 ? 0 : stbData.stb} />
-                                    </div>
-                                    <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">
-                                        {t('today') || 'Σήμερα'}
-                                    </span>
-                                </div>
-
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">
-                                    {stbData.todayStartingBudget <= 0 && (stbData.todaySpend || 0) === 0
-                                        ? (t('stb_no_income_desc') || 'Καταχώρισε τα έσοδα του μήνα για να υπολογιστεί το ασφαλές ημερήσιο όριο.')
-                                        : stbData.stb <= 0
-                                            ? (t('stb_exceeded_desc') || 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.')
-                                            : (t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.')}
-                                </p>
-                            </div>
+                            <SafeToBurnCard
+                                stbData={stbData}
+                                t={t}
+                                onClick={() => setActiveTab('budgets')}
+                            />
                         )}
-
                         {/* ── 72-Hour Cooling-Off Widget ── */}
                         <CoolingOffHomeWidget onOpen={() => setActiveTab('cooling-off')} language={language} />
 
@@ -1002,7 +962,7 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
 
     // ── MOBILE LAYOUT ──
     return (
-        <div className="space-y-4 sm:space-y-5 pb-28">
+        <div className="space-y-3 sm:space-y-4 pb-24">
 
             {/* ── Sure-Style Flagship Balance Trend Card ── */}
             <motion.div
@@ -1028,6 +988,21 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                 />
             </motion.div>
 
+            {/* ── Safe-to-Burn Card (Mobile) ── */}
+            {stbData && (
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.03 }}
+                >
+                    <SafeToBurnCard
+                        stbData={stbData}
+                        t={t}
+                        onClick={() => setActiveTab('budgets')}
+                    />
+                </motion.div>
+            )}
+
             {/* ── AI Advisor Executive Card ── */}
             <motion.button
                 initial={{ opacity: 0, y: 8 }}
@@ -1039,14 +1014,14 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     else { setActiveTab('advisor'); }
                 }}
                 className="w-full relative overflow-hidden bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10
-                           p-3.5 sm:p-4 rounded-xl
-                           shadow-sm hover:border-gray-300 dark:hover:border-white/20
-                           flex items-center gap-3.5 group transition-all text-left"
+                           p-2.5 sm:p-3.5 rounded-xl
+                           shadow-xs hover:border-gray-300 dark:hover:border-white/20
+                           flex items-center gap-2.5 sm:gap-3.5 group transition-all text-left"
             >
-                <div className="text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0 pl-1">
-                    <Bot size={22} strokeWidth={2} />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-200/60 dark:bg-white/10 text-gray-800 dark:text-gray-100 flex items-center justify-center shrink-0">
+                    <Bot size={17} strokeWidth={2.2} />
                 </div>
-                <div className="flex-1 min-w-0 pr-1">
+                <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                             Spendlore AI
@@ -1056,23 +1031,23 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                         )}
                     </div>
                     <h4 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white leading-tight mt-0.5">{t('advisor_title')}</h4>
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1 mt-0.5">
+                    <p className="text-[10.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium line-clamp-1 mt-0.5">
                         {advisorLiveInsight}
                     </p>
                 </div>
-                <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/[0.06] flex items-center justify-center text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
-                    <ArrowRight size={14} />
+                <div className="w-6 h-6 rounded-lg bg-gray-200/50 dark:bg-white/[0.06] flex items-center justify-center text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
+                    <ArrowRight size={13} />
                 </div>
             </motion.button>
 
             {/* ── Quick Actions ── */}
             <div id="tour-quick-access">
-                <div className="flex items-center justify-between mb-2 px-0.5">
-                    <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <div className="flex items-center justify-between mb-1.5 px-0.5">
+                    <p className="text-[10px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('quick_access')}
                     </p>
                 </div>
-                <div className="grid grid-cols-4 gap-2 sm:gap-2.5">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2.5">
                     {quickActions.map((action) => {
                         const ActionIcon = action.icon;
                         return (
@@ -1083,21 +1058,26 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: parseFloat(action.delay) / 1000 }}
                                 onClick={action.onClick}
-                                className="w-full min-w-0 flex flex-col items-center justify-center gap-2 py-3 px-1.5 rounded-xl
+                                className="w-full min-w-0 flex flex-col items-center justify-center gap-1.5 py-2.5 px-1 rounded-xl
                                            bg-gray-100/90 dark:bg-surface-dark2
                                            border border-gray-200 dark:border-white/10
-                                           shadow-sm hover:border-gray-300 dark:hover:border-white/20
+                                           shadow-xs hover:border-gray-300 dark:hover:border-white/20
                                            transition-all relative group"
                             >
-                                <div className="relative flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors py-1">
-                                    <ActionIcon size={22} strokeWidth={2} className="shrink-0" />
+                                <div className="relative flex items-center justify-center text-gray-700 dark:text-gray-200 group-hover:text-gray-950 dark:group-hover:text-white transition-colors">
+                                    <ActionIcon size={19} strokeWidth={2.2} className="shrink-0" />
+                                    {action.badge && (
+                                        <span className="absolute -top-1 -right-2 px-1 py-0.2 rounded-full bg-amber-500 text-white text-[8px] font-black uppercase tracking-wider animate-pulse">
+                                            {action.badge}
+                                        </span>
+                                    )}
                                     {action.isPro && !action.userIsPro && (
                                         <span className="absolute -top-1 -right-2 w-3.5 h-3.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/30 flex items-center justify-center">
                                             <ShieldCheck size={8} />
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 tracking-tight text-center leading-tight truncate w-full px-0.5">
+                                <span className="text-[10px] sm:text-[11px] font-bold text-gray-700 dark:text-gray-300 tracking-tight text-center leading-tight truncate w-full px-0.5">
                                     {action.label}
                                 </span>
                             </motion.button>
@@ -1105,9 +1085,6 @@ const HomeView = ({ balance = 0, totalIncome = 0, totalExpense = 0, transactions
                     })}
                 </div>
             </div>
-
-            {/* ── 72-Hour Cooling-Off Widget ── */}
-            <CoolingOffHomeWidget onOpen={() => setActiveTab('cooling-off')} language={language} />
 
             {/* ── Recent Transactions ── */}
             {recentTransactions}

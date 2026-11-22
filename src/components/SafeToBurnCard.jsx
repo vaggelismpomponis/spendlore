@@ -1,130 +1,93 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, TrendingDown, TrendingUp, Minus } from 'lucide-react';
+import { Flame, AlertTriangle } from 'lucide-react';
 import Amount from './Amount';
+import { useSettings } from '../contexts/SettingsContext';
 
-const SafeToBurnCard = ({ 
-    stb, 
-    todayStartingBudget, 
-    isGlideActive, 
-    streak, 
-    privacyMode, 
-    t, 
-    stats 
+const SafeToBurnCard = ({
+    stbData: propStbData,
+    stb,
+    todayStartingBudget,
+    isGlideActive,
+    streak,
+    t: propT,
+    stats,
+    onClick,
+    className = ""
 }) => {
-    // Calculate percentage for the ring
-    // Clamp between 0 and 100 for the SVG dash offset
-    const clampedStb = Math.max(0, Math.min(stb, Math.max(todayStartingBudget, 1)));
-    const percentage = todayStartingBudget > 0 ? (clampedStb / todayStartingBudget) * 100 : 0;
-    
-    // Determine ring color
-    let ringColor = 'text-emerald-500';
-    if (percentage <= 20 || stb <= 0) {
-        ringColor = 'text-rose-500';
-    } else if (percentage <= 50) {
-        ringColor = 'text-amber-500';
-    }
+    const { t: contextT } = useSettings();
+    const t = propT || contextT;
 
-    const radius = 80; // smaller radius to fit inside the 56x56 container comfortably
-    const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference - (percentage / 100) * circumference;
+    const data = propStbData || {
+        stb: stb ?? 0,
+        todayStartingBudget: todayStartingBudget ?? 0,
+        todaySpend: stats?.todaySpend ?? 0,
+        streak: streak ?? 0,
+        isGlideActive: isGlideActive ?? false
+    };
+
+    if (!data) return null;
+
+    const hasNoIncome = data.todayStartingBudget <= 0 && (data.todaySpend || 0) === 0;
+    const isOverLimit = data.stb <= 0 && !hasNoIncome;
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ duration: 0.45, type: 'spring' }}
-            className="relative overflow-hidden rounded-2xl bg-gray-100/90 dark:bg-surface-dark2 p-6 pt-8 pb-6 text-center shadow-sm border border-gray-200 dark:border-white/10 transition-all duration-300 cursor-pointer"
+            whileTap={onClick ? { scale: 0.98 } : undefined}
+            onClick={onClick}
+            className={`rounded-xl sm:rounded-2xl p-3 sm:p-4 space-y-1.5 sm:space-y-2 transition-all bg-gray-100/90 dark:bg-surface-dark2 border border-gray-200 dark:border-white/10 shadow-xs ${onClick ? 'cursor-pointer hover:border-gray-300 dark:hover:border-white/20' : ''} ${className}`.trim()}
         >
-            {/* Subtle top glow */}
-            
-
-            {/* Streak Indicator */}
-            {streak > 0 && !isGlideActive && (
-                <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute top-5 right-5 flex items-center gap-1 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-bold z-20 flex items-center gap-1"
-                >
-                    <span>{streak} Streak</span>
-                </motion.div>
-            )}
-
-            <div className="relative z-10 flex flex-col items-center">
-                <p className="text-gray-500 dark:text-gray-400 text-sm font-bold tracking-wide uppercase mb-2">
-                    Safe-to-Burn
-                </p>
-
-                {/* Circular Progress & Amount */}
-                <div className="relative flex items-center justify-center w-52 h-52">
-                    {/* SVG Progress Ring */}
-                    <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 200 200">
-                        {/* Background Ring */}
-                        <circle
-                            cx="100"
-                            cy="100"
-                            r={radius}
-                            className="text-gray-100 dark:text-white/5"
-                            strokeWidth="10"
-                            stroke="currentColor"
-                            fill="transparent"
-                        />
-                        {/* Foreground Progress Ring */}
-                        <motion.circle
-                            initial={{ strokeDashoffset: circumference }}
-                            animate={{ strokeDashoffset }}
-                            transition={{ duration: 1.2, ease: "easeOut" }}
-                            cx="100"
-                            cy="100"
-                            r={radius}
-                            className={`${ringColor} transition-colors duration-500 drop-shadow-sm`}
-                            strokeWidth="10"
-                            strokeLinecap="round"
-                            stroke="currentColor"
-                            fill="transparent"
-                            strokeDasharray={circumference}
-                        />
-                    </svg>
-
-                    {/* Inner Amount Text */}
-                    <div className="flex flex-col items-center justify-center z-10">
-                        <div className={`flex items-start justify-center gap-1 transition-all duration-200 ${privacyMode ? 'filter blur-[6px] select-none' : ''}`}>
-                            <span className="text-2xl font-bold text-gray-900 dark:text-white mt-1.5">€</span>
-                            <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter tabular-nums">
-                                <Amount
-                                    value={stb}
-                                    showCurrency={false}
-                                    minimumFractionDigits={2}
-                                    maximumFractionDigits={2}
-                                />
-                            </h1>
-                        </div>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Flame size={16} className="text-amber-500 shrink-0 sm:w-[18px] sm:h-[18px]" />
+                    <div className="flex items-baseline gap-1.5 sm:block">
+                        <h3 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                            Safe-to-Burn
+                        </h3>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                            {t('safe_to_burn_daily') || 'Ημερήσιο Όριο'}
+                        </p>
                     </div>
                 </div>
 
-                {/* Trend / Glide Indicator */}
-                <div className="mt-2 h-8 flex items-center justify-center">
-                    {isGlideActive ? (
-                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 shadow-sm animate-pulse">
-                            <Target size={14} className="text-amber-500" />
-                            <span>Glide Active</span>
-                        </div>
-                    ) : (
-                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold
-                                       ${stats.trend === 'below' ? 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' :
-                                stats.trend === 'above' ? 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' :
-                                    'text-gray-600 bg-gray-50 dark:bg-surface-dark2'}`}>
-                            {stats.trend === 'below' && <TrendingDown size={14} />}
-                            {stats.trend === 'above' && <TrendingUp size={14} />}
-                            {stats.trend === 'neutral' && <Minus size={14} />}
-                            <span>
-                                {stats.diffPct}% {stats.trend === 'below' ? t('below_last_month') : stats.trend === 'above' ? t('above_last_month') : t('same_as_last_month')}
-                            </span>
-                        </div>
-                    )}
-                </div>
+                {hasNoIncome ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-gray-200/80 dark:bg-white/10 text-gray-600 dark:text-gray-300">
+                        <span>{t('no_income_set') || 'Χωρίς Έσοδα'}</span>
+                    </span>
+                ) : isOverLimit ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400">
+                        <AlertTriangle size={11} className="stroke-[2.5]" />
+                        <span>{t('over_daily_limit') || 'Υπέρβαση Ορίου'}</span>
+                    </span>
+                ) : data.streak > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400">
+                        <Flame size={12} className="fill-orange-500 text-orange-500" />
+                        <span>{data.streak} Streak</span>
+                    </span>
+                ) : null}
             </div>
+
+            <div className="flex items-baseline justify-between pt-0.5">
+                <div className={`text-xl sm:text-2xl font-black tabular-nums font-display ${hasNoIncome
+                        ? 'text-gray-500 dark:text-gray-400'
+                        : isOverLimit
+                            ? 'text-rose-600 dark:text-rose-400'
+                            : 'text-gray-900 dark:text-white'
+                    }`}>
+                    <Amount value={data.stb <= 0 ? 0 : data.stb} />
+                </div>
+                <span className="text-[10.5px] sm:text-[11px] font-bold text-gray-400 dark:text-gray-500">
+                    {t('today') || 'Σήμερα'}
+                </span>
+            </div>
+
+            <p className="text-[10.5px] sm:text-[11px] text-gray-500 dark:text-gray-400 leading-snug line-clamp-1 sm:line-clamp-none">
+                {hasNoIncome
+                    ? (t('stb_no_income_desc') || 'Καταχώρισε τα έσοδα του μήνα για να υπολογιστεί το ασφαλές ημερήσιο όριο.')
+                    : isOverLimit
+                        ? (t('stb_exceeded_desc') || 'Έχεις εξαντλήσει το ασφαλές ημερήσιο όριο για σήμερα. Περιόρισε τα έξοδα για να επανέλθεις.')
+                        : (t('safe_to_burn_desc') || 'Ημερήσιο ποσό που μπορείς να ξοδέψεις με ασφάλεια σήμερα.')}
+            </p>
         </motion.div>
     );
 };

@@ -4,6 +4,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Navbar from '../Navbar';
 import { useSettings } from '../../contexts/SettingsContext';
 import { useSubscription } from '../../contexts/SubscriptionContext';
+import { hapticImpactLight } from '../../utils/haptics';
+
+vi.mock('../../utils/haptics', () => ({
+  hapticImpactLight: vi.fn(),
+}));
 
 vi.mock('../../contexts/SettingsContext', () => ({
   useSettings: vi.fn(),
@@ -77,5 +82,14 @@ describe('Navbar', () => {
 
     expect(mockOpenUpgradeModal).toHaveBeenCalledWith('stats');
     expect(mockSetActiveTab).not.toHaveBeenCalled();
+  });
+
+  it('triggers haptic feedback when clicking nav items', () => {
+    render(<Navbar activeTab="home" setActiveTab={mockSetActiveTab} />);
+
+    const historyBtn = screen.getByRole('button', { name: 'Ιστορικό' });
+    fireEvent.click(historyBtn);
+
+    expect(hapticImpactLight).toHaveBeenCalled();
   });
 });

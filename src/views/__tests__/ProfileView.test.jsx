@@ -70,6 +70,10 @@ describe('ProfileView', () => {
           user_guide: 'Οδηγός Χρήσης',
           technical_support: 'Τεχνική Υποστήριξη',
           support: 'Τεχνική Υποστήριξη',
+          transactions_and_rules: 'Συναλλαγές & Κανόνες',
+          categories_and_rules: 'Κατηγορίες & Κανόνες Εμπόρων',
+          recurring_transactions: 'Επαναλαμβανόμενες Συναλλαγές',
+          cooling_off_title: 'Αναμονή 72 Ωρών (Cooling-Off)',
         };
         return dict[key];
       },
@@ -175,5 +179,37 @@ describe('ProfileView', () => {
     expect(checkForAppUpdates).not.toHaveBeenCalled();
 
     isNative.mockReturnValue(false);
+  });
+
+  it('renders dedicated Transactions & Rules section with Categories, Recurring, and Cooling-Off', () => {
+    const mockOnCategories = vi.fn();
+    const mockOnRecurring = vi.fn();
+    const mockOnCoolingOff = vi.fn();
+
+    render(
+      <ProfileView
+        user={mockUser}
+        onCategories={mockOnCategories}
+        onRecurring={mockOnRecurring}
+        onCoolingOff={mockOnCoolingOff}
+      />
+    );
+
+    expect(screen.getByText('Συναλλαγές & Κανόνες')).toBeInTheDocument();
+
+    const catBtn = screen.getByText('Κατηγορίες & Κανόνες Εμπόρων');
+    expect(catBtn).toBeInTheDocument();
+    fireEvent.click(catBtn);
+    expect(mockOnCategories).toHaveBeenCalled();
+
+    const recurringBtn = screen.getByText('Επαναλαμβανόμενες Συναλλαγές');
+    expect(recurringBtn).toBeInTheDocument();
+    fireEvent.click(recurringBtn);
+    expect(mockOnRecurring).toHaveBeenCalled();
+
+    const coolingBtn = screen.getByText('Αναμονή 72 Ωρών (Cooling-Off)');
+    expect(coolingBtn).toBeInTheDocument();
+    fireEvent.click(coolingBtn);
+    expect(mockOnCoolingOff).toHaveBeenCalled();
   });
 });

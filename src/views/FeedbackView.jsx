@@ -131,11 +131,10 @@ const FeedbackView = ({ user, onBack, hideHeader = false }) => {
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 <div className="w-full mx-auto px-4 sm:px-6 lg:px-0 py-5 md:py-8 lg:py-0 space-y-6">
 
-                    {/* Desktop Navigation Breadcrumb Bar */}
+                    {/* Navigation Breadcrumb matching Sure design */}
                     <DesktopBreadcrumb
                         onBack={onBack}
-                        backLabel={isEL ? 'Επιστροφή στις Ρυθμίσεις' : 'Back to Settings'}
-                        hideHeader={hideHeader}
+                        currentLabel={translate('technical_support') || (isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support')}
                     />
 
                     {/* ─────── Direct Support Channels Banner ─────── */}

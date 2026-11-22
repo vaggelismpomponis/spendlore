@@ -1,31 +1,70 @@
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { useSettings } from '../contexts/SettingsContext';
 
 /**
- * DesktopBreadcrumb - Unified desktop navigation bar shown above settings pages
- * when the mobile header is hidden.
+ * DesktopBreadcrumb - Unified breadcrumb navigation matching the Sure design system:
+ * e.g. "Αρχική > Κατηγορίες" / "Home > Categories"
+ * Displays cleanly across settings pages.
  */
 const DesktopBreadcrumb = ({
     onBack,
-    backLabel = 'Back to Settings',
+    parentLabel,
+    currentLabel,
+    title,
+    backLabel,
     rightAction,
-    hideHeader = false,
+    hideHeader,
+    hideBack = false,
     className = '',
 }) => {
-    if (!hideHeader || !onBack) return null;
+    const { language, t: translate } = useSettings?.() || {};
+    const isEL = language === 'el';
+
+    // If hideHeader is explicitly passed as false, mobile header is active
+    if (hideHeader === false) return null;
+
+    const effectiveBack = hideBack ? null : onBack;
+    const pageText = currentLabel || title;
+
+    if (!effectiveBack && !pageText) return null;
+
+    const homeText = parentLabel
+        || (backLabel && backLabel !== 'Back to Settings' && backLabel !== 'Επιστροφή στις Ρυθμίσεις' ? backLabel : null)
+        || translate?.('categories_breadcrumb_home')
+        || translate?.('breadcrumb_home')
+        || translate?.('home_breadcrumb')
+        || (isEL ? 'Αρχική' : 'Home');
 
     return (
-        <div className={`hidden lg:flex items-center justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 ${className}`}>
-            <button
-                type="button"
-                onClick={onBack}
-                className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-white dark:bg-white/[0.05] border border-gray-200/80 dark:border-white/[0.08] text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.1] active:scale-95 shadow-sm transition-all whitespace-nowrap shrink-0"
-            >
-                <ArrowLeft size={14} strokeWidth={2.5} className="shrink-0" />
-                <span>{backLabel}</span>
-            </button>
+        <div className={`flex items-center justify-between gap-3 select-none ${className}`}>
+            <nav className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 font-medium">
+                {effectiveBack && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={effectiveBack}
+                            className="hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1"
+                        >
+                            <span>{homeText}</span>
+                        </button>
+                        {pageText && (
+                            <ChevronRight size={12} className="text-gray-400 dark:text-gray-600 shrink-0" />
+                        )}
+                    </>
+                )}
+                {pageText && (
+                    <span className="text-gray-900 dark:text-white font-bold truncate">
+                        {pageText}
+                    </span>
+                )}
+            </nav>
 
-            {rightAction}
+            {rightAction && (
+                <div className="shrink-0 flex items-center gap-2">
+                    {rightAction}
+                </div>
+            )}
         </div>
     );
 };

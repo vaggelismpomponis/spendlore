@@ -5,7 +5,7 @@ import {
     ShieldAlert as Shield, ArrowLeft, Moon, Sun, Monitor,
     Smartphone, HardDriveDownload,
     Languages, LayoutDashboard, MessageSquare, BookOpen, LifeBuoy,
-    Settings, Info, Trash2, UserX, Tag,
+    Settings, Info, Trash2, UserX, Tag, Hourglass,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
     ShieldCheck, RefreshCw, FileText
 } from 'lucide-react';
@@ -25,6 +25,7 @@ import { openPlayStoreUpdates } from '../utils/notificationListener';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import ProBadge from '../components/ProBadge';
+import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 
 
 
@@ -92,18 +93,21 @@ const Card = ({ children, className = '' }) => (
 );
 
 /* ─────────────────────────────────────────
-   Section Label
+   Section Label — Executive typography & subtle divider rule (Maybe reference style)
  ───────────────────────────────────────── */
 const SectionLabel = ({ children, className = '' }) => (
-    <p className={`text-[16px] font-bold text-gray-900 dark:text-white mb-3 px-1 mt-6 ${className}`}>
-        {children}
-    </p>
+    <div className={`flex items-center gap-3 px-1 mt-7 mb-3 ${className}`}>
+        <span className="text-[11px] font-extrabold uppercase tracking-widest text-gray-400 dark:text-white/40 shrink-0 select-none">
+            {children}
+        </span>
+        <div className="flex-1 h-px bg-gray-200/80 dark:bg-white/10" />
+    </div>
 );
 
 /* ═══════════════════════════════════════════════════════════
    MAIN COMPONENT
  ═══════════════════════════════════════════════════════════ */
-const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onCategories, hideHeader }) => {
+const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGeneral, onSecurity, onBackup, onAdmin, onFeedback, onGuide, onCategories, onCoolingOff, hideHeader }) => {
     const { theme, themePreference = 'system', toggleTheme, language, updateLanguage, t: translate, customCategories } = useSettings();
     const { isPro, openUpgradeModal, openBillingPortal } = useSubscription();
     const isDark = theme === 'dark';
@@ -253,7 +257,13 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
 
             {/* ─────── Scrollable Content ─────── */}
             <div className="flex-1 overflow-y-auto">
-                <div className="p-4 pb-12 space-y-5">
+                <div className="p-4 sm:p-6 pb-16 max-w-2xl sm:max-w-3xl mx-auto w-full space-y-2">
+                    {/* Navigation Breadcrumb matching Sure design */}
+                    <DesktopBreadcrumb
+                        onBack={onBack}
+                        currentLabel={translate('settings') || (isEL ? 'Ρυθμίσεις' : 'Settings')}
+                        className="pb-1"
+                    />
 
                     {/* ════ User Identity Hero — centered ════ */}
                     <div className="flex flex-col items-center pt-4 pb-4 gap-2">
@@ -312,14 +322,14 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         <motion.button
                             onClick={onAccount}
                             whileTap={{ scale: 0.94 }}
-                            className="mt-2 inline-flex items-center px-4 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 text-xs font-bold text-gray-900 dark:text-white hover:bg-gray-200/70 dark:hover:bg-white/10 active:scale-95 transition-all"
+                            className="mt-2 inline-flex items-center px-4 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-100/90 dark:bg-surface-dark2 text-xs font-bold text-gray-900 dark:text-white hover:bg-gray-200/70 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
                         >
                             {translate('edit_profile') || 'Επεξεργασία προφίλ'}
                         </motion.button>
                     </div>
 
-                    {/* ════ Account Info ════ */}
-                    <div className="mt-4">
+                    {/* ════ 1. Account Info ════ */}
+                    <div className="mt-2">
                         <SectionLabel>{translate('account_info') || 'Account info'}</SectionLabel>
                         <Card>
                             <InfoRow icon={Mail} label={translate('email') || 'Email'} value={user?.email || '—'} />
@@ -328,20 +338,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                         </Card>
                     </div>
 
-                    {/* ════ App Preferences ════ */}
+                    {/* ════ 2. General Preferences ════ */}
                     <div className="mt-2">
-                        <SectionLabel>{translate('app_preferences') || 'Προτιμήσεις Εφαρμογής'}</SectionLabel>
+                        <SectionLabel>{translate('general_preferences') || translate('general') || (isEL ? 'Γενικά' : 'General')}</SectionLabel>
                         <Card>
                             <SettingRow
                                 icon={Languages}
                                 label={translate('language') || 'Language'}
+                                subtitle={isEL ? 'Επιλογή γλώσσας διεπαφής' : 'Select interface language'}
                                 right={
                                     <div className="flex gap-1 bg-white dark:bg-surface-dark p-0.5 rounded-lg shadow-sm border border-gray-200 dark:border-white/10">
                                         {['el', 'en'].map(lang => (
                                             <button
                                                 key={lang}
                                                 onClick={(e) => { e.stopPropagation(); updateLanguage(lang); }}
-                                                className={`px-3 py-1.5 rounded-[10px] text-[11px] font-extrabold transition-all duration-200
+                                                className={`px-3 py-1.5 rounded-[10px] text-[11px] font-extrabold transition-all duration-200 cursor-pointer
                                                             ${language === lang
                                                         ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
                                                         : 'text-gray-500 dark:text-white/50 hover:bg-gray-100 dark:hover:bg-white/10'}`}
@@ -354,7 +365,8 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             />
                             <SettingRow
                                 icon={themePreference === 'system' ? Monitor : (themePreference === 'light' ? Sun : Moon)}
-                                label={translate('appearance_theme') || 'Θέμα εμφάνισης'}
+                                label={translate('appearance_theme') || (isEL ? 'Εμφάνιση & Θέμα' : 'Appearance & Theme')}
+                                subtitle={isEL ? 'Φωτεινό, σκοτεινό ή προσαρμογή στις ρυθμίσεις συσκευής' : 'Light, dark, or system device settings'}
                                 onClick={() => setShowThemeModal(true)}
                                 right={
                                     <div className="flex items-center gap-2">
@@ -371,12 +383,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             />
                             <SettingRow
                                 icon={Settings}
-                                label={translate('general') || 'General'}
+                                label={translate('preferences') || (isEL ? 'Προτιμήσεις' : 'Preferences')}
+                                subtitle={isEL ? 'Νόμισμα, πρώτη ημέρα μήνα και μορφή ημερομηνιών' : 'Currency, month start day, and formats'}
                                 onClick={onGeneral}
                             />
+                        </Card>
+                    </div>
+
+                    {/* ════ 3. Transactions & Rules (Distinct Section) ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('transactions_and_rules') || (isEL ? 'Συναλλαγές & Κανόνες' : 'Transactions & Rules')}</SectionLabel>
+                        <Card>
                             <SettingRow
                                 icon={Tag}
-                                label={translate('custom_categories') || 'Προσαρμοσμένες Κατηγορίες'}
+                                label={translate('categories_and_rules') || (isEL ? 'Κατηγορίες & Κανόνες Εμπόρων' : 'Categories & Merchant Rules')}
+                                subtitle={translate('categories_and_rules_desc') || (isEL ? 'Προσαρμοσμένες κατηγορίες και κανόνες αυτόματης αντιστοίχισης' : 'Custom categories and merchant auto-matching rules')}
                                 onClick={onCategories}
                                 right={
                                     <div className="flex items-center gap-2">
@@ -387,50 +408,50 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                     </div>
                                 }
                             />
+                            <SettingRow
+                                icon={RefreshCw}
+                                label={translate('recurring_transactions') || (isEL ? 'Επαναλαμβανόμενες Συναλλαγές' : 'Recurring Transactions')}
+                                subtitle={translate('recurring_settings_desc') || (isEL ? 'Πάγιες εντολές, συνδρομές και αυτόματες καταχωρίσεις' : 'Subscriptions, fixed bills, and scheduled entries')}
+                                onClick={onRecurring}
+                            />
+                            {onCoolingOff && (
+                                <SettingRow
+                                    icon={Hourglass}
+                                    label={translate('cooling_off_title') || (isEL ? 'Αναμονή 72 Ωρών (Cooling-Off)' : '72h Cooling-Off Rule')}
+                                    subtitle={translate('cooling_off_settings_desc') || (isEL ? 'Προστασία από παρορμητικές αγορές και έλεγχος επιθυμιών' : 'Impulse buy protection and delayed purchase buffer')}
+                                    onClick={onCoolingOff}
+                                />
+                            )}
                         </Card>
                     </div>
 
-                    {/* ════ Security & Data ════ */}
+                    {/* ════ 4. Security & Data ════ */}
                     <div className="mt-2">
-                        <SectionLabel>{translate('security_and_data') || 'Ασφάλεια & Δεδομένα'}</SectionLabel>
+                        <SectionLabel>{translate('security_and_data') || (isEL ? 'Ασφάλεια & Δεδομένα' : 'Security & Data')}</SectionLabel>
                         <Card>
                             <SettingRow
                                 icon={Shield}
                                 label={translate('security') || 'Security'}
+                                subtitle={translate('security_settings_desc') || (isEL ? 'Κωδικός PIN, βιομετρικό κλείδωμα και ασφάλεια συσκευής' : 'PIN code, biometric lock, and device security')}
                                 onClick={onSecurity}
                             />
                             <SettingRow
                                 icon={HardDriveDownload}
                                 label={translate('backup_restore') || 'Backup & Restore'}
+                                subtitle={translate('backup_settings_desc') || (isEL ? 'Εξαγωγή σε CSV/JSON, εισαγωγή και δημιουργία αντιγράφων' : 'Export CSV/JSON, import, and data backups')}
                                 onClick={onBackup}
                             />
                         </Card>
                     </div>
 
-                    {/* ════ Help & Support ════ */}
+                    {/* ════ 5. System & Updates ════ */}
                     <div className="mt-2">
-                        <SectionLabel>{translate('help_and_support') || (isEL ? 'Βοήθεια & Υποστήριξη' : 'Help & Support')}</SectionLabel>
-                        <Card>
-                            <SettingRow
-                                icon={BookOpen}
-                                label={translate('user_guide') || (isEL ? 'Οδηγός Χρήσης' : 'User Guide')}
-                                onClick={onGuide}
-                            />
-                            <SettingRow
-                                icon={LifeBuoy}
-                                label={translate('technical_support') || translate('support') || (isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support')}
-                                onClick={onFeedback}
-                            />
-                        </Card>
-                    </div>
-
-                    {/* ════ System & App ════ */}
-                    <div className="mt-2">
-                        <SectionLabel>{translate('system_and_app') || 'Σύστημα & Εφαρμογή'}</SectionLabel>
+                        <SectionLabel>{translate('system_and_app') || (isEL ? 'Σύστημα & Ενημερώσεις' : 'System & Updates')}</SectionLabel>
                         <Card>
                             <SettingRow
                                 icon={FileText}
                                 label={translate('whats_new') || (isEL ? 'Τι νέο υπάρχει' : "What's New")}
+                                subtitle={translate('whats_new_desc') || (isEL ? 'Σημειώσεις έκδοσης και πρόσφατες νέες δυνατότητες' : 'Release notes and recent highlights')}
                                 onClick={() => setShowWhatsNewModal(true)}
                             />
                             <SettingRow
@@ -452,12 +473,14 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                             <SettingRow
                                 icon={Trash2}
                                 label={translate('purge_cache') || (isEL ? 'Εκκαθάριση Cache & Επανεκκίνηση' : 'Clear Cache & Reload')}
+                                subtitle={isEL ? 'Άμεσος καθαρισμός τοπικής προσωρινής μνήμης και ανανέωση' : 'Force clear local app cache and reload'}
                                 onClick={handleForcePurgeCache}
                             />
                             {!isNativeApp && (
                                 <SettingRow
                                     icon={Smartphone}
                                     label={translate('install_android') || 'Εφαρμογή Android (Play Store)'}
+                                    subtitle={isEL ? 'Λήψη της επίσημης εφαρμογής από το Google Play' : 'Download the official app from Google Play'}
                                     onClick={() => setShowPlayStoreModal(true)}
                                     right={
                                         <div className="flex items-center gap-2">
@@ -473,19 +496,40 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 <SettingRow
                                     icon={LayoutDashboard}
                                     label={translate('control_panel') || 'Control Panel'}
+                                    subtitle={isEL ? 'Διαχείριση συστήματος, χρηστών και τηλεμετρίας' : 'System telemetry, error tracking, and user analytics'}
                                     onClick={onAdmin}
                                 />
                             )}
                         </Card>
                     </div>
 
-                    {/* ════ Session / Account ════ */}
+                    {/* ════ 6. Help & Support ════ */}
                     <div className="mt-2">
-                        <SectionLabel>{translate('session') || 'Συνεδρία'}</SectionLabel>
+                        <SectionLabel>{translate('help_and_support') || (isEL ? 'Βοήθεια & Υποστήριξη' : 'Help & Support')}</SectionLabel>
+                        <Card>
+                            <SettingRow
+                                icon={BookOpen}
+                                label={translate('user_guide') || (isEL ? 'Οδηγός Χρήσης' : 'User Guide')}
+                                subtitle={translate('user_guide_desc') || (isEL ? 'Αναλυτικός οδηγός λειτουργιών και χρήσιμες συμβουλές' : 'Interactive feature guide and productivity tips')}
+                                onClick={onGuide}
+                            />
+                            <SettingRow
+                                icon={LifeBuoy}
+                                label={translate('technical_support') || translate('support') || (isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support')}
+                                subtitle={translate('support_desc') || (isEL ? 'Αποστολή ανατροφοδότησης ή αναφορά τεχνικού προβλήματος' : 'Send feedback or report a technical issue')}
+                                onClick={onFeedback}
+                            />
+                        </Card>
+                    </div>
+
+                    {/* ════ 7. Session ════ */}
+                    <div className="mt-2">
+                        <SectionLabel>{translate('session') || (isEL ? 'Συνεδρία' : 'Session')}</SectionLabel>
                         <Card>
                             <SettingRow
                                 icon={LogOut}
                                 label={translate('logout') || 'Sign out'}
+                                subtitle={isEL ? 'Αποσύνδεση από τον τρέχοντα λογαριασμό' : 'Sign out from this device'}
                                 danger
                                 onClick={() => setShowLogoutModal(true)}
                                 last

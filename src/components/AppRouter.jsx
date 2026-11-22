@@ -91,6 +91,7 @@ export default function AppRouter(props) {
                                 onAdmin={() => setActiveTab('admin')}
                                 onFeedback={() => setActiveTab('support')}
                                 onGuide={() => setActiveTab('guide')}
+                                onCoolingOff={() => { setPreviousTab('profile'); setActiveTab('cooling-off'); }}
                             />
                         )}
                         {activeTab === 'guide' && (
@@ -141,6 +142,7 @@ export default function AppRouter(props) {
                                     onAdmin={() => setActiveTab('admin')}
                                     onFeedback={() => setActiveTab('support')}
                                     onGuide={() => setActiveTab('guide')}
+                                    onCoolingOff={() => { setPreviousTab('profile'); setActiveTab('cooling-off'); }}
                                 />
                             </div>
                         )}

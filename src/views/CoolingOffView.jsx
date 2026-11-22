@@ -10,6 +10,7 @@ import CoolingOffStats from '../components/CoolingOffStats';
 import CoolingOffItem from '../components/CoolingOffItem';
 import CoolingOffModal from '../components/CoolingOffModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import { hapticSaveSuccess, hapticImpactLight } from '../utils/haptics';
 
 const CoolingOffView = ({ user, onBack, onAddTransaction, hideHeader = false }) => {
@@ -181,6 +182,12 @@ const CoolingOffView = ({ user, onBack, onAddTransaction, hideHeader = false }) 
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar px-4 sm:px-6 lg:px-0 py-5 lg:py-0 space-y-5">
                 <div className="w-full mx-auto space-y-5">
+                    {/* Navigation Breadcrumb matching Sure design */}
+                    <DesktopBreadcrumb
+                        onBack={onBack}
+                        currentLabel={t('cooling_off_title') || (isEL ? 'Κανόνας 72 Ωρών' : '72-Hour Cooling-Off')}
+                    />
+
                     {hideHeader && (
                         <div className="flex items-center justify-between gap-4 pb-1">
                             <div>

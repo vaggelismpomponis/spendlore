@@ -13,6 +13,7 @@ describe('ThemeSelectionModal Component', () => {
     const mockSettings = {
         t: (k) => {
             const dict = {
+                theme: 'Θέμα',
                 appearance_theme: 'Εμφάνιση & Θέμα',
                 select_theme: 'Επιλέξτε το θέμα εμφάνισης',
                 theme_system: 'Προεπιλογή συστήματος',
@@ -40,18 +41,17 @@ describe('ThemeSelectionModal Component', () => {
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
-    it('renders the 3 theme options in exact order: system, light, dark', () => {
+    it('renders the 3 theme options in exact order: light, dark, system', () => {
         render(<ThemeSelectionModal isOpen={true} onClose={vi.fn()} />);
 
         expect(screen.getByRole('dialog')).toBeInTheDocument();
-        expect(screen.getByText('Εμφάνιση & Θέμα')).toBeInTheDocument();
+        expect(screen.getByText('Θέμα')).toBeInTheDocument();
 
-        const buttons = screen.getAllByRole('button');
-        // Close button (X), System option, Light option, Dark option, Done button
+        // Light option, Dark option, System option
         const optionTitles = [
-            screen.getByText('Προεπιλογή συστήματος'),
             screen.getByText('Φωτεινό'),
-            screen.getByText('Σκοτεινό')
+            screen.getByText('Σκοτεινό'),
+            screen.getByText('Προεπιλογή συστήματος')
         ];
 
         expect(optionTitles[0]).toBeInTheDocument();
@@ -59,12 +59,12 @@ describe('ThemeSelectionModal Component', () => {
         expect(optionTitles[2]).toBeInTheDocument();
 
         // Verify order in DOM
-        const systemCard = optionTitles[0].closest('button');
-        const lightCard = optionTitles[1].closest('button');
-        const darkCard = optionTitles[2].closest('button');
+        const lightCard = optionTitles[0].closest('button');
+        const darkCard = optionTitles[1].closest('button');
+        const systemCard = optionTitles[2].closest('button');
 
-        expect(systemCard.compareDocumentPosition(lightCard)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
         expect(lightCard.compareDocumentPosition(darkCard)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+        expect(darkCard.compareDocumentPosition(systemCard)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     });
 
     it('calls updateThemePreference when selecting an option', () => {

@@ -18,6 +18,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { supabase } from '../supabase';
+import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
 import Amount from '../components/Amount';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../contexts/ToastContext';
@@ -242,6 +243,12 @@ const RecurringView = ({ user, onBack, hideHeader }) => {
 
             {/* ── Scrollable Content ── */}
             <div className="flex-1 overflow-y-auto">
+                <div className="px-5 pt-3 pb-1">
+                    <DesktopBreadcrumb
+                        onBack={onBack}
+                        currentLabel={translate('recurring_transactions') || translate('recurring') || (language === 'el' ? 'Επαναλαμβανόμενες Συναλλαγές' : 'Recurring Transactions')}
+                    />
+                </div>
 
                 {/* ── Hero Summary Card (when rules exist) ── */}
                 {rules.length > 0 && (

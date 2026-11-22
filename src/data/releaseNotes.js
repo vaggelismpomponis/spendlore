@@ -18,6 +18,53 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.62',
+        build: 74,
+        date: '2026-11-23',
+        title_el: 'Spendlore v1.1.62 - Βελτιστοποίηση Αρχικής Οθόνης & Νέα Εμφάνιση Θέματος',
+        title_en: 'Spendlore v1.1.62 - Streamlined Mobile Home & Interactive Theme Picker',
+        summary_el: 'Η έκδοση 1.1.62 φέρνει ανανεωμένη αρχική οθόνη στο mobile με άμεση πρόσβαση στις πρόσφατες συναλλαγές, νέο διαδραστικό επιλογέα θέματος με μικρογραφίες, ενσωμάτωση του Safe-to-Burn και απτική ανάδραση (haptic feedback) στην πλοήγηση.',
+        summary_en: 'Version 1.1.62 introduces a streamlined mobile home experience with instant transaction visibility, a redesigned interactive theme picker with real-time previews, seamless Safe-to-Burn daily budget tracking, and haptic feedback across navigation.',
+        sections: [
+            {
+                title_el: 'Καθαρή & Συμπυκνωμένη Αρχική Οθόνη Mobile',
+                title_en: 'Streamlined & Airy Mobile Home Layout',
+                desc_el: 'Η διάταξη της αρχικής οθόνης βελτιστοποιήθηκε ώστε τα οικονομικά μεγέθη να προβάλλονται σε μία ενιαία γραμμή, εξοικονομώντας πάνω από 200px χώρου και φέρνοντας τις πρόσφατες συναλλαγές άμεσα στο οπτικό σας πεδίο.',
+                desc_en: 'The mobile home screen has been reorganized with a unified cashflow metrics row, saving over 200px of vertical space and bringing recent transactions into immediate view without scrolling.',
+                previewType: 'mobile_polish',
+                caption_el: 'Άμεση ορατότητα συναλλαγών και καθαρότερη οικονομική επισκόπηση.',
+                caption_en: 'Immediate transaction visibility and clearer financial overview.'
+            },
+            {
+                title_el: 'Νέος Επιλογέας Εμφάνισης & Θέματος',
+                title_en: 'Interactive Theme Selector with Previews',
+                desc_el: 'Επιλέξτε ανάμεσα σε Φωτεινό, Σκοτεινό ή Προσαρμογή Συστήματος μέσα από ένα κομψό παράθυρο με διαδραστικές προεπισκοπήσεις του ταμπλό σε κάθε λειτουργία.',
+                desc_en: 'Switch effortlessly between Light, Dark, or System mode using an elegant new modal featuring realistic dashboard preview cards.',
+                previewType: 'theme',
+                caption_el: 'Οπτική επιβεβαίωση εμφάνισης πριν από την επιλογή.',
+                caption_en: 'Visual preview of the dashboard appearance before selecting.'
+            },
+            {
+                title_el: 'Ενσωμάτωση Safe-to-Burn & Κανόνα 72h',
+                title_en: 'Safe-to-Burn & 72h Rule Integration',
+                desc_el: 'Παρακολουθήστε το ασφαλές ημερήσιο όριο εξόδων απευθείας από την αρχική οθόνη και διαχειριστείτε τις παρορμητικές αγορές με άμεση πρόσβαση στον Κανόνα 72 Ωρών.',
+                desc_en: 'Monitor your safe daily spending allowance directly from the home screen and manage impulse urges with 1-tap access to the 72-Hour Cooling-Off Rule.',
+                previewType: 'budgets',
+                caption_el: 'Έξυπνος έλεγχος ημερήσιων δαπανών και αποφυγή περιττών εξόδων.',
+                caption_en: 'Smart daily spend control and impulse purchase prevention.'
+            },
+            {
+                title_el: 'Απτική Ανάδραση (Haptic Feedback) & Πλοήγηση',
+                title_en: 'Haptic Feedback & Breadcrumbs Navigation',
+                desc_el: 'Απολαύστε φυσική αίσθηση αφής κατά την επιλογή καρτελών και προσθήκη συναλλαγών στο mobile, καθώς και καθαρή πλοήγηση με breadcrumbs σε όλες τις επιμέρους σελίδες ρυθμίσεων.',
+                desc_en: 'Experience subtle tactile feedback when switching tabs and tapping actions on mobile, alongside clean breadcrumb navigation across all settings pages.',
+                previewType: 'mobile_polish',
+                caption_el: 'Φυσική αίσθηση χρήσης και ξεκάθαρος προσανατολισμός στην εφαρμογή.',
+                caption_en: 'Tactile responsiveness and intuitive in-app orientation.'
+            }
+        ]
+    },
+    {
         version: '1.1.61',
         build: 73,
         date: '2026-11-20',
