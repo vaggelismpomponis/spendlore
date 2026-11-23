@@ -1,5 +1,5 @@
 import React from 'react';
-import { LifeBuoy, Clock, CheckCircle2, Inbox } from 'lucide-react';
+import { Headphones, Clock, CheckCircle2, Inbox } from 'lucide-react';
 
 const AdminTicketStats = ({ tickets = [], translate = (k) => k }) => {
     const openCount = tickets.filter(t => (t.status || 'open') === 'open').length;
@@ -50,7 +50,7 @@ const AdminTicketStats = ({ tickets = [], translate = (k) => k }) => {
                     <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                         {translate('admin_ticket_stats_support') || 'Direct Support'}
                     </span>
-                    <LifeBuoy size={14} className="text-gray-400" />
+                    <Headphones size={14} className="text-gray-400" />
                 </div>
                 <span className="block text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
                     {supportCount} <span className="text-xs font-normal text-gray-400">/ {tickets.length} {translate('admin_total_label') || 'total'}</span>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    LifeBuoy,
+    Headphones,
     Bug,
     Lightbulb,
     MessageSquare,
@@ -17,7 +17,7 @@ import CustomSelect from '../CustomSelect';
 const getTypeMeta = (type, message = '', translate = (k) => k) => {
     if (type === 'support' || (message && message.includes('[Support]'))) {
         return {
-            icon: LifeBuoy,
+            icon: Headphones,
             label: translate('admin_support_ticket') || 'Support Ticket',
             badgeClass: 'bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-200/60 dark:border-blue-500/20'
         };

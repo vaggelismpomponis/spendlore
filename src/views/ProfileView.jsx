@@ -4,7 +4,7 @@ import {
     User, LogOut, ChevronRight,
     ShieldAlert as Shield, ArrowLeft, Moon, Sun, Monitor,
     Smartphone, HardDriveDownload,
-    Languages, LayoutDashboard, MessageSquare, BookOpen, LifeBuoy,
+    Languages, LayoutDashboard, MessageSquare, BookOpen, Headphones,
     Settings, Info, Trash2, UserX, Tag, Hourglass,
     Camera, Mail, AlertTriangle, X, CheckCircle2, Pencil, Calendar, Eye, EyeOff,
     ShieldCheck, RefreshCw, FileText
@@ -52,7 +52,7 @@ const SettingRow = ({
     >
         <Icon size={22} className={`shrink-0 ${danger ? 'text-rose-500' : color}`} strokeWidth={1.75} />
         <div className="flex-1 min-w-0">
-            <span className={`block text-[16px] font-bold tracking-tight
+            <span className={`block text-[16px] font-bold tracking-tight whitespace-nowrap
                               ${danger ? 'text-rose-500' : 'text-gray-900 dark:text-white'}`}>
                 {label}
             </span>
@@ -370,14 +370,21 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 onClick={() => setShowThemeModal(true)}
                                 right={
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10">
+                                        <span
+                                            title={themePreference === 'system'
+                                                ? (translate('theme_system') || 'Προεπιλογή συστήματος')
+                                                : (themePreference === 'light'
+                                                    ? (translate('theme_light') || 'Φωτεινό')
+                                                    : (translate('theme_dark') || 'Σκοτεινό'))}
+                                            className="text-[11px] font-bold text-gray-600 dark:text-gray-300 bg-gray-200/70 dark:bg-white/10 px-2.5 py-0.5 rounded-full border border-gray-300/60 dark:border-white/10 max-w-[85px] sm:max-w-none truncate inline-block"
+                                        >
                                             {themePreference === 'system'
                                                 ? (translate('theme_system') || 'Προεπιλογή συστήματος')
                                                 : (themePreference === 'light'
                                                     ? (translate('theme_light') || 'Φωτεινό')
                                                     : (translate('theme_dark') || 'Σκοτεινό'))}
                                         </span>
-                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                                        <ChevronRight size={20} className="text-gray-900 dark:text-white/80 group-hover:translate-x-0.5 transition-transform shrink-0" />
                                     </div>
                                 }
                             />
@@ -514,7 +521,7 @@ const ProfileView = ({ user, onBack, onSignOut, onRecurring, onAccount, onGenera
                                 onClick={onGuide}
                             />
                             <SettingRow
-                                icon={LifeBuoy}
+                                icon={Headphones}
                                 label={translate('technical_support') || translate('support') || (isEL ? 'Τεχνική Υποστήριξη' : 'Technical Support')}
                                 subtitle={translate('support_desc') || (isEL ? 'Αποστολή ανατροφοδότησης ή αναφορά τεχνικού προβλήματος' : 'Send feedback or report a technical issue')}
                                 onClick={onFeedback}

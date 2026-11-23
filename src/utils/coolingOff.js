@@ -6,10 +6,7 @@
 export const DEFAULT_COOLING_OFF_HOURS = 72;
 
 export const DURATION_OPTIONS = [
-    { hours: 24, labelEl: '24 Ώρες (1 ημέρα)', labelEn: '24 Hours (1 day)' },
-    { hours: 48, labelEl: '48 Ώρες (2 ημέρες)', labelEn: '48 Hours (2 days)' },
-    { hours: 72, labelEl: '72 Ώρες (3 ημέρες - Συνιστώμενο)', labelEn: '72 Hours (3 days - Recommended)' },
-    { hours: 168, labelEl: '7 Ημέρες (1 εβδομάδα)', labelEn: '7 Days (1 week)' },
+    { hours: 72, labelEl: '72 Ώρες (3 ημέρες)', labelEn: '72 Hours (3 days)' },
 ];
 
 /**

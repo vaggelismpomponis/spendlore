@@ -875,7 +875,7 @@ public class SMSNotificationListenerService extends NotificationListenerService 
             return new CategoryInfo("Υγεία", "Υγεία");
         }
 
-        // Default: Category "Φαγητό", Chip "[Φαγητό / Καφές]"
-        return new CategoryInfo("Φαγητό", "Φαγητό / Καφές");
+        // Default: Category "Άλλο", Chip "[Άλλο]"
+        return new CategoryInfo("Άλλο", "Άλλο");
     }
 }

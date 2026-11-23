@@ -137,24 +137,21 @@ const CoolingOffModal = ({ isOpen, onClose, onAdd }) => {
                         />
                     </div>
 
-                    {/* Duration chips */}
+                    {/* Duration chips - strictly 72 hours per the 72h rule */}
                     <div>
                         <label className="block text-[11px] font-bold text-gray-500 dark:text-white/60 mb-1.5 uppercase tracking-widest">
                             {isEL ? 'Χρόνος Αναμονής (Cooling-Off)' : 'Cooling-Off Duration'}
                         </label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1">
                             {DURATION_OPTIONS.map(opt => (
                                 <button
                                     key={opt.hours}
                                     type="button"
                                     onClick={() => setDurationHours(opt.hours)}
-                                    className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all border text-left ${
-                                        durationHours === opt.hours
-                                            ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent shadow-xs'
-                                            : 'bg-white dark:bg-surface-dark3 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300'
-                                    }`}
+                                    className="py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all border flex items-center justify-between bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent shadow-xs cursor-default"
                                 >
-                                    {isEL ? opt.labelEl : opt.labelEn}
+                                    <span>{isEL ? opt.labelEl : opt.labelEn}</span>
+                                    <span className="text-[10px] font-semibold opacity-75">{isEL ? 'Κανόνας 72 Ωρών' : '72h Rule'}</span>
                                 </button>
                             ))}
                         </div>

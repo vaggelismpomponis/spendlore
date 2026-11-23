@@ -400,7 +400,7 @@ function MainContent() {
                         const newTx = {
                             amount,
                             type: ctx.type || 'expense',
-                            category: ctx.category || 'Φαγητό',
+                            category: ctx.category || 'Άλλο',
                             note: ctx.note || ctx.merchant || 'Συναλλαγή κάρτας',
                             date: ctx.date ? new Date(ctx.date).toISOString() : new Date().toISOString()
                         };

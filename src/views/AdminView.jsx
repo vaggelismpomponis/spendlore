@@ -5,7 +5,7 @@ import {
     LayoutDashboard, Users, MessageSquare, Radio,
     Filter, ChevronLeft, ChevronRight,
     Activity, CheckCircle2, SlidersHorizontal, ArrowRight,
-    ShieldAlert, LifeBuoy
+    ShieldAlert, Headphones
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
@@ -606,7 +606,7 @@ const AdminView = ({ onBack, hideHeader }) => {
     const tabs = [
         { id: 'overview', icon: LayoutDashboard, label: translate('admin_tab_overview') || 'Overview', badge: null },
         { id: 'users', icon: Users, label: translate('admin_tab_users') || 'Users', badge: profiles.length || null },
-        { id: 'feedback', icon: LifeBuoy, label: translate('admin_tab_feedback') || 'Support & Tickets', badge: openTicketsCount > 0 ? `${openTicketsCount} ${translate('admin_open') || 'open'}` : null },
+        { id: 'feedback', icon: Headphones, label: translate('admin_tab_feedback') || 'Support & Tickets', badge: openTicketsCount > 0 ? `${openTicketsCount} ${translate('admin_open') || 'open'}` : null },
         { id: 'updates', icon: RefreshCw, label: translate('admin_tab_updates') || 'Updates', badge: updates.length || null },
         { id: 'broadcast', icon: Radio, label: translate('admin_tab_broadcast') || 'Broadcast', badge: 'Live' },
         { id: 'sentry', icon: ShieldAlert, label: translate('admin_tab_sentry') || 'Sentry Errors', badge: sentryErrors.length || null },

@@ -12,14 +12,30 @@ const KNOWN_PREVIEWS = new Set([
     'privacy_blur', 'privacy_uniformity'
 ]);
 
-export const hasFeaturePreview = (type) => KNOWN_PREVIEWS.has(type);
+const PREVIEW_ALIASES = {
+    categories: 'categories_redesign',
+    support: 'feedback_toolbar',
+    feedback: 'feedback_toolbar',
+    settings: 'feedback_toolbar',
+    cooling_off: 'modal_portal',
+    budgets: 'modal_portal',
+};
+
+export const resolvePreviewType = (type) => {
+    if (!type) return null;
+    if (KNOWN_PREVIEWS.has(type)) return type;
+    return PREVIEW_ALIASES[type] || null;
+};
+
+export const hasFeaturePreview = (type) => Boolean(resolvePreviewType(type));
 
 /**
  * FeaturePreview — Renders realistic, high-fidelity UI previews for release notes
  * Matches the visual mockups shown in modern personal finance release drawers.
  */
 const FeaturePreview = ({ type, isEL }) => {
-    switch (type) {
+    const resolvedType = resolvePreviewType(type) || type;
+    switch (resolvedType) {
         case 'balance_trend':
             return (
                 <div className="p-3.5 bg-white dark:bg-white/[0.04] rounded-xl border border-gray-200/70 dark:border-white/10 select-none space-y-2.5">

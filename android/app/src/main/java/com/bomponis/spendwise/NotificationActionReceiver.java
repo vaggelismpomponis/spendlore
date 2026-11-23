@@ -47,7 +47,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             note = (merchant != null && !merchant.trim().isEmpty()) ? merchant : "Συναλλαγή";
         }
         if (category == null || category.trim().isEmpty()) {
-            category = "Φαγητό";
+            category = "Άλλο";
         }
         if (type == null || type.trim().isEmpty()) {
             type = "expense";

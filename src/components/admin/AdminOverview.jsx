@@ -4,7 +4,7 @@ import {
     Clock, Calendar, Smartphone, Monitor, Globe, ChevronRight, ArrowUpRight,
     ArrowRight, ShieldCheck, CheckCircle2, LayoutDashboard,
     MoreVertical, ExternalLink, Mail, Copy, FileText, Trash2, ShieldAlert,
-    LifeBuoy, Radio, CreditCard, Sparkles, AlertCircle, Check
+    Headphones, Radio, CreditCard, Sparkles, AlertCircle, Check
 } from 'lucide-react';
 import ProBadge from '../ProBadge';
 
@@ -545,7 +545,7 @@ const AdminOverview = ({
                     translate={translate}
                 />
                 <StatCard
-                    icon={LifeBuoy}
+                    icon={Headphones}
                     label={t('admin_user_feedback', 'User Feedback')}
                     value={stats.feedback}
                     subtext={t('admin_feedback_subtext', 'Community & support tickets')}
@@ -585,7 +585,7 @@ const AdminOverview = ({
                             onClick={() => onNavigateTab('feedback')}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/10 text-xs font-bold text-gray-700 dark:text-gray-200 transition-colors whitespace-nowrap"
                         >
-                            <LifeBuoy size={13} className={openTicketsCount > 0 ? 'text-amber-500' : 'text-gray-400'} />
+                            <Headphones size={13} className={openTicketsCount > 0 ? 'text-amber-500' : 'text-gray-400'} />
                             <span>{t('admin_support_desk', 'Support Desk')} ({openTicketsCount} {t('admin_open', 'Open')})</span>
                         </button>
                         <button
@@ -872,7 +872,7 @@ const AdminOverview = ({
                     <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs">
                         <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/[0.06] mb-3.5">
                             <div className="flex items-center gap-2">
-                                <LifeBuoy size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
+                                <Headphones size={16} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2.2} />
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
                                     {t('admin_support_ticketing_queue', 'Support & Ticketing Queue')}
                                 </h3>

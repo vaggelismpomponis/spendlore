@@ -18,6 +18,53 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.63',
+        build: 75,
+        date: '2026-11-23',
+        title_el: 'Spendlore v1.1.63 - Έξυπνη Κατηγοριοποίηση & Ανασχεδιασμός Ρυθμίσεων',
+        title_en: 'Spendlore v1.1.63 - Smart Categorization & Settings Redesign',
+        summary_el: 'Η έκδοση 1.1.63 φέρνει έξυπνη κατηγοριοποίηση τραπεζικών συναλλαγών χωρίς λανθασμένες προεπιλογές, πλήρη ανασχεδιασμό των σελίδων Υποστήριξης και Νομικών Όρων με πρότυπα Hallmark, κλείδωμα του Κανόνα Αναμονής 72 Ωρών και ανανεωμένη εικονογραφία.',
+        summary_en: 'Version 1.1.63 delivers smart bank transaction categorization without false default categories, an executive Hallmark redesign for Support and Legal settings pages, a streamlined 72-hour cooling-off rule, and refined iconography.',
+        sections: [
+            {
+                title_el: 'Έξυπνη Κατηγοριοποίηση & Διόρθωση Προεπιλογών',
+                title_en: 'Smart Categorization & Fallback Resolution',
+                desc_el: 'Οι αυτόματα εντοπισμένες συναλλαγές που δεν ταιριάζουν σε συγκεκριμένο κανόνα εμπόρου αποδίδονται πλέον ορθά στην κατηγορία «Άλλο» αντί να καταχωρούνται αυθαίρετα ως φαγητό, διασφαλίζοντας απόλυτη ακρίβεια στους προϋπολογισμούς σας.',
+                desc_en: 'Bank transactions that do not match a specific merchant rule now accurately fall back to "Other" rather than arbitrarily defaulting to food, ensuring reliable budget reporting.',
+                previewType: 'categories_redesign',
+                caption_el: 'Ακριβής απόδοση κατηγοριών και αξιόπιστος έλεγχος δαπανών.',
+                caption_en: 'Accurate category assignment and trustworthy expense tracking.'
+            },
+            {
+                title_el: 'Ανασχεδιασμός Hallmark στις Σελίδες Ρυθμίσεων',
+                title_en: 'Executive Hallmark Redesign for Settings',
+                desc_el: 'Οι σελίδες Τεχνικής Υποστήριξης, Πολιτικής Απορρήτου και Όρων Χρήσης ανασχεδιάστηκαν με ενοποιημένα breadcrumbs πλοήγησης, κάρτες υψηλής αντίθεσης και άμεση υποβολή αιτημάτων.',
+                desc_en: 'Technical Support, Privacy Policy, and Terms of Service have been fully reimagined with unified breadcrumbs, elevated contrast cards, and a streamlined ticket submission console.',
+                previewType: 'feedback_toolbar',
+                caption_el: 'Καθαρή δομή, άμεση υποστήριξη και ενιαία αισθητική.',
+                caption_en: 'Clean layout, immediate support, and unified design.'
+            },
+            {
+                title_el: 'Κλείδωμα Κανόνα Αναμονής 72 Ωρών',
+                title_en: 'Focused 72-Hour Cooling-Off Rule',
+                desc_el: 'Η λειτουργία αναμονής εστιάζει αποκλειστικά στο βέλτιστο ψυχολογικό παράθυρο των 72 ωρών (3 ημέρες), αποτρέποντας παρορμητικές αγορές με απλό και στοχευμένο τρόπο.',
+                desc_en: 'The cooling-off workflow now concentrates exclusively on the scientifically proven 72-hour impulse window, streamlining impulse spend prevention.',
+                previewType: 'modal_portal',
+                caption_el: 'Στοχευμένος έλεγχος παρορμητικών αγορών με 72 ώρες αναμονή.',
+                caption_en: 'Targeted impulse spend control with a dedicated 72-hour timer.'
+            },
+            {
+                title_el: 'Ανανεωμένη Εικονογραφία Υποστήριξης & UI Polish',
+                title_en: 'Refined Support Iconography & Visual Polish',
+                desc_el: 'Ενσωμάτωση του επίσημου εικονιδίου ακουστικών υποστήριξης, ασφαλής εμφάνιση της προεπιλογής συστήματος στο θέμα χωρίς αναδίπλωση τίτλων και βελτιστοποιήσεις διεπαφής.',
+                desc_en: 'Updated official headphones support iconography across profiles and settings, alongside safe single-line truncation for theme selector badges.',
+                previewType: 'mobile_polish',
+                caption_el: 'Επαγγελματική αισθητική και προσεγμένες λεπτομέρειες.',
+                caption_en: 'Professional aesthetic and meticulous polish across the interface.'
+            }
+        ]
+    },
+    {
         version: '1.1.62',
         build: 74,
         date: '2026-11-23',

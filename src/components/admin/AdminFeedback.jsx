@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
-    LifeBuoy,
+    Headphones,
     Download,
     Search,
     CheckCircle2,
@@ -99,7 +99,7 @@ const AdminFeedback = ({
             <div className="bg-white dark:bg-surface-dark2 rounded-2xl border border-gray-200 dark:border-white/10 p-5 sm:p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-white/[0.06]">
                     <div className="flex items-center gap-3">
-                        <LifeBuoy size={22} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2} />
+                        <Headphones size={22} className="text-gray-900 dark:text-white shrink-0" strokeWidth={2} />
                         <div>
                             <h3 className="text-base font-extrabold text-gray-900 dark:text-white leading-tight">
                                 {translate('admin_support_hub_title') || 'Support Desk & User Feedback'}
