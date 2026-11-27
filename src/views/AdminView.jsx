@@ -269,7 +269,7 @@ const AdminView = ({ onBack, hideHeader }) => {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (session?.access_token) {
-                    const apiBase = Capacitor.isNativePlatform() ? 'https://www.spendlore.gr' : '';
+                    const apiBase = (Capacitor.isNativePlatform() || import.meta.env.DEV) ? 'https://www.spendlore.gr' : '';
                     const pushRes = await fetch(`${apiBase}/api/admin-send-push`, {
                         method: 'GET',
                         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -584,7 +584,7 @@ const AdminView = ({ onBack, hideHeader }) => {
                 if (!session?.access_token) {
                     throw new Error('Missing admin session');
                 }
-                const apiBase = Capacitor.isNativePlatform() ? 'https://www.spendlore.gr' : '';
+                const apiBase = (Capacitor.isNativePlatform() || import.meta.env.DEV) ? 'https://www.spendlore.gr' : '';
                 const res = await fetch(`${apiBase}/api/admin-send-push`, {
                     method: 'POST',
                     headers: {

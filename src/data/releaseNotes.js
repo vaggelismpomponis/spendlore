@@ -18,6 +18,26 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.66',
+        build: 78,
+        date: '2026-11-27',
+        title_el: 'Spendlore v1.1.66 - Σταθερότητα Συγχρονισμού & Ειδοποιήσεων',
+        title_en: 'Spendlore v1.1.66 - Sync & Notification Stability Polish',
+        summary_el: 'Η έκδοση 1.1.66 φέρνει βελτιώσεις σταθερότητας στον συγχρονισμό προτιμήσεων ειδοποιήσεων και μικρές βελτιστοποιήσεις απόδοσης.',
+        summary_en: 'Version 1.1.66 brings stability enhancements to notification preference synchronization and minor performance optimizations.',
+        sections: [
+            {
+                title_el: 'Βελτιώσεις Σταθερότητας & Απόκρισης',
+                title_en: 'Stability & Responsiveness Polish',
+                desc_el: 'Ενισχυμένη σταθερότητα στη διαχείριση ειδοποιήσεων και ταχύτερος συγχρονισμός ρυθμίσεων ανάμεσα στις συσκευές σας.',
+                desc_en: 'Improved reliability in notification handling and faster settings synchronization across your devices.',
+                previewType: 'mobile_polish',
+                caption_el: 'Ομαλή και αξιόπιστη εμπειρία χρήσης σε κάθε πλατφόρμα.',
+                caption_en: 'Smooth and dependable experience across every platform.'
+            }
+        ]
+    },
+    {
         version: '1.1.65',
         build: 77,
         date: '2026-11-27',
