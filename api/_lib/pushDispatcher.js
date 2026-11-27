@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
-import webpush from 'web-push';
+import * as webpushModule from 'web-push';
+
+const webpush = webpushModule.default || webpushModule;
 
 let cachedFcmToken = null;
 let cachedFcmExpiry = 0;

@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { supabase } from '../supabase';
+import sentryLogger from '../utils/sentryLogger';
 
 const PUSH_PREFS_CACHE_KEY = (userId) => `spendwise_push_prefs_${userId}`;
 const DEVICE_KEY_STORAGE = 'spendwise_push_device_key';
@@ -78,8 +79,12 @@ export async function getPushPermissionState() {
     return 'prompt';
 }
 
+export function sanitizeVapidKey(raw) {
+    return String(raw || '').trim().replace(/^["']|["']$/g, '');
+}
+
 export function urlBase64ToUint8Array(base64String) {
-    const clean = String(base64String || '').trim();
+    const clean = sanitizeVapidKey(base64String);
     const padding = '='.repeat((4 - (clean.length % 4)) % 4);
     const base64 = (clean + padding).replace(/-/g, '+').replace(/_/g, '/');
     const rawData = atob(base64);
@@ -88,6 +93,16 @@ export function urlBase64ToUint8Array(base64String) {
         outputArray[i] = rawData.charCodeAt(i);
     }
     return outputArray;
+}
+
+export function arrayBufferToBase64Url(buffer) {
+    if (!buffer) return '';
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i += 1) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 }
 
 export function buildDeviceKey(platform, rawIdentifier) {
@@ -229,10 +244,33 @@ async function registerNativePush(userId) {
     return { ok: true, platform, deviceKey };
 }
 
+async function waitForServiceWorkerReady(timeoutMs = 10000) {
+    let existing = await navigator.serviceWorker.getRegistration();
+    if (!existing) {
+        existing = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+    }
+
+    return await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Service worker ready timed out')), timeoutMs)
+        ),
+    ]);
+}
+
 async function registerWebPush(userId) {
-    const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+    const vapidPublicKey = sanitizeVapidKey(import.meta.env.VITE_VAPID_PUBLIC_KEY);
     if (!vapidPublicKey) {
         return { ok: false, reason: 'missing_vapid_key' };
+    }
+
+    const applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+    if (applicationServerKey.length !== 65) {
+        return {
+            ok: false,
+            reason: 'invalid_vapid_key',
+            error: `Expected 65-byte VAPID key, got ${applicationServerKey.length} bytes`,
+        };
     }
 
     let permission = Notification.permission;
@@ -243,23 +281,38 @@ async function registerWebPush(userId) {
         return { ok: false, reason: 'permission_denied' };
     }
 
-    const registration = await navigator.serviceWorker.ready;
+    const registration = await waitForServiceWorkerReady(10000);
     if (!registration?.pushManager) {
         return { ok: false, reason: 'unsupported' };
     }
 
     let subscription = await registration.pushManager.getSubscription();
     if (!subscription) {
-        subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-        });
+        try {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey,
+            });
+        } catch (subErr) {
+            if (subErr?.name === 'InvalidStateError') {
+                const stale = await registration.pushManager.getSubscription();
+                if (stale) {
+                    await stale.unsubscribe().catch(() => {});
+                }
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey,
+                });
+            } else {
+                throw subErr;
+            }
+        }
     }
 
     const json = subscription.toJSON();
     const endpoint = json?.endpoint || subscription.endpoint;
-    const p256dh = json?.keys?.p256dh || '';
-    const auth = json?.keys?.auth || '';
+    const p256dh = json?.keys?.p256dh || arrayBufferToBase64Url(subscription.getKey?.('p256dh'));
+    const auth = json?.keys?.auth || arrayBufferToBase64Url(subscription.getKey?.('auth'));
 
     if (!endpoint || !p256dh || !auth) {
         return { ok: false, reason: 'invalid_subscription' };
@@ -277,17 +330,41 @@ async function registerWebPush(userId) {
     return { ok: true, platform: 'web', deviceKey };
 }
 
+function reportPushDiagnostic(reason, error = null) {
+    if (reason === 'permission_denied' || reason === 'unsupported' || reason === 'no_user') {
+        return;
+    }
+    const cleanVapid = sanitizeVapidKey(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+    sentryLogger.recordError({
+        message: 'Push notification registration failed',
+        error: error || reason,
+        context: 'PushNotificationService',
+        level: 'error',
+        extras: {
+            reason,
+            platform: Capacitor.isNativePlatform() ? Capacitor.getPlatform() : 'web',
+            hasVapidKey: Boolean(cleanVapid),
+            vapidLength: cleanVapid.length,
+            notificationPermission: typeof Notification !== 'undefined' ? Notification.permission : 'unavailable',
+        },
+    });
+}
+
 export async function registerDeviceForPush(userId) {
     if (!userId) return { ok: false, reason: 'no_user' };
     if (!isPushSupported()) return { ok: false, reason: 'unsupported' };
 
     try {
-        if (Capacitor.isNativePlatform()) {
-            return await registerNativePush(userId);
+        const result = Capacitor.isNativePlatform()
+            ? await registerNativePush(userId)
+            : await registerWebPush(userId);
+        if (!result.ok) {
+            reportPushDiagnostic(result.reason, result.error || null);
         }
-        return await registerWebPush(userId);
+        return result;
     } catch (err) {
         console.warn('registerDeviceForPush failed:', err?.message || err);
+        reportPushDiagnostic('registration_failed', err);
         return { ok: false, reason: 'registration_failed', error: err?.message || String(err) };
     }
 }

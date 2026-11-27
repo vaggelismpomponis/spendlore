@@ -18,7 +18,9 @@ vi.mock('@capacitor/push-notifications', () => ({
 }));
 
 import {
+    sanitizeVapidKey,
     urlBase64ToUint8Array,
+    arrayBufferToBase64Url,
     buildDeviceKey,
     loadCachedPushPreferences,
     saveCachedPushPreferences,
@@ -33,11 +35,18 @@ describe('PushNotificationService', () => {
         localStorage.clear();
     });
 
-    it('converts base64url VAPID key to Uint8Array cleanly', () => {
+    it('sanitizes quoted or whitespace-padded VAPID keys', () => {
+        expect(sanitizeVapidKey('  "ABC_123-xyz"  ')).toBe('ABC_123-xyz');
+        expect(sanitizeVapidKey("'ABC_123-xyz'")).toBe('ABC_123-xyz');
+        expect(sanitizeVapidKey(null)).toBe('');
+    });
+
+    it('converts base64url VAPID key to Uint8Array and back cleanly', () => {
         const sampleBase64Url = 'SGVsbG8td29ybGRfMTIz';
         const arr = urlBase64ToUint8Array(sampleBase64Url);
         expect(arr).toBeInstanceOf(Uint8Array);
         expect(arr.length).toBeGreaterThan(0);
+        expect(arrayBufferToBase64Url(arr.buffer)).toBe(sampleBase64Url);
     });
 
     it('builds deterministic non-PII device keys', () => {

@@ -18,6 +18,26 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.65',
+        build: 77,
+        date: '2026-11-27',
+        title_el: 'Spendlore v1.1.65 - Βελτιωμένη Αξιοπιστία Push Ειδοποιήσεων',
+        title_en: 'Spendlore v1.1.65 - Improved Push Notification Reliability',
+        summary_el: 'Η έκδοση 1.1.65 βελτιώνει την αξιοπιστία ενεργοποίησης των push ειδοποιήσεων σε Mobile Web/PWA και εξασφαλίζει ομαλή παράδοση των καθημερινών υπενθυμίσεων.',
+        summary_en: 'Version 1.1.65 enhances push notification registration reliability on Mobile Web/PWA and ensures smooth delivery of daily expense reminders.',
+        sections: [
+            {
+                title_el: 'Αξιόπιστη Ενεργοποίηση σε Web & PWA',
+                title_en: 'Reliable Web & PWA Activation',
+                desc_el: 'Αυτόματη εγγραφή Service Worker, καθαρισμός παλιών συνδρομών ειδοποιήσεων και ασφαλής υποστήριξη περισσότερων browsers για απρόσκοπτη ενεργοποίηση από τις Ρυθμίσεις.',
+                desc_en: 'Automatic service worker registration, stale subscription recovery, and broader browser key compatibility for seamless activation from Settings.',
+                previewType: 'mobile_polish',
+                caption_el: 'Ομαλή ενεργοποίηση ειδοποιήσεων σε κάθε συσκευή.',
+                caption_en: 'Smooth notification activation across every device.'
+            }
+        ]
+    },
+    {
         version: '1.1.64',
         build: 76,
         date: '2026-11-27',
