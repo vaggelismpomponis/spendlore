@@ -18,6 +18,44 @@
 
 export const RELEASE_NOTES = [
     {
+        version: '1.1.64',
+        build: 76,
+        date: '2026-11-27',
+        title_el: 'Spendlore v1.1.64 - Έξυπνες Push Υπενθυμίσεις & Εβδομαδιαία Σύνοψη',
+        title_en: 'Spendlore v1.1.64 - Smart Push Reminders & Weekly Summary',
+        summary_el: 'Η έκδοση 1.1.64 φέρνει έξυπνες push ειδοποιήσεις σε Android και Web/PWA για να μην ξεχνάτε ποτέ τα έξοδα της ημέρας, με βραδινή υπενθύμιση μόνο όταν δεν έχετε καταχωρήσει συναλλαγή, μεσημεριανό check-in και κυριακάτικη σύνοψη 7 ημερών.',
+        summary_en: 'Version 1.1.64 introduces cross-platform push notifications on Android and Web/PWA so you never miss daily expenses, featuring smart inactivity-aware evening reminders, friendly midday check-ins, and Sunday 7-day summaries.',
+        sections: [
+            {
+                title_el: 'Έξυπνες Καθημερινές Υπενθυμίσεις Εξόδων',
+                title_en: 'Smart Daily Expense Reminders',
+                desc_el: 'Λάβετε διακριτικό μεσημεριανό check-in μέσα στη μέρα και μία έξυπνη βραδινή υπενθύμιση που αποστέλλεται μόνο εφόσον δεν έχετε καταχωρήσει έξοδα εκείνη την ημέρα. Με ένα πάτημα ανοίγει απευθείας η φόρμα προσθήκης εξόδου.',
+                desc_en: 'Receive a friendly midday check-in and a smart evening reminder sent only when no expenses have been logged that day. Tapping any reminder opens the expense entry form directly.',
+                previewType: 'modal_portal',
+                caption_el: 'Καθημερινή συνέπεια καταγραφής χωρίς ενοχλητικές ειδοποιήσεις.',
+                caption_en: 'Consistent daily tracking without noisy notifications.'
+            },
+            {
+                title_el: 'Εβδομαδιαία Σύνοψη Εξόδων Κάθε Κυριακή',
+                title_en: 'Weekly Expense Summary Every Sunday',
+                desc_el: 'Κάθε Κυριακή λαμβάνετε μία καθαρή σύνοψη με τον αριθμό και το συνολικό ποσό των εξόδων των τελευταίων 7 ημερών, με άμεση μετάβαση στα Στατιστικά για αναλυτική επισκόπηση.',
+                desc_en: 'Every Sunday, receive a clear summary of your 7-day expense count and total amount, with one-tap navigation straight to your Statistics view.',
+                previewType: 'mobile_polish',
+                caption_el: 'Άμεση εικόνα της εβδομαδιαίας πορείας σας.',
+                caption_en: 'Instant visibility into your weekly spending pace.'
+            },
+            {
+                title_el: 'Αποδοχή 1ης Φοράς & Ρυθμίσεις Ανά Λογαριασμό',
+                title_en: 'Explicit Opt-In & Account-Synced Preferences',
+                desc_el: 'Επιλέξτε αν θέλετε να ενεργοποιήσετε τις ειδοποιήσεις από το νέο παράθυρο καλωσορίσματος και προσαρμόστε τις ώρες ή τους τύπους υπενθυμίσεων από τις Γενικές Ρυθμίσεις, με αυτόματο συγχρονισμό σε όλες τις συσκευές σας.',
+                desc_en: 'Choose whether to enable reminders from the first-time consent prompt and customize hours or notification types anytime in General Settings, synced across all your devices.',
+                previewType: 'categories_redesign',
+                caption_el: 'Πλήρης έλεγχος ωρών και συγχρονισμός σε κινητό και Web.',
+                caption_en: 'Full schedule control synced seamlessly across mobile and Web.'
+            }
+        ]
+    },
+    {
         version: '1.1.63',
         build: 75,
         date: '2026-11-23',

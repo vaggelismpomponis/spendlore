@@ -39,6 +39,15 @@ import { normalizeCoolingOffItem, denormalizeCoolingOffItem } from './utils/cool
 import { resetGlobalScroll } from './utils/scroll';
 import { APP_VERSION } from './utils/version';
 import { getReleaseNoteByVersion } from './data/releaseNotes';
+import {
+    detectUserTimezone,
+    fetchPushPreferences,
+    getPushPermissionState,
+    initPushTapListeners,
+    isPushSupported,
+    registerDeviceForPush,
+    upsertPushPreferences,
+} from './services/PushNotificationService';
 
 // Components
 import LoginView from './views/LoginView';
@@ -166,6 +175,11 @@ function MainContent() {
     // Broadcasts State
     const [currentBroadcast, setCurrentBroadcast] = useState(null);
     const [showBroadcast, setShowBroadcast] = useState(false);
+
+    // Push Notifications First-Time Prompt State
+    const [showPushPrompt, setShowPushPrompt] = useState(false);
+    const [pushPromptLoading, setPushPromptLoading] = useState(false);
+    const pushPromptCheckedRef = useRef(null);
 
     // Payment success overlay (Stripe redirect back with ?upgraded=true)
     const [showPaymentSuccess, setShowPaymentSuccess] = useState(
@@ -593,27 +607,135 @@ function MainContent() {
         };
     }, []);
 
-    // Check for PWA home screen shortcut launches (?action=add-expense or ?action=add-income)
+    // Check for PWA home screen shortcut & push deep link launches (?action=add-expense, ?action=add-income, ?tab=stats)
     useEffect(() => {
         if (typeof window === 'undefined') return;
         try {
             const searchParams = new URLSearchParams(window.location.search);
             const action = searchParams.get('action');
+            const tab = searchParams.get('tab');
+            let modified = false;
+            const url = new URL(window.location.href);
+
             if (action === 'add-expense') {
                 setPendingShortcutAction('expense');
-                const url = new URL(window.location.href);
                 url.searchParams.delete('action');
-                window.history.replaceState({}, document.title, url.pathname + (url.search || '') + (url.hash || ''));
+                modified = true;
             } else if (action === 'add-income') {
                 setPendingShortcutAction('income');
-                const url = new URL(window.location.href);
                 url.searchParams.delete('action');
+                modified = true;
+            }
+
+            if (tab === 'stats') {
+                setActiveTab('stats');
+                url.searchParams.delete('tab');
+                modified = true;
+            }
+
+            if (modified) {
                 window.history.replaceState({}, document.title, url.pathname + (url.search || '') + (url.hash || ''));
             }
         } catch (e) {
             // ignore
         }
-    }, []);
+    }, [setActiveTab]);
+
+    // Push notification tap listeners (Android FCM + Web Push Service Worker messages)
+    useEffect(() => {
+        return initPushTapListeners(({ action, url }) => {
+            if (action === 'add-expense' || (url && url.includes('action=add-expense'))) {
+                setPendingShortcutAction('expense');
+            } else if (action === 'open-stats' || (url && url.includes('tab=stats'))) {
+                setActiveTab('stats');
+            }
+        });
+    }, [setActiveTab]);
+
+    // First-time Push Opt-In Prompt & Silent Multi-Device Registration Sync
+    useEffect(() => {
+        if (!user?.id || loading || isLocked) return;
+        if (pushPromptCheckedRef.current === user.id) return;
+
+        let cancelled = false;
+        let promptTimer = null;
+
+        (async () => {
+            const prefs = await fetchPushPreferences(user.id);
+            if (cancelled) return;
+
+            if (prefs?.enabled) {
+                const perm = await getPushPermissionState();
+                if (!cancelled && perm === 'granted') {
+                    registerDeviceForPush(user.id).catch(() => {});
+                }
+                pushPromptCheckedRef.current = user.id;
+                return;
+            }
+
+            if (
+                !prefs?.prompt_answered &&
+                isPushSupported() &&
+                !showSetPasswordPrompt &&
+                !runTour &&
+                !showWhatsNew &&
+                !showBroadcast
+            ) {
+                pushPromptCheckedRef.current = user.id;
+                promptTimer = setTimeout(() => {
+                    if (!cancelled) setShowPushPrompt(true);
+                }, 1500);
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+            if (promptTimer) clearTimeout(promptTimer);
+        };
+    }, [user?.id, loading, isLocked, showSetPasswordPrompt, runTour, showWhatsNew, showBroadcast]);
+
+    const handleAcceptPushPrompt = async () => {
+        if (!user?.id || pushPromptLoading) return;
+        setPushPromptLoading(true);
+        try {
+            const res = await registerDeviceForPush(user.id);
+            await upsertPushPreferences(user.id, {
+                enabled: Boolean(res.ok),
+                prompt_answered: true,
+                prompt_answered_at: new Date().toISOString(),
+                language,
+                timezone: detectUserTimezone(),
+            });
+            setShowPushPrompt(false);
+            if (res.ok) {
+                showToast(
+                    translate('push_enabled_toast') || (language === 'el' ? 'Οι καθημερινές υπενθυμίσεις ενεργοποιήθηκαν!' : 'Daily push reminders enabled!'),
+                    'success'
+                );
+            } else if (res.reason === 'permission_denied') {
+                showToast(
+                    translate('push_permission_denied_toast') || (language === 'el' ? 'Η άδεια ειδοποιήσεων απορρίφθηκε. Μπορείτε να την ενεργοποιήσετε στις Ρυθμίσεις.' : 'Notification permission was denied. You can enable it later in Settings.'),
+                    'info'
+                );
+            }
+        } finally {
+            setPushPromptLoading(false);
+        }
+    };
+
+    const handleDeclinePushPrompt = async () => {
+        if (pushPromptLoading) return;
+        setShowPushPrompt(false);
+        if (user?.id) {
+            await upsertPushPreferences(user.id, {
+                enabled: false,
+                prompt_answered: true,
+                prompt_answered_at: new Date().toISOString(),
+                language,
+                timezone: detectUserTimezone(),
+            });
+        }
+    };
 
     // 1. Initialize Auth via Supabase
     useEffect(() => {
@@ -2161,6 +2283,10 @@ function MainContent() {
                                 onCloseSetPasswordPrompt={handleCloseSetPasswordPrompt}
                                 onSetPasswordSuccess={handlePasswordPromptSuccess}
                                 isPasswordRecovery={isPasswordRecovery}
+                                showPushPrompt={showPushPrompt}
+                                pushPromptLoading={pushPromptLoading}
+                                onAcceptPushPrompt={handleAcceptPushPrompt}
+                                onDeclinePushPrompt={handleDeclinePushPrompt}
                             />
 
                             {/* Onboarding Tour — renders globally on top of desktop and mobile via portal */}

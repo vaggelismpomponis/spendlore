@@ -496,6 +496,17 @@ export const SettingsProvider = ({ children }) => {
         } catch {
             // Ignore storage errors
         }
+        if (userId) {
+            supabase
+                .from('push_preferences')
+                .update({
+                    language: newLang === 'en' ? 'en' : 'el',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('user_id', userId)
+                .then(() => {})
+                .catch(() => {});
+        }
     };
     const updateThemePreference = (pref) => {
         if (pref === 'system' || pref === 'light' || pref === 'dark') {

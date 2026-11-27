@@ -12,6 +12,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'play-store-icon-512.png', 'spendlore-logo.png', 'spendlore-mark.png', 'spendlore-mark.svg', 'spendlore-full-logo.png', 'spendlore-full-logo-dark.png', 'spendlore-full-logo.svg', 'spendlore-full-logo-dark.svg', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
@@ -74,10 +77,8 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        clientsClaim: true,
-        skipWaiting: true,
-        cleanupOutdatedCaches: true,
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
       },
       devOptions: {
         enabled: false

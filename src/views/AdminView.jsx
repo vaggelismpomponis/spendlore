@@ -7,6 +7,7 @@ import {
     Activity, CheckCircle2, SlidersHorizontal, ArrowRight,
     ShieldAlert, Headphones
 } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from '../supabase';
 import { useToast } from '../contexts/ToastContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -80,6 +81,11 @@ const AdminView = ({ onBack, hideHeader }) => {
     // Broadcast State
     const [broadcastTitle, setBroadcastTitle] = useState('');
     const [broadcastMessage, setBroadcastMessage] = useState('');
+    const [broadcastMode, setBroadcastMode] = useState('both');
+    const [pushTargetAudience, setPushTargetAudience] = useState('all');
+    const [pushTapAction, setPushTapAction] = useState('open-home');
+    const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
+    const [pushStats, setPushStats] = useState(null);
 
     // Sentry Errors State
     const [sentryErrors, setSentryErrors] = useState([]);
@@ -259,6 +265,23 @@ const AdminView = ({ onBack, hideHeader }) => {
                 .slice(0, 5);
 
             setMetrics({ proUsers, freeUsers, canceledUsers, active7Days, active30Days, mostActiveUsers });
+
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.access_token) {
+                    const apiBase = Capacitor.isNativePlatform() ? 'https://www.spendlore.gr' : '';
+                    const pushRes = await fetch(`${apiBase}/api/admin-send-push`, {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${session.access_token}` },
+                    });
+                    if (pushRes.ok) {
+                        const statsJson = await pushRes.json();
+                        setPushStats(statsJson);
+                    }
+                }
+            } catch (_) {
+                // non-critical push stats fetch
+            }
 
         } catch (error) {
             console.error('Fetch error:', error);
@@ -543,18 +566,56 @@ const AdminView = ({ onBack, hideHeader }) => {
         if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
             return showToast(translate('admin_broadcast_fill_fields'), 'error');
         }
+        setIsSendingBroadcast(true);
         try {
-            const { error } = await supabase.from('broadcasts').insert([{
-                title: broadcastTitle.trim(),
-                message: broadcastMessage.trim(),
-                created_at: new Date().toISOString()
-            }]);
-            if (error) throw error;
-            showToast(translate('admin_broadcast_success'), 'success');
+            const title = broadcastTitle.trim();
+            const message = broadcastMessage.trim();
+
+            if (broadcastMode === 'in_app') {
+                const { error } = await supabase.from('broadcasts').insert([{
+                    title,
+                    message,
+                    created_at: new Date().toISOString()
+                }]);
+                if (error) throw error;
+                showToast(translate('admin_broadcast_success'), 'success');
+            } else {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session?.access_token) {
+                    throw new Error('Missing admin session');
+                }
+                const apiBase = Capacitor.isNativePlatform() ? 'https://www.spendlore.gr' : '';
+                const res = await fetch(`${apiBase}/api/admin-send-push`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        body: message,
+                        targetAudience: pushTargetAudience,
+                        action: pushTapAction,
+                        alsoSaveInAppBroadcast: broadcastMode === 'both',
+                    }),
+                });
+                const payload = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(payload.error || 'Push broadcast failed');
+                }
+                showToast(
+                    translate('admin_push_sent_toast', { sent: payload.sent || 0, total: payload.totalTargets || 0 }) ||
+                    `Εστάλη push σε ${payload.sent || 0}/${payload.totalTargets || 0} συσκευές!`,
+                    'success'
+                );
+            }
+
             setBroadcastTitle('');
             setBroadcastMessage('');
         } catch (e) {
             showToast('Αποτυχία αποστολής: ' + e.message, 'error');
+        } finally {
+            setIsSendingBroadcast(false);
         }
     };
 
@@ -714,6 +775,14 @@ const AdminView = ({ onBack, hideHeader }) => {
                         setBroadcastTitle={setBroadcastTitle}
                         broadcastMessage={broadcastMessage}
                         setBroadcastMessage={setBroadcastMessage}
+                        broadcastMode={broadcastMode}
+                        setBroadcastMode={setBroadcastMode}
+                        pushTargetAudience={pushTargetAudience}
+                        setPushTargetAudience={setPushTargetAudience}
+                        pushTapAction={pushTapAction}
+                        setPushTapAction={setPushTapAction}
+                        pushStats={pushStats}
+                        isSending={isSendingBroadcast}
                         onSend={handleSendBroadcast}
                         translate={translate}
                     />

@@ -1,0 +1,28 @@
+name: "Hourly Push Reminders"
+
+on:
+  schedule:
+    # Εκτελείται κάθε ώρα ακριβώς για timezone-aware υπενθυμίσεις εξόδων
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  dispatch-push-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Spendlore Push Cron
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://www.spendlore.gr/api/push-cron" \
+            -H "Authorization: Bearer ${{ secrets.PUSH_CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Status: $HTTP_STATUS"
+          echo "Response Body: $BODY"
+
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Push cron request failed with status $HTTP_STATUS"
+            exit 1
+          fi

@@ -8,6 +8,7 @@ import UpgradeModal from './UpgradeModal';
 import NotificationPanel from './NotificationPanel';
 import RegretCheckinModal from './RegretCheckinModal';
 import SetPasswordPromptModal from './SetPasswordPromptModal';
+import PushPermissionPromptModal from './PushPermissionPromptModal';
 
 export default function GlobalOverlays({
     // AddModal props
@@ -48,7 +49,13 @@ export default function GlobalOverlays({
     showSetPasswordPrompt,
     onCloseSetPasswordPrompt,
     onSetPasswordSuccess,
-    isPasswordRecovery = false
+    isPasswordRecovery = false,
+
+    // First-Time Push Permission Prompt props
+    showPushPrompt = false,
+    pushPromptLoading = false,
+    onAcceptPushPrompt,
+    onDeclinePushPrompt
 }) {
     return (
         <>
@@ -129,6 +136,14 @@ export default function GlobalOverlays({
                 onSuccess={onSetPasswordSuccess}
                 user={user}
                 isRecovery={isPasswordRecovery}
+            />
+
+            {/* First-Time Push Opt-In Prompt */}
+            <PushPermissionPromptModal
+                isOpen={showPushPrompt}
+                loading={pushPromptLoading}
+                onAccept={onAcceptPushPrompt}
+                onDecline={onDeclinePushPrompt}
             />
         </>
     );

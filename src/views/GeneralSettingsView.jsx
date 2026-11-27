@@ -41,6 +41,7 @@ import ProBadge from '../components/ProBadge';
 import Toggle from '../components/Toggle';
 import ViewHeader from '../components/ViewHeader';
 import DesktopBreadcrumb from '../components/DesktopBreadcrumb';
+import PushNotificationSettingsCard from '../components/PushNotificationSettingsCard';
 import { getAppVersionString } from '../utils/version';
 import { isNative } from '../utils/platform';
 
@@ -171,7 +172,7 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
             }
 
             // 1. Delete all user data from each table
-            const tables = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions'];
+            const tables = ['transactions', 'recurring_transactions', 'goals', 'budgets', 'sessions', 'push_subscriptions', 'push_preferences', 'push_delivery_logs'];
             for (const table of tables) {
                 try {
                     await supabase.from(table).delete().eq('user_id', user.id);
@@ -339,6 +340,9 @@ const GeneralSettingsView = ({ user, onBack, onPrivacy, onTerms, onCategories, h
                                         </div>
                                         <Toggle enabled={isSmsEnabled} onClick={handleToggleSms} />
                                     </div>
+
+                                    {/* Push Notifications & Daily Reminders */}
+                                    <PushNotificationSettingsCard user={user} />
 
                                     {/* Android Background Reliability Hub (Battery & Autostart) */}
                                     {isNative() && (
